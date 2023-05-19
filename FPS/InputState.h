@@ -14,9 +14,13 @@ enum class InputType
 	down,	//下
 	right,	//→
 	left,	//←
+	w,
+	a,
+	s,
+	d,
+	perspective,	// 視点
 	shot,	//弾発射
-	rapid,	//弾連射
-	switcing,	// フォースの切り離し、吸い込みの切り替え
+	jump,	//ジャンプ
 	max		//最大入力インデックス
 };
 

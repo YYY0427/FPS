@@ -152,9 +152,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DrawFunctions.cpp" />
+    <ClCompile Include="Object\Field.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InputState.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Object\Player.cpp" />
     <ClCompile Include="Scene\KeyConfigScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scene\PauseScene.cpp" />
@@ -162,22 +166,28 @@
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="Object\Shot.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Scene\SoundSettingScene.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawFunctions.h" />
+    <ClInclude Include="Object\Field.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="InputState.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Object\Player.h" />
     <ClInclude Include="Scene\KeyConfigScene.h" />
     <ClInclude Include="Scene\PauseScene.h" />
     <ClInclude Include="Scene\MainScene.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="Object\Shot.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Scene\SoundSettingScene.h" />
     <ClInclude Include="Stage.h" />

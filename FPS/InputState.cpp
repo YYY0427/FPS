@@ -5,14 +5,13 @@ InputState::InputState()
 {
 	defaultMapTable_[InputType::next] = { {InputCategory::keybd, KEY_INPUT_RETURN},
 										{InputCategory::pad, PAD_INPUT_R },			//スタートボタン
-										{InputCategory::mouse, MOUSE_INPUT_LEFT } };
+										{InputCategory::mouse, 0 } };
 
 	defaultMapTable_[InputType::prev] = { {InputCategory::keybd, KEY_INPUT_SPACE},
 										{InputCategory::pad, PAD_INPUT_7} };		//バックボタン
 
 	defaultMapTable_[InputType::pause] = { {InputCategory::keybd, KEY_INPUT_P},
-										{InputCategory::pad, PAD_INPUT_L } };		//セレクトボタン
-
+										{InputCategory::pad, PAD_INPUT_L } };		//ポーズボタン
 
 	defaultMapTable_[InputType::keyconf] = { {InputCategory::keybd, KEY_INPUT_K},
 										{InputCategory::pad, PAD_INPUT_Y } };		//左ショルダー
@@ -32,14 +31,27 @@ InputState::InputState()
 	defaultMapTable_[InputType::left] = { {InputCategory::keybd, KEY_INPUT_LEFT},
 										{InputCategory::pad, PAD_INPUT_LEFT } };	//←
 
+	defaultMapTable_[InputType::w] = { {InputCategory::keybd, KEY_INPUT_W},
+										{InputCategory::pad, 0} };	
+
+	defaultMapTable_[InputType::a] = { {InputCategory::keybd, KEY_INPUT_A},
+										{InputCategory::pad, 0} };	
+
+	defaultMapTable_[InputType::s] = { {InputCategory::keybd, KEY_INPUT_S},
+										{InputCategory::pad, 0 } };	
+
+	defaultMapTable_[InputType::d] = { {InputCategory::keybd, KEY_INPUT_D},
+										{InputCategory::pad, 0} };	
+
+	defaultMapTable_[InputType::perspective] = { {InputCategory::keybd, KEY_INPUT_T},
+										{InputCategory::pad, 0 } };					// 視点切り替え
+
 	defaultMapTable_[InputType::shot] = { {InputCategory::keybd, KEY_INPUT_Z},
-										{InputCategory::pad, PAD_INPUT_C } };		//ショット
+										{InputCategory::pad, PAD_INPUT_C },
+										{InputCategory::mouse, MOUSE_INPUT_LEFT} };		// ショット
 
-	defaultMapTable_[InputType::rapid] = { {InputCategory::keybd, KEY_INPUT_A},
-									{InputCategory::pad, PAD_INPUT_A } };			//連射
-
-	defaultMapTable_[InputType::switcing] = { {InputCategory::keybd, KEY_INPUT_X},
-									{InputCategory::pad, PAD_INPUT_X } };			//
+	defaultMapTable_[InputType::jump] = { {InputCategory::keybd, KEY_INPUT_SPACE},
+										{InputCategory::pad, PAD_INPUT_1 } };		// ジャンプ
 
 
 	inputMapTable_ = defaultMapTable_;
@@ -56,8 +68,12 @@ InputState::InputState()
 	inputNameTable_[InputType::keyconf] = "keyconf";
 	inputNameTable_[InputType::change] = "change";
 	inputNameTable_[InputType::shot] = "shot";
-	inputNameTable_[InputType::rapid] = "rapid";
-	inputNameTable_[InputType::switcing] = "switcihg";
+	inputNameTable_[InputType::jump] = "jump";
+	inputNameTable_[InputType::perspective] = "perspective";
+	inputNameTable_[InputType::w] = "w";
+	inputNameTable_[InputType::a] = "a";
+	inputNameTable_[InputType::s] = "s";
+	inputNameTable_[InputType::d] = "d";
 
 	currentInput_.resize(static_cast<int>(InputType::max));
 	lastInput_.resize(static_cast<int>(InputType::max));

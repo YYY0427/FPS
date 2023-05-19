@@ -4,11 +4,17 @@
 #include "SceneManager.h"
 #include "../Game.h"
 #include "../InputState.h"
-#include <DxLib.h>
+#include "../Camera.h"
+#include "../Object/Player.h"
+#include "../Object/Field.h"
+#include "../Object/Shot.h"
 
 namespace
 {
 	constexpr int fade_interval = 60;
+
+	// 画面内に存在できる弾の最大数
+	constexpr int shot_max = 128;
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -16,10 +22,40 @@ MainScene::MainScene(SceneManager& manager) :
 	updateFunc_(&MainScene::FadeInUpdate),
 	fadeTimer_(fade_interval)
 {
+	pCamera_ = std::make_shared<Camera>();
+	pPlayer_ = std::make_shared<Player>();
+	pField_ = std::make_shared<Field>();
+	// ショットの生成
+	for (int i = 0; i < shot_max; i++)
+	{
+		pShot_.push_back(std::make_shared<Shot>());
+		pShot_.back()->Init();
+	}
+	Init();
 }
 
 MainScene::~MainScene()
 {
+	// シャドウマップの削除
+	DeleteShadowMap(shadowMap_);
+}
+
+void MainScene::Init()
+{
+	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
+	pCamera_->SetPlayer(pPlayer_);
+	pPlayer_->SetCamera(pCamera_);
+	for (auto& shot : pShot_)
+	{
+		shot->SetPlayer(pPlayer_);
+	}
+	pField_->Init();
+	pPlayer_->Init();
+	pCamera_->Init();
+
+	// シャドウマップの生成
+	shadowMap_ = MakeShadowMap(1024, 1024);
+	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
 }
 
 void MainScene::Update(const InputState& input)
@@ -31,9 +67,51 @@ void MainScene::Draw()
 {
 	DrawString(0, 0, "MainScene", 0xffffff, true);
 
+	pCamera_->Draw();
+
+	// シャドウマップへの書き込み
+	ShadowMap_DrawSetup(shadowMap_);
+	pField_->Draw();
+	pPlayer_->Draw();
+	for (auto& shot : pShot_)
+	{
+		shot->Draw();
+	}
+	// 書き込み終了
+	ShadowMap_DrawEnd();
+
+	// シャドウマップを使用してモデルの描画
+	SetUseShadowMap(0, shadowMap_);
+	pField_->Draw();
+	pPlayer_->Draw();
+	for (auto& shot : pShot_)
+	{
+		shot->Draw();
+	}
+	// 描画終了
+	SetUseShadowMap(0, -1);
+
+	// クロスヘア
+	DrawLine((Game::screen_width / 2) - 25, (Game::screen_height / 2), (Game::screen_width / 2) + 25, (Game::screen_height / 2), 0xffffff);	// 横
+	DrawLine((Game::screen_width / 2), (Game::screen_height / 2) - 25, (Game::screen_width / 2), (Game::screen_height / 2) + 25, 0xffffff);	// 縦
+
+	// フェイド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeValue_);
 	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+void MainScene::StartShot(VECTOR pos, VECTOR vec)
+{
+	for (auto& shot : pShot_)
+	{
+		if (shot->isExist())
+		{
+			continue;
+		}
+		shot->Start(pos, vec);
+		break;
+	}
 }
 
 void MainScene::FadeInUpdate(const InputState& input)
@@ -47,6 +125,14 @@ void MainScene::FadeInUpdate(const InputState& input)
 
 void MainScene::NormalUpdate(const InputState& input)
 {
+	pField_->Update();
+	pPlayer_->Update(input);
+	for (auto& shot : pShot_)
+	{
+		shot->Update();
+	}
+	pCamera_->Update(input);
+
 	if (input.IsTriggered(InputType::next))
 	{
 		updateFunc_ = &MainScene::FadeOutUpdate;

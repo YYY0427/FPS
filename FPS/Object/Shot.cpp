@@ -35,13 +35,13 @@ void Shot::Update()
 	m_pos = VAdd(m_pos, m_vec);
 
 	// ƒvƒŒƒCƒ„[‚©‚çˆê’èˆÈã—£‚ê‚½‚çÁ‚·
-	VECTOR playerPos = pPlayer_->GetPos();
-	VECTOR toPlayer = VSub(playerPos, m_pos);
+//	VECTOR playerPos = pPlayer_->GetPos();
+//	VECTOR toPlayer = VSub(playerPos, m_pos);
 
-	if (VSize(toPlayer) > erase_distance)
-	{
-		m_isExsit = false;
-	}
+	//if (VSize(toPlayer) > erase_distance)
+	//{
+	//	m_isExsit = false;
+	//}
 }
 
 void Shot::Draw()

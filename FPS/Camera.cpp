@@ -16,7 +16,7 @@ namespace
 	constexpr float perspective = 90.0f;
 
 	// 旋回速度
-	constexpr float rot_speed = 0.05f;
+	constexpr float rot_speed = 0.01f;
 }
 
 Camera::Camera()
@@ -29,6 +29,9 @@ Camera::~Camera()
 
 void Camera::Init()
 {
+	// マウスカーソルの非表示
+	SetMouseDispFlag(false);
+
 	// マウスポインタの初期位置の設定
 	SetMousePoint(Game::screen_width / 2, Game::screen_height / 2);
 
@@ -50,6 +53,8 @@ void Camera::Init()
 
 	// カメラの視野角を設定(ラジアン)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
+
+	reticlePos_ = ConvScreenPosToWorldPos(VGet(Game::screen_width / 2, Game::screen_height, 1.0f));
 }
 
 void Camera::Update(const InputState& input)
@@ -60,10 +65,13 @@ void Camera::Update(const InputState& input)
 	cameraAngle_ = (cameraAngle_ * 0.8f) + (angle_ * 0.2f);
 #endif
 
+	// マウスの座標の取得
 	GetMousePoint(&mousePosX_, &mousePosY_);
 
+	// マウスをどのくらい動かしたのか
 	mouseMoveX_ = mousePosX_ - (Game::screen_width / 2);
-	if (mousePosY_ <= Game::screen_height / 2 + 100 && mousePosY_ >= Game::screen_height / 2 - 100)
+	if (mousePosY_ <= Game::screen_height / 2 + 100 &&	// マウスの動かす範囲の制限
+		mousePosY_ >= Game::screen_height / 2 - 100)		
 	{
 		mouseMoveY_ = mousePosY_ - (Game::screen_height / 2);
 	}
@@ -107,13 +115,13 @@ void Camera::Update(const InputState& input)
 	
 	// プレイヤーの回転に合わせてカメラの位置、注視点を回転させる
 	// プレイヤーの回転情報と平行移動情報を合成
-	MATRIX cameraRotMtxSide = MGetRotY(mouseMoveX_ * 0.01f);	// 横移動情報の作成
-	MATRIX cameraRotMtxVertex = MGetRotX(mouseMoveY_ * 0.01f);	// 縦移動情報の作成
+	MATRIX cameraRotMtxSide = MGetRotY(mouseMoveX_ * rot_speed);	// 横移動情報の作成
+	MATRIX cameraRotMtxVertex = MGetRotX(mouseMoveY_ * rot_speed);	// 縦移動情報の作成
 	MATRIX cameraRotMtx = MMult(MTranspose(cameraRotMtxVertex), cameraRotMtxSide);
 	MATRIX cameraMtxPos = MMult(cameraRotMtxSide, playerTransMtx);
 	MATRIX cameraMtxTarget = MMult(cameraRotMtx, playerTransMtx);
 	cameraPos_ = VTransform(cameraInitPos_, cameraMtxPos);
-	VECTOR cameraTarget = VTransform(fps_camera_target, cameraMtxTarget);
+	cameraTarget_ = VTransform(fps_camera_target, cameraMtxTarget);
 
 	// カメラからどれだけ離れたところ( Near )から、 どこまで( Far )のものを描画するかを設定
 	SetCameraNearFar(5.0f, 2800.0f);
@@ -122,13 +130,16 @@ void Camera::Update(const InputState& input)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
 
 	// カメラの位置、どこを見ているかを設定する
-	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraTarget, VGet(0, 1, 0));
-
-//	SetMousePoint(Game::screen_width / 2, Game::screen_height / 2);
+	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraTarget_, VGet(0, 1, 0));
 }
 
 void Camera::Draw()
 {
 	// カメラの位置の表示
 //	DrawSphere3D(cameraPos_, 30.0f, 1, GetColor(255, 0, 0), GetColor(255, 255, 255), true);
+}
+
+float Camera::GetCameraAngle() const
+{
+	return mouseMoveX_ * rot_speed;
 }

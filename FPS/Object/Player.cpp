@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "../Model.h"
+#include "../Game.h"
 #include "../InputState.h"
 #include "../Camera.h"
 #include "../Scene/MainScene.h"
@@ -148,10 +149,16 @@ void Player::UpdateIdle(const InputState& input)
 			VECTOR shootStart = pos_;	// 弾の発射位置
 			shootStart.y = 80.0f;
 
-			// ショットを発射する
-			VECTOR shotVec = moveZ;
+			// レティクルの位置の取得
+			VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
 
+			// 終点から始点を引く
+			shotVec = VSub(shotVec , pos_);
+			
+			// 正規化
 			shotVec = VNorm(shotVec);
+
+			// スピードかける
 			shotVec = VScale(shotVec, shot_speed);
 
 			//for (int i = 0; i < 21; i++)

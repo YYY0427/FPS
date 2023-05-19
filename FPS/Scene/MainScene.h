@@ -24,6 +24,10 @@ public:
 
 	// ショットを撃つ
 	void StartShot(VECTOR pos, VECTOR vec);
+
+	// レティクルの位置の取得
+	int GetReticlePosX() const;
+	int GetReticlePosY() const;
 private:
 	std::shared_ptr<Camera> pCamera_ = nullptr;
 	std::shared_ptr<Player> pPlayer_ = nullptr;

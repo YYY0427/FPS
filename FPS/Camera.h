@@ -19,12 +19,17 @@ public:
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// カメラのアングルの取得
-	float GetCameraAngle() const { return mouseMoveX_ * 0.01f; }
+	float GetCameraAngle() const;
+
+	// カメラの注視点の取得
+	VECTOR GetCameraTarget() const { return cameraTarget_; }
 private:
 	std::shared_ptr<Player> pPlayer_ = nullptr;
 	
 	VECTOR cameraPos_ = VGet(0, 0, 0);
 	VECTOR cameraInitPos_ = VGet(0, 0, 0);
+	VECTOR cameraTarget_ = VGet(0, 0, 0);
+	VECTOR reticlePos_ = VGet(0, 0, 0);
 	float cameraAngle_ = 0.0f;
 
 	// FPSかどうか
@@ -33,10 +38,10 @@ private:
 	// プレイヤーの向いている方向
 	float angle_ = 0.0f;
 
-	int mousePosX_;
-	int mousePosY_;
+	int mousePosX_ = 0;
+	int mousePosY_ = 0;
 
-	float mouseMoveX_;
-	float mouseMoveY_;
+	float mouseMoveX_ = 0.0f;
+	float mouseMoveY_ = 0.0f;
 
 };

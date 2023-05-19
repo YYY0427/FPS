@@ -48,7 +48,7 @@ InputState::InputState()
 
 	defaultMapTable_[InputType::shot] = { {InputCategory::keybd, KEY_INPUT_Z},
 										{InputCategory::pad, PAD_INPUT_C },
-										{InputCategory::mouse, MOUSE_INPUT_LEFT} };		// ショット
+										{InputCategory::mouse, MOUSE_INPUT_LEFT} };	// ショット
 
 	defaultMapTable_[InputType::jump] = { {InputCategory::keybd, KEY_INPUT_SPACE},
 										{InputCategory::pad, PAD_INPUT_1 } };		// ジャンプ

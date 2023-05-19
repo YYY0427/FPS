@@ -11,10 +11,15 @@
 
 namespace
 {
+	// フェードの速度
 	constexpr int fade_interval = 60;
 
 	// 画面内に存在できる弾の最大数
 	constexpr int shot_max = 128;
+
+	// クロスヘアの位置
+	constexpr int reticle_pos_x = Game::screen_width / 2;
+	constexpr int reticle_pos_y = Game::screen_height / 2;
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -92,8 +97,8 @@ void MainScene::Draw()
 	SetUseShadowMap(0, -1);
 
 	// クロスヘア
-	DrawLine((Game::screen_width / 2) - 25, (Game::screen_height / 2), (Game::screen_width / 2) + 25, (Game::screen_height / 2), 0xffffff);	// 横
-	DrawLine((Game::screen_width / 2), (Game::screen_height / 2) - 25, (Game::screen_width / 2), (Game::screen_height / 2) + 25, 0xffffff);	// 縦
+	DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
+	DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 
 	// フェイド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeValue_);
@@ -112,6 +117,16 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 		shot->Start(pos, vec);
 		break;
 	}
+}
+
+int MainScene::GetReticlePosX() const
+{
+	return reticle_pos_x;
+}
+
+int MainScene::GetReticlePosY() const
+{
+	return reticle_pos_y;
 }
 
 void MainScene::FadeInUpdate(const InputState& input)

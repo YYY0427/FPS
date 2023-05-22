@@ -53,8 +53,6 @@ void Camera::Init()
 
 	// カメラの視野角を設定(ラジアン)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
-
-	reticlePos_ = ConvScreenPosToWorldPos(VGet(Game::screen_width / 2, Game::screen_height, 1.0f));
 }
 
 void Camera::Update(const InputState& input)
@@ -131,6 +129,14 @@ void Camera::Update(const InputState& input)
 
 	// カメラの位置、どこを見ているかを設定する
 	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraTarget_, VGet(0, 1, 0));
+	
+	// マウスカーソルが画面端近くに近づいた場合初期位置に戻す
+	if (mousePosX_ >= Game::screen_width - 10 || mousePosX_ <= 10 ||
+		mousePosY_ >= Game::screen_height - 10 || mousePosY_ <= 10)
+	{
+		// マウスポインタの初期位置の設定
+		SetMousePoint(Game::screen_width / 2, Game::screen_height / 2);
+	}
 }
 
 void Camera::Draw()

@@ -29,7 +29,7 @@ private:
 	VECTOR cameraPos_ = VGet(0, 0, 0);
 	VECTOR cameraInitPos_ = VGet(0, 0, 0);
 	VECTOR cameraTarget_ = VGet(0, 0, 0);
-	VECTOR reticlePos_ = VGet(0, 0, 0);
+
 	float cameraAngle_ = 0.0f;
 
 	// FPS‚©‚Ç‚¤‚©

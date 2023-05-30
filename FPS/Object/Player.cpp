@@ -30,6 +30,8 @@ namespace
 	constexpr int idle_anim_no = 3;			// 待機モーション
 	constexpr int idle_shot_anim_no = 5;	// 停止している状態でショットを撃つ
 	constexpr int walk_anim_no = 14;		// 移動モーション	
+	constexpr int punch_anim_no = 10;		// 銃で殴るモーション
+	constexpr int walk_shot_anim_no = 13;	// 移動している状態でショットを撃つ
 
 	// アニメーション切り替わりにかかるフレーム数
 	constexpr int anim_change_frame = 16;
@@ -103,7 +105,7 @@ void Player::SetVisible(bool visible)
 	else
 	{
 		MV1SetFrameVisible(pModel_->GetModelHandle(), 43, false);
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 41, false);
+	//	MV1SetFrameVisible(pModel_->GetModelHandle(), 41, false);
 		MV1SetFrameVisible(pModel_->GetModelHandle(), 42, false);
 	}
 }
@@ -141,75 +143,79 @@ void Player::UpdateIdle(const InputState& input)
 		{
 			jumpAcc_ = jump_power;
 		}
-		// ショットを撃つ処理
-		// Bボタンでショット
-		if (input.IsTriggered(InputType::shot))
-		{
-			// ショットを発射する
-			VECTOR shootStart = pos_;	// 弾の発射位置
-			shootStart.y = 80.0f;
-
-			// レティクルの位置の取得
-			VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
-
-			// 終点から始点を引く
-			shotVec = VSub(shotVec , pos_);
-			
-			// 正規化
-			shotVec = VNorm(shotVec);
-
-			// スピードかける
-			shotVec = VScale(shotVec, shot_speed);
-
-			//for (int i = 0; i < 21; i++)
-			//{
-			//	// 発射方向を生成 -90度～90度
-			//	float angle = (-90 + 9 * i) * DX_PI_F / 180.0f;
-			//	MATRIX rotMtx = MGetRotY(angle);
-			//	VECTOR rotVec = VTransform(shotVec, rotMtx);
-			//	pMainScene_->StartShot(shootStart, rotVec);
-			//}
-
-			pMainScene_->StartShot(shootStart, shotVec);
-
-			// ショットアニメに変更する
-			animNo_ = idle_shot_anim_no;
-			pModel_->ChangeAnimation(animNo_, false, true, 4);
-
-			// Updateをショットに
-			updateFunc_ = &Player::UpdateIdleShot;
-			frameCount_ = 0;
-		}
 	}
 
-	// 上下キーで前後移動
-	bool isMoving = false;
+	// ショットを撃つ処理
+	if (input.IsPressed(InputType::shot))
+	{
+		// 弾の発射位置
+		VECTOR shootStart = pos_;	
+		shootStart.y = 80.0f;
+
+		// レティクルの位置の取得
+		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
+
+		// 終点から始点を引く
+		shotVec = VSub(shotVec , pos_);
+		
+		// 正規化
+		shotVec = VNorm(shotVec);
+
+		// スピードかける
+		shotVec = VScale(shotVec, shot_speed);
+
+		// ショット開始
+		pMainScene_->StartShot(shootStart, shotVec);
+
+		// ショットアニメに変更する
+		animNo_ = idle_shot_anim_no;
+		pModel_->ChangeAnimation(animNo_, false, true, 4);
+
+		updateFunc_ = &Player::UpdateIdleShot;
+		frameCount_ = 0;
+
+		// 止まっている場合と走っている場合で分岐
+		//if (!isMoving_)
+		//{
+		//	updateFunc_ = &Player::UpdateIdleShot;
+		//	frameCount_ = 0;
+		//}
+		//else
+		//{
+		//	// ショット歩行アニメに変更
+		//	animNo_ = walk_shot_anim_no;
+		//	pModel_->ChangeAnimation(walk_shot_anim_no, true, false, 4);
+		//}
+	}
+
+	// 移動
+	isMoving_ = false;
 	if (input.IsPressed(InputType::w))
 	{
 		pos_ = VAdd(pos_, moveZ);
 
-		isMoving = true;
+		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::a))
 	{
 		pos_ = VSub(pos_, moveX);
 
-		isMoving = true;
+		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::s))
 	{
 		pos_ = VSub(pos_, moveZ);
 
-		isMoving = true;
+		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::d))
 	{
 		pos_ = VAdd(pos_, moveX);
 
-		isMoving = true;
+		isMoving_ = true;
 	}
 
-	if (isMoving)
+	if (isMoving_)
 	{
 		if (animNo_ == idle_anim_no)
 		{
@@ -236,6 +242,14 @@ void Player::UpdateIdleShot(const InputState& input)
 {
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
+
+	jumpAcc_ += gravity;
+	pos_.y += jumpAcc_;
+	if (pos_.y < 0.0f)
+	{
+		pos_.y = 0.0f;
+		jumpAcc_ = 0.0f;
+	}
 
 	// ショットアニメ以外でこのUpdateは呼ばれない
 	assert(animNo_ == idle_shot_anim_no);

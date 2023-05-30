@@ -20,6 +20,9 @@ namespace
 	// クロスヘアの位置
 	constexpr int reticle_pos_x = Game::screen_width / 2;
 	constexpr int reticle_pos_y = Game::screen_height / 2;
+
+	// 弾のアドレス
+	const char* const bullet_file_name = "Data/Model/bullet.mv1";
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -33,8 +36,8 @@ MainScene::MainScene(SceneManager& manager) :
 	// ショットの生成
 	for (int i = 0; i < shot_max; i++)
 	{
-		pShot_.push_back(std::make_shared<Shot>());
-		pShot_.back()->Init();
+		pShot_.push_back(std::make_shared<Shot>(bullet_file_name));
+	//	pShot_.back()->Init();
 	}
 	Init();
 }
@@ -53,6 +56,8 @@ void MainScene::Init()
 	for (auto& shot : pShot_)
 	{
 		shot->SetPlayer(pPlayer_);
+		shot->SetCamera(pCamera_);
+		shot->Init();
 	}
 	pField_->Init();
 	pPlayer_->Init();

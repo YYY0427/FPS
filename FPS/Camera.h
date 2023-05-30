@@ -30,6 +30,7 @@ private:
 	VECTOR cameraInitPos_ = VGet(0, 0, 0);
 	VECTOR cameraTarget_ = VGet(0, 0, 0);
 
+	// カメラ角度
 	float cameraAngle_ = 0.0f;
 
 	// FPSかどうか
@@ -38,10 +39,22 @@ private:
 	// プレイヤーの向いている方向
 	float angle_ = 0.0f;
 
+	// マウスの現在位置
 	int mousePosX_ = 0;
 	int mousePosY_ = 0;
 
+	// 1フレーム前のマウスの位置
+	int preMousePosX_ = 0;
+	int preMousePosY_ = 0;
+
+	// マウスの移動量
 	float mouseMoveX_ = 0.0f;
 	float mouseMoveY_ = 0.0f;
 
+	// 回転角度
+	float rotateDegreeX_ = 0.0f;
+	float rotateDegreeY_ = 0.0f;
+
+	// マウスが画面端についたか
+	bool isMouseScreenEdge_ = false;
 };

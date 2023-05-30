@@ -75,4 +75,7 @@ private:
 
 	// –³“GŽžŠÔ
 	int damageFrame_;
+
+	// ˆÚ“®’†‚©
+	bool isMoving_ = false;;
 };

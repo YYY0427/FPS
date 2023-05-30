@@ -3,11 +3,12 @@
 #include <memory>
 
 class Player;
+class Camera;
 
 class Shot
 {
 public:
-	Shot();
+	Shot(const char* fileName);
 	virtual ~Shot();
 
 	void Init();
@@ -32,9 +33,13 @@ public:
 	// プレイヤーのポインタの取得
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
+	// カメラのポインタの取得
+	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
+
 private:
-	// プレイヤーのポインタ
+	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
+	std::shared_ptr<Camera> pCamera_;
 
 	// 存在する
 	bool m_isExsit = false;
@@ -47,4 +52,6 @@ private:
 
 	// 移動方向
 	VECTOR m_vec;
+
+	int handle_ = -1;
 };

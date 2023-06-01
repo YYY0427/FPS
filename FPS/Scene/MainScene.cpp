@@ -2,12 +2,14 @@
 #include "TitleScene.h"
 #include "PauseScene.h"
 #include "SceneManager.h"
+#include "../EnemyManager.h"
 #include "../Game.h"
 #include "../InputState.h"
 #include "../Camera.h"
 #include "../Object/Player.h"
 #include "../Object/Field.h"
 #include "../Object/Shot.h"
+#include "../Object/Enemy.h"
 
 namespace
 {
@@ -18,11 +20,8 @@ namespace
 	constexpr int shot_max = 128;
 
 	// クロスヘアの位置
-	constexpr int reticle_pos_x = Game::screen_width / 2;
-	constexpr int reticle_pos_y = Game::screen_height / 2;
-
-	// 弾のアドレス
-	const char* const bullet_file_name = "Data/Model/bullet.mv1";
+	constexpr float reticle_pos_x = Game::screen_width / 2;
+	constexpr float reticle_pos_y = Game::screen_height / 2;
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -33,11 +32,11 @@ MainScene::MainScene(SceneManager& manager) :
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
 	pField_ = std::make_shared<Field>();
+	pEnemyManager_ = std::make_shared<EnemyManager>();
 	// ショットの生成
 	for (int i = 0; i < shot_max; i++)
 	{
-		pShot_.push_back(std::make_shared<Shot>(bullet_file_name));
-	//	pShot_.back()->Init();
+		pShot_.push_back(std::make_shared<Shot>());
 	}
 	Init();
 }
@@ -53,6 +52,7 @@ void MainScene::Init()
 	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
+	pEnemyManager_->SetPlayer(pPlayer_);
 	for (auto& shot : pShot_)
 	{
 		shot->SetPlayer(pPlayer_);
@@ -61,6 +61,7 @@ void MainScene::Init()
 	}
 	pField_->Init();
 	pPlayer_->Init();
+	pEnemyManager_->Init();
 	pCamera_->Init();
 
 	// シャドウマップの生成
@@ -83,6 +84,7 @@ void MainScene::Draw()
 	ShadowMap_DrawSetup(shadowMap_);
 	pField_->Draw();
 	pPlayer_->Draw();
+	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
 	{
 		shot->Draw();
@@ -94,6 +96,7 @@ void MainScene::Draw()
 	SetUseShadowMap(0, shadowMap_);
 	pField_->Draw();
 	pPlayer_->Draw();
+	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
 	{
 		shot->Draw();
@@ -124,12 +127,12 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 	}
 }
 
-int MainScene::GetReticlePosX() const
+float MainScene::GetReticlePosX() const
 {
 	return reticle_pos_x;
 }
 
-int MainScene::GetReticlePosY() const
+float MainScene::GetReticlePosY() const
 {
 	return reticle_pos_y;
 }
@@ -145,13 +148,37 @@ void MainScene::FadeInUpdate(const InputState& input)
 
 void MainScene::NormalUpdate(const InputState& input)
 {
+	// 各クラスの更新処理
 	pField_->Update();
 	pPlayer_->Update(input);
+	pEnemyManager_->Update();
 	for (auto& shot : pShot_)
 	{
 		shot->Update();
 	}
 	pCamera_->Update(input);
+
+	// 弾と敵の当たり判定
+	for (auto& shot : pShot_)
+	{
+		if (!shot->isExist()) continue;
+
+		for (auto& enemies : pEnemyManager_->GetEnemies())
+		{
+			// DxLibの関数を利用して当たり判定をとる
+			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+			result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), 48.0f);
+
+			if (result.HitNum > 0)	// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			{
+				// 当たった
+				enemies->OnDamage(10);	// 敵にダメージ
+				shot->SetExsit(false);	// 敵に当たった弾を消す
+			}
+			// 当たり判定情報の後始末
+			MV1CollResultPolyDimTerminate(result);
+		}
+	}
 
 	if (input.IsTriggered(InputType::next))
 	{

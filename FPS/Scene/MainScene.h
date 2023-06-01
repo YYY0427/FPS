@@ -8,6 +8,7 @@ class Camera;
 class Player;
 class Field;
 class Shot;
+class EnemyManager;
 
 /// <summary>
 /// メインシーン
@@ -26,12 +27,13 @@ public:
 	void StartShot(VECTOR pos, VECTOR vec);
 
 	// レティクルの位置の取得
-	int GetReticlePosX() const;
-	int GetReticlePosY() const;
+	float GetReticlePosX() const;
+	float GetReticlePosY() const;
 private:
 	std::shared_ptr<Camera> pCamera_ = nullptr;
 	std::shared_ptr<Player> pPlayer_ = nullptr;
 	std::shared_ptr<Field> pField_ = nullptr;
+	std::shared_ptr<EnemyManager> pEnemyManager_ = nullptr;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 
 	int fadeTimer_ = 0;

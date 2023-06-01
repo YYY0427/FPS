@@ -8,7 +8,7 @@ class Camera;
 class Shot
 {
 public:
-	Shot(const char* fileName);
+	Shot();
 	virtual ~Shot();
 
 	void Init();
@@ -27,15 +27,14 @@ public:
 	// 前のフレームの位置情報取得
 	VECTOR GetLastPos() const { return m_lastPos; };
 
-	// 半径の取得
-	float GetRadius() const;
+	// 弾を消す
+	void SetExsit(bool isExsit) { m_isExsit = isExsit; }
 
 	// プレイヤーのポインタの取得
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// カメラのポインタの取得
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
-
 private:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;

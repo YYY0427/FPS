@@ -154,6 +154,8 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DrawFunctions.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="Object\Enemy.cpp" />
     <ClCompile Include="Object\Field.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InputState.cpp" />
@@ -175,6 +177,8 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawFunctions.h" />
+    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="Object\Enemy.h" />
     <ClInclude Include="Object\Field.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />

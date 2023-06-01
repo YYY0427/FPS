@@ -18,7 +18,7 @@ namespace
 	constexpr VECTOR player_vec_y{ 0, -10, 0 };
 
 	// ショットの速度
-	constexpr float shot_speed = 100.0f;
+	constexpr float shot_speed = 50.0f;
 
 	// ジャンプ力
 	constexpr float jump_power = 16.0f;
@@ -167,19 +167,16 @@ void Player::UpdateIdle(const InputState& input)
 		// ショット開始
 		pMainScene_->StartShot(shootStart, shotVec);
 
-		// ショットアニメに変更する
-		animNo_ = idle_shot_anim_no;
-		pModel_->ChangeAnimation(animNo_, false, true, 4);
-
-		updateFunc_ = &Player::UpdateIdleShot;
-		frameCount_ = 0;
-
 		// 止まっている場合と走っている場合で分岐
-		//if (!isMoving_)
-		//{
-		//	updateFunc_ = &Player::UpdateIdleShot;
-		//	frameCount_ = 0;
-		//}
+	//	if (!isMoving_)
+		{
+			// ショットアニメに変更する
+			animNo_ = idle_shot_anim_no;
+			pModel_->ChangeAnimation(animNo_, false, true, 4);
+
+			updateFunc_ = &Player::UpdateIdleShot;
+			frameCount_ = 0;
+		}
 		//else
 		//{
 		//	// ショット歩行アニメに変更
@@ -227,6 +224,12 @@ void Player::UpdateIdle(const InputState& input)
 	else
 	{
 		if (animNo_ == walk_anim_no)
+		{
+			// 待機アニメに変更
+			animNo_ = idle_anim_no;
+			pModel_->ChangeAnimation(idle_anim_no, true, false, 4);
+		}
+		else if (animNo_ == walk_shot_anim_no)
 		{
 			// 待機アニメに変更
 			animNo_ = idle_anim_no;

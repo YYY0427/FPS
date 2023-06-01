@@ -5,20 +5,20 @@
 
 namespace
 {
-	// ショットの半径
-	constexpr float radius = 48.0f;
-
 	// これ以上離れたら消す
 	constexpr float erase_distance = 3000.0f;
+
+	// 弾のアドレス
+	const char* const bullet_file_name = "Data/Model/bullet.mv1";
 }
 
-Shot::Shot(const char* fileName) :
+Shot::Shot() :
 	m_isExsit(false),
 	m_pos(VGet(0, 0, 0)),
 	m_lastPos(VGet(0, 0, 0)),
 	m_vec(VGet(0, 0, 0))
 {
-	handle_ = MV1LoadModel(fileName);
+	handle_ = MV1LoadModel(bullet_file_name);
 	assert(handle_ != -1);
 }
 
@@ -29,8 +29,8 @@ Shot::~Shot()
 
 void Shot::Init()
 {
-	MV1SetScale(handle_, VGet(20, 20, 20));
-	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle() * DX_PI_F / 180.0f, 0));
+	MV1SetScale(handle_, VGet(25, 25, 25));
+	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));
 }
 
 void Shot::Update()
@@ -56,9 +56,6 @@ void Shot::Update()
 void Shot::Draw()
 {
 	if (!m_isExsit)	return;
-
-//	DrawSphere3D(m_pos, radius, 8, 0xffffff, 0xffffff, true);
-//	DrawCapsule3D(m_pos, m_lastPos, radius, 8, 0xffff00, 0xffff00, true);
 	MV1DrawModel(handle_);
 }
 
@@ -69,9 +66,7 @@ void Shot::Start(VECTOR pos, VECTOR vec)
 	m_pos = pos;
 	m_lastPos = pos;
 	m_vec = vec;
-}
 
-float Shot::GetRadius() const
-{
-	return radius;
+	// モデルの方向をプレイヤーが向いている方向に設定
+	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));
 }

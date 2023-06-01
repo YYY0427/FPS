@@ -180,6 +180,17 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 	}
 
+	// “G‚ÆƒvƒŒƒCƒ„[‚Ì“–‚½‚è”»’è
+	for (auto& enemies : pEnemyManager_->GetEnemies())
+	{
+		float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
+		if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
+		{
+			pPlayer_->OnDamage(1);
+		}
+	}
+
+
 	if (input.IsTriggered(InputType::next))
 	{
 		updateFunc_ = &MainScene::FadeOutUpdate;

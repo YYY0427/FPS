@@ -41,6 +41,9 @@ namespace
 
 	// 最大HP
 	constexpr int max_hp = 5;
+
+	// ダメージ食らった時の無敵時間
+	constexpr int invincible_time = 60;
 }
 
 Player::Player() :
@@ -72,6 +75,12 @@ void Player::Update(const InputState& input)
 
 void Player::Draw()
 {
+	// HPの描画
+	for (int i = 0; i < hp_; i++)
+	{
+		DrawCircle(Game::screen_width - 400 + (i * 70), 100, 30, 0xff0000, true);
+	}
+
 	if (damageFrame_ > 0)
 	{
 		if (damageFrame_ % 2) return;
@@ -91,7 +100,7 @@ void Player::OnDamage(int damage)
 	if (damageFrame_ > 0)	return;
 
 	hp_ -= damage;
-	damageFrame_ = 60 * 2;
+	damageFrame_ = invincible_time;
 }
 
 void Player::SetVisible(bool visible)

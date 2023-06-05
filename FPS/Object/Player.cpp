@@ -32,6 +32,8 @@ namespace
 	constexpr int walk_anim_no = 14;		// 移動モーション	
 	constexpr int punch_anim_no = 10;		// 銃で殴るモーション
 	constexpr int walk_shot_anim_no = 13;	// 移動している状態でショットを撃つ
+	constexpr int anim_dead = 0;			// 死亡アニメーション
+	constexpr int anim_damage = 2;			// 死亡アニメーション
 
 	// アニメーション切り替わりにかかるフレーム数
 	constexpr int anim_change_frame = 16;
@@ -53,11 +55,9 @@ Player::Player() :
 	pos_(VGet(0, 0, 0)),
 	jumpAcc_(0.0f),
 	hp_(max_hp),
-	damageFrame_(0)
+	damageFrame_(0),
+	isMoving_(false)
 {
-	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(file_name);
-	pModel_->SetAnimation(animNo_, true, true);
 }
 
 Player::~Player()
@@ -66,6 +66,9 @@ Player::~Player()
 
 void Player::Init()
 {
+	// 3Dモデルの生成
+	pModel_ = std::make_shared<Model>(file_name);
+	pModel_->SetAnimation(animNo_, true, true);
 }
 
 void Player::Update(const InputState& input)
@@ -101,6 +104,23 @@ void Player::OnDamage(int damage)
 
 	hp_ -= damage;
 	damageFrame_ = invincible_time;
+
+	if (hp_ > 0)
+	{
+		// アニメーションをダメージアニメーションに変更
+		animNo_ = anim_damage;
+		pModel_->ChangeAnimation(anim_damage, false, false, 4);
+		updateFunc_ = &Player::UpdateOnDamage;
+		frameCount_ = 0;
+	}
+	else
+	{
+		// アニメーションを死亡アニメーションに変更
+		animNo_ = anim_dead;
+		pModel_->ChangeAnimation(anim_dead, false, false, 4);
+		updateFunc_ = &Player::UpdateDead;
+		frameCount_ = 0;
+	}
 }
 
 void Player::SetVisible(bool visible)
@@ -277,5 +297,40 @@ void Player::UpdateIdleShot(const InputState& input)
 		// Updateを待機に
 		updateFunc_ = &Player::UpdateIdle;
 		frameCount_ = 0;
+	}
+}
+
+void Player::UpdateDead(const InputState& input)
+{
+	assert(animNo_ == anim_dead);
+	pModel_->Update();
+
+	if (pModel_->IsAnimEnd())
+	{
+		pMainScene_->SetGameOver(true);
+	}
+}
+
+void Player::UpdateOnDamage(const InputState& input)
+{
+	assert(animNo_ == anim_damage);
+	pModel_->Update();
+
+	if (pModel_->IsAnimEnd())
+	{
+	//	if (!isMoving_)
+		{
+			// 待機アニメに変更する
+			animNo_ = idle_anim_no;
+			pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
+
+			// Updateを待機に
+			updateFunc_ = &Player::UpdateIdle;
+			frameCount_ = 0;
+		}
+	//	else
+		{
+
+		}
 	}
 }

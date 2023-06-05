@@ -37,23 +37,15 @@ namespace
 Enemy::Enemy(const char* fileName, std::shared_ptr<Player> pPlayer) :
 	pPlayer_(pPlayer),
 	m_updateFunc(&Enemy::UpdateToFront),
-	m_animNo(walk_anim),
-	m_frameCount(0),
-	m_rotSpeed(0),
-	m_hp(max_hp),
-	m_damageFrame(0),
-	isDead_(false)
+	animNo_(walk_anim),
+	frameCount_(0),
+	rotSpeed_(0),
+	hp_(max_hp),
+	damageFrame_(0),
+	isDead_(false),
+	fileName_(fileName)
 {
-	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(fileName);
-	pModel_->SetAnimation(m_animNo, true, true);
-	pModel_->SetUseCollision(true, true);
-
-	// 敵をランダムに配置
-	m_pos.x = GetRand(2000) - 1000;
-	m_pos.y = 0;
-	m_pos.z = GetRand(2000) - 1000;
-	m_angle = GetRand(360) * DX_PI_F / 180.0f;
+	Init();
 }
 
 Enemy::~Enemy()
@@ -62,6 +54,16 @@ Enemy::~Enemy()
 
 void Enemy::Init()
 {
+	// 3Dモデルの生成
+	pModel_ = std::make_shared<Model>(fileName_);
+	pModel_->SetAnimation(animNo_, true, true);
+	pModel_->SetUseCollision(true, true);
+
+	// 敵をランダムに配置
+	pos_.x = static_cast<float>(GetRand(2000) - 1000);
+	pos_.y = 0.0f;
+	pos_.z = static_cast<float>(GetRand(2000) - 1000);
+	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }
 
 void Enemy::Update()
@@ -71,9 +73,9 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
-	if (m_damageFrame > 0)
+	if (damageFrame_ > 0)
 	{
-		if (m_damageFrame % 2) return;
+		if (damageFrame_ % 2) return;
 	}
 
 	// モデルの描画
@@ -101,7 +103,7 @@ void Enemy::DrawUI()
 	}
 
 	// 最大HPに対する現在のHPの割合を計算する
-	float hpRate = static_cast<float>(m_hp) / static_cast<float>(max_hp);
+	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
 
 	// HPバーの長さを計算する
 	float barWidth = hp_bar_width * hpRate;
@@ -133,23 +135,22 @@ float Enemy::GetColRadius()
 
 void Enemy::OnDamage(int damage)
 {
-	if (m_damageFrame > 0)	return;
+	if (damageFrame_ > 0)	return;
+	hp_ -= damage;
+	damageFrame_ = invincible_time;
 
-	m_hp -= damage;
-	m_damageFrame = invincible_time;
-
-	if (m_hp > 0)
+	if (hp_ > 0)
 	{
 		// 弾が当たった時のアニメーションに切り替える
-		m_animNo = anim_hit_bullet;
+		animNo_ = anim_hit_bullet;
 		//	pModel_->ChangeAnimation(anim_hit_bullet, false, false, 60);
-		pModel_->SetAnimation(m_animNo, false, false);
-		m_updateFunc = &Enemy::UpdateHitBullet;
+		pModel_->SetAnimation(animNo_, false, false);
+		m_updateFunc = &Enemy::UpdateHitDamage;
 	}
 	else
 	{
 		// 死亡アニメーションに移行
-		m_animNo = anim_dead;
+		animNo_ = anim_dead;
 		pModel_->ChangeAnimation(anim_dead, false, false, 4);
 		m_updateFunc = &Enemy::UpdateDead;
 	}
@@ -158,11 +159,11 @@ void Enemy::OnDamage(int damage)
 bool Enemy::IsPlayerFront() const
 {
 	// 現在敵が向いている方向のベクトルを生成する
-	MATRIX enemyRotMtx = MGetRotY(m_angle);
+	MATRIX enemyRotMtx = MGetRotY(angle_);
 	VECTOR dir = VTransform(enemy_dir, enemyRotMtx);
 
 	// 敵からプレイヤーへのベクトル
-	VECTOR toPlayer = VSub(pPlayer_->GetPos(), m_pos);
+	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
 	toPlayer = VNorm(toPlayer);
 
 	// 内積から角度を求める
@@ -174,9 +175,11 @@ bool Enemy::IsPlayerFront() const
 
 void Enemy::UpdateToPlayer()
 {
-	m_damageFrame--;
-	if (m_damageFrame < 0) m_damageFrame = 0;
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
 
+	// アニメーション更新処理
 	pModel_->Update();
 #if false
 	// 現在敵が向いている方向のベクトルを生成する
@@ -203,87 +206,121 @@ void Enemy::UpdateToPlayer()
 	dir = VTransform(dir, mtx);
 	m_pos = VAdd(m_pos, VScale(dir, 10.0f));
 #else
-	// 敵からプレイヤーへのベクトル(正規化)
-	VECTOR toPlayer = VSub(pPlayer_->GetPos(), m_pos);
+	// 敵からプレイヤーへのベクトルを求める
+	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
+
+	// 正規化
 	toPlayer = VNorm(toPlayer);
 
-	m_pos = VAdd(m_pos, VScale(toPlayer, to_player_speed));
+	// 移動速度の反映
+	VECTOR vec = VScale(toPlayer, to_player_speed);
+
+	// 移動
+	pos_ = VAdd(pos_, vec);
 #endif
-	pModel_->SetPos(m_pos);
-	pModel_->SetRot(VGet(0.0f, m_angle, 0.0f));
+
+	// プレイヤーのHPが0より小さい場合プレイヤーを追わない
+	if (pPlayer_->GetHP() <= 0)
+	{
+		m_updateFunc = &Enemy::UpdateToFront;
+		frameCount_ = 0;
+	}
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
 void Enemy::UpdateToFront()
 {
-	m_damageFrame--;
-	if (m_damageFrame < 0) m_damageFrame = 0;
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
 
+	// アニメーション更新処理
 	pModel_->Update();
 
 	// 現在敵が向いている方向のベクトルを生成する
-	MATRIX enemyRotMtx = MGetRotY(m_angle);
+	MATRIX enemyRotMtx = MGetRotY(angle_);
+
+	// MATRIXをVECTORに変換
 	VECTOR dir = VTransform(enemy_dir, enemyRotMtx);
 
 	// 移動速度を反映させる
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// 移動させる
-	m_pos = VAdd(m_pos, vec);
+	pos_ = VAdd(pos_, vec);
 
-	m_frameCount++;
-	if (m_frameCount >= 2 * 60)
+	frameCount_++;
+	if (frameCount_ >= 2 * 60)
 	{
-		m_rotSpeed = static_cast<float>(GetRand(250)) * 0.0001f;
-		m_rotSpeed += 0.025;
-		if (GetRand(1)) m_rotSpeed *= -1.0f;
+		if (IsPlayerFront() && pPlayer_->GetHP() > 0)
+		{
+			m_updateFunc = &Enemy::UpdateToPlayer;
+			frameCount_ = 0;
+		}
+		else
+		{
+			// 回転する角度をランダムで計算
+			rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
+			rotSpeed_ += 0.025f;
+			if (GetRand(1)) rotSpeed_ *= -1.0f;
 
-		m_updateFunc = &Enemy::UpdateTurn;
-		m_frameCount = 0;
+			// udpateを変更
+			m_updateFunc = &Enemy::UpdateTurn;
+			frameCount_ = 0;
+		}	
 	}
 
-	pModel_->SetPos(m_pos);
-	pModel_->SetRot(VGet(0.0f, m_angle, 0.0f));
+	pModel_->SetPos(pos_);
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
 void Enemy::UpdateTurn()
 {
-	m_damageFrame--;
-	if (m_damageFrame < 0) m_damageFrame = 0;
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
 
+	// アニメーション更新処理
 	pModel_->Update();
 
-	m_angle += m_rotSpeed;
-	m_frameCount++;
-	if (m_frameCount >= 30)
+	angle_ += rotSpeed_;
+
+	frameCount_++;
+	if (frameCount_ >= 30)
 	{
-		if (IsPlayerFront())
+		if (IsPlayerFront() && pPlayer_->GetHP() > 0)
 		{
 			m_updateFunc = &Enemy::UpdateToPlayer;
-			m_frameCount = 0;
+			frameCount_ = 0;
 		}
 		else
 		{
 			m_updateFunc = &Enemy::UpdateToFront;
-			m_frameCount = 0;
+			frameCount_ = 0;
 		}
 	}
 
-	pModel_->SetPos(m_pos);
-	pModel_->SetRot(VGet(0.0f, m_angle, 0.0f));
+	pModel_->SetPos(pos_);
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
-void Enemy::UpdateHitBullet()
+void Enemy::UpdateHitDamage()
 {
-	m_damageFrame--;
-	if (m_damageFrame < 0) m_damageFrame = 0;
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	assert(m_animNo == anim_hit_bullet);
+	assert(animNo_ == anim_hit_bullet);
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd())
 	{
 		// 待機アニメに変更する
-		m_animNo = walk_anim;
+		animNo_ = walk_anim;
 		pModel_->ChangeAnimation(walk_anim, true, true, 4);
 
 		// Updateを待機に
@@ -293,13 +330,13 @@ void Enemy::UpdateHitBullet()
 
 void Enemy::UpdateDead()
 {
-	m_frameCount++;
-	assert(m_animNo == anim_dead);
+	frameCount_++;
+	assert(animNo_ == anim_dead);
 	pModel_->Update();
 
-	if (pModel_->IsAnimEnd() && m_frameCount > 120)
+	if (pModel_->IsAnimEnd() && frameCount_ > 120)
 	{
 		isDead_ = true;
-		m_frameCount = 0;
+		frameCount_ = 0;
 	}
 }

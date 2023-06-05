@@ -23,6 +23,15 @@ namespace
 
 Field::Field()
 {
+	
+}
+
+Field::~Field()
+{
+}
+
+void Field::Init()
+{
 	// 3Dモデルをロードする
 	m_pModel.push_back(std::make_shared<Model>(file_name));
 
@@ -41,14 +50,6 @@ Field::Field()
 		float z = block_side_length * (i / block_num_z) - field_side_length_z / 2 + block_side_length / 2;
 		m_pModel[i]->SetPos(VGet(x, -block_side_length / 2.0f, z));		// 上面 y = 0.0fになるよう配置
 	}
-}
-
-Field::~Field()
-{
-}
-
-void Field::Init()
-{
 }
 
 void Field::Update()

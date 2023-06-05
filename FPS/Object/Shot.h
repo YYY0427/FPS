@@ -41,7 +41,7 @@ private:
 	std::shared_ptr<Camera> pCamera_;
 
 	// ë∂ç›Ç∑ÇÈ
-	bool m_isExsit = false;
+	bool m_isExsit;
 
 	// åªç›à íu
 	VECTOR m_pos;

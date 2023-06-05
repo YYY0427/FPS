@@ -25,7 +25,7 @@ public:
 	int GetColFrameIndex() const;
 
 	// 位置取得
-	VECTOR GetPos() const { return m_pos; }
+	VECTOR GetPos() const { return pos_; }
 
 	// 死亡情報の取得
 	bool GetDead() const { return isDead_; }
@@ -50,7 +50,7 @@ private:
 	void UpdateTurn();
 
 	// 弾が当たったときのアニメーション
-	void UpdateHitBullet();
+	void UpdateHitDamage();
 
 	// 死亡アニメーション
 	void UpdateDead();
@@ -64,26 +64,28 @@ private:
 	void(Enemy::* m_updateFunc)();
 
 	// 再生しているアニメーション番号
-	int m_animNo;
+	int animNo_;
 
 	// フレームカウント
-	int m_frameCount;
+	int frameCount_;
 
 	// 位置
-	VECTOR m_pos;
+	VECTOR pos_;
 
 	// 向いている方向
-	float m_angle;
+	float angle_;
 
 	// 回転速度
-	float m_rotSpeed;
+	float rotSpeed_;
 
 	// HP
-	int m_hp;
+	int hp_;
 
 	// 無敵時間
-	int m_damageFrame;
+	int damageFrame_;
 
 	// 死んでいるか
 	bool isDead_;
+
+	const char* fileName_;
 };

@@ -13,7 +13,6 @@ public:
 
 	void Init();
 	void Update(const InputState& input);
-	void Draw();
 
 	// プレイヤーのポインタの取得
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }

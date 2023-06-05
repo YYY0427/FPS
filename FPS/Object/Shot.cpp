@@ -18,8 +18,6 @@ Shot::Shot() :
 	m_lastPos(VGet(0, 0, 0)),
 	m_vec(VGet(0, 0, 0))
 {
-	handle_ = MV1LoadModel(bullet_file_name);
-	assert(handle_ != -1);
 }
 
 Shot::~Shot()
@@ -29,6 +27,9 @@ Shot::~Shot()
 
 void Shot::Init()
 {
+	handle_ = MV1LoadModel(bullet_file_name);
+	assert(handle_ != -1);
+
 	MV1SetScale(handle_, VGet(25, 25, 25));
 	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));
 }

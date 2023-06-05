@@ -37,7 +37,10 @@ void EnemyManager::Draw()
 	{
 		enemies->Draw();
 	}
+}
 
+void EnemyManager::DrawUI()
+{
 	for (auto& enemies : pEnemies_)
 	{
 		enemies->DrawUI();

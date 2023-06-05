@@ -27,6 +27,9 @@ public:
 	// モデルハンドルの取得
 	int GetHandle() const { return pModel_->GetModelHandle(); }
 
+	// プレイヤーのHPの取得
+	int GetHP() const { return hp_; }
+
 	// 当たり判定の半径
 	float GetColRadius();
 
@@ -45,6 +48,12 @@ private:
 
 	// ショットを撃つ
 	void UpdateIdleShot(const InputState& input);
+
+	// 死亡アニメーション
+	void UpdateDead(const InputState& input);
+
+	// ダメージアニメーション
+	void UpdateOnDamage(const InputState& input);
 
 private:
 	// メンバー関数ポインタ
@@ -77,5 +86,5 @@ private:
 	int damageFrame_;
 
 	// 移動中か
-	bool isMoving_ = false;;
+	bool isMoving_;
 };

@@ -161,12 +161,6 @@ void Camera::Update(const InputState& input)
 	preMousePosY_ = mousePosY_;
 }
 
-void Camera::Draw()
-{
-	// ƒJƒƒ‰‚ÌˆÊ’u‚Ì•\¦
-//	DrawSphere3D(cameraPos_, 30.0f, 1, GetColor(255, 0, 0), GetColor(255, 255, 255), true);
-}
-
 float Camera::GetCameraAngle() const
 {
 	return -(DX_PI_F * rotateDegreeX_ / 180);

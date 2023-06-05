@@ -78,8 +78,6 @@ void MainScene::Draw()
 {
 	DrawString(0, 0, "MainScene", 0xffffff, true);
 
-	pCamera_->Draw();
-
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
 	pField_->Draw();
@@ -94,7 +92,7 @@ void MainScene::Draw()
 
 	// シャドウマップを使用してモデルの描画
 	SetUseShadowMap(0, shadowMap_);
-	pField_->Draw();
+	pField_->Draw();			
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
@@ -103,6 +101,9 @@ void MainScene::Draw()
 	}
 	// 描画終了
 	SetUseShadowMap(0, -1);
+
+	// 敵のHPの表示
+	pEnemyManager_->DrawUI();
 
 	// クロスヘア
 	DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横

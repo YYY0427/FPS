@@ -30,6 +30,9 @@ public:
 	// プレイヤーのHPの取得
 	int GetHP() const { return hp_; }
 
+	// プレイヤーが死んでいるかの取得
+	bool GetIsDead() const { return isDead_; }
+
 	// 当たり判定の半径
 	float GetColRadius();
 
@@ -87,4 +90,7 @@ private:
 
 	// 移動中か
 	bool isMoving_;
+
+	// プレイヤーが死んでいるか
+	bool isDead_;
 };

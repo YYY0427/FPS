@@ -30,8 +30,6 @@ public:
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
-	// ゲームオーバー
-	void SetGameOver(bool isGameOver) { isGameOver_ = isGameOver; }
 private:
 	std::shared_ptr<Camera> pCamera_ = nullptr;
 	std::shared_ptr<Player> pPlayer_ = nullptr;
@@ -40,14 +38,11 @@ private:
 	std::vector<std::shared_ptr<Shot>> pShot_;
 
 	// フェイド
-	int fadeTimer_ = 0;
-	int fadeValue_ = 255;
+	int fadeTimer_;
+	int fadeValue_;
 
 	// シャドウマップ
-	int shadowMap_ = -1;
-
-	// ゲームオーバー
-	bool isGameOver_ = false;
+	int shadowMap_;
 
 	using UpdateFunc_t = void (MainScene::*) (const InputState& input);
 	UpdateFunc_t updateFunc_ = nullptr;

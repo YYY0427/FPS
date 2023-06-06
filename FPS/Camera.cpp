@@ -121,6 +121,7 @@ void Camera::Update(const InputState& input)
 	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraTarget_, VGet(0, 1, 0));
 	
 	// カメラ切り替え
+#ifdef _DEBUG
 	if (input.IsTriggered(InputType::perspective))
 	{
 		if (perspectiveFps_)
@@ -134,8 +135,11 @@ void Camera::Update(const InputState& input)
 		cameraPos_ = fps_camera_pos;
 		cameraInitPos_ = fps_camera_pos;
 
-		// プレイヤーの特定のモデルの非表示
-		pPlayer_->SetVisible(false);
+		// プレイヤーが生きている場合特定のモデルの非表示
+		if (!pPlayer_->GetIsDead())
+		{
+			pPlayer_->SetVisible(false);
+		}
 	}
 	else
 	{
@@ -146,6 +150,7 @@ void Camera::Update(const InputState& input)
 		// プレイヤーの特定のモデルの表示
 		pPlayer_->SetVisible(true);
 	}
+#endif
 
 	// マウスカーソルが画面端近くに近づいた場合初期位置に戻す
 	if (mousePosX_ >= Game::screen_width || mousePosX_ <= 0 ||

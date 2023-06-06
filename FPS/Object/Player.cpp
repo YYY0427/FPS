@@ -32,11 +32,16 @@ namespace
 	constexpr int walk_anim_no = 14;		// 移動モーション	
 	constexpr int punch_anim_no = 10;		// 銃で殴るモーション
 	constexpr int walk_shot_anim_no = 13;	// 移動している状態でショットを撃つ
-	constexpr int anim_dead = 0;			// 死亡アニメーション
-	constexpr int anim_damage = 2;			// 死亡アニメーション
+	constexpr int dead_anim_no = 0;			// 死亡アニメーション
+	constexpr int damage_anim_no = 2;		// 死亡アニメーション
 
 	// アニメーション切り替わりにかかるフレーム数
 	constexpr int anim_change_frame = 16;
+
+	// フレーム番号
+	constexpr int body_frame_no = 41;	// 体のフレーム
+	constexpr int ears_frame_no = 42;	// 耳のフレーム
+	constexpr int head_frame_no = 43;	// 頭のフレーム
 
 	// 当たり半径のサイズ
 	constexpr float col_radius = 70.0f;
@@ -56,7 +61,8 @@ Player::Player() :
 	jumpAcc_(0.0f),
 	hp_(max_hp),
 	damageFrame_(0),
-	isMoving_(false)
+	isMoving_(false),
+	isDead_(false)
 {
 }
 
@@ -84,6 +90,7 @@ void Player::Draw()
 		DrawCircle(Game::screen_width - 400 + (i * 70), 100, 30, 0xff0000, true);
 	}
 
+	// ダメージ処理
 	if (damageFrame_ > 0)
 	{
 		if (damageFrame_ % 2) return;
@@ -100,24 +107,27 @@ float Player::GetColRadius()
 
 void Player::OnDamage(int damage)
 {
+	// ダメージ処理
 	if (damageFrame_ > 0)	return;
-
 	hp_ -= damage;
 	damageFrame_ = invincible_time;
 
 	if (hp_ > 0)
 	{
 		// アニメーションをダメージアニメーションに変更
-		animNo_ = anim_damage;
-		pModel_->ChangeAnimation(anim_damage, false, false, 4);
+		animNo_ = damage_anim_no;
+		pModel_->ChangeAnimation(damage_anim_no, false, false, 4);
 		updateFunc_ = &Player::UpdateOnDamage;
 		frameCount_ = 0;
 	}
 	else
 	{
+		// 死亡フラグを立てる
+		isDead_ = true;
+
 		// アニメーションを死亡アニメーションに変更
-		animNo_ = anim_dead;
-		pModel_->ChangeAnimation(anim_dead, false, false, 4);
+		animNo_ = dead_anim_no;
+		pModel_->ChangeAnimation(dead_anim_no, false, false, 4);
 		updateFunc_ = &Player::UpdateDead;
 		frameCount_ = 0;
 	}
@@ -125,17 +135,18 @@ void Player::OnDamage(int damage)
 
 void Player::SetVisible(bool visible)
 {
+	// trueの場合表示、falseの場合非表示
 	if (visible)
 	{
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 43, true);
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 41, true);
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 42, true);
+		// 表示
+		MV1SetFrameVisible(pModel_->GetModelHandle(), ears_frame_no, true); // 耳
+		MV1SetFrameVisible(pModel_->GetModelHandle(), head_frame_no, true);	// 頭
 	}
 	else
 	{
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 43, false);
-	//	MV1SetFrameVisible(pModel_->GetModelHandle(), 41, false);
-		MV1SetFrameVisible(pModel_->GetModelHandle(), 42, false);
+		// 非表示
+		MV1SetFrameVisible(pModel_->GetModelHandle(), ears_frame_no, false); // 耳
+		MV1SetFrameVisible(pModel_->GetModelHandle(), head_frame_no, false); // 頭	
 	}
 }
 
@@ -144,11 +155,12 @@ void Player::UpdateIdle(const InputState& input)
 	// アニメーションを進める
 	pModel_->Update();
 
+	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// ジャンプ処理
-	bool isJumping = true;	// ジャンプしているフラグ
+	bool isJumping = true;	
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
 	if (pos_.y < 0.0f)
@@ -159,15 +171,16 @@ void Player::UpdateIdle(const InputState& input)
 		isJumping = false;
 	}
 
-	// プレイヤーが向いている方向によって進む方向を決める
+	// プレイヤーの回転値を取得する
 	VECTOR vect = MV1GetRotationXYZ(pModel_->GetModelHandle());
 
+	// カメラが向いている方向からベクトル変換
 	VECTOR moveZ = VTransform(player_vec_z, MGetRotY(pCamera_->GetCameraAngle()));
 	VECTOR moveX = VTransform(player_vec_x, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
 
+	// ジャンプ処理
 	if (!isJumping)
 	{
-		// Aボタンでジャンプ
 		if (input.IsTriggered(InputType::jump))
 		{
 			jumpAcc_ = jump_power;
@@ -178,15 +191,15 @@ void Player::UpdateIdle(const InputState& input)
 	if (input.IsPressed(InputType::shot))
 	{
 		// 弾の発射位置
-		VECTOR shootStart = pos_;	
-		shootStart.y = 80.0f;
+		VECTOR shootStart = MV1GetFramePosition(pModel_->GetModelHandle(), 27);
+		shootStart.y = 100.0f;
 
 		// レティクルの位置の取得
 		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
 
 		// 終点から始点を引く
-		shotVec = VSub(shotVec , pos_);
-		
+		shotVec = VSub(shotVec, shootStart);
+
 		// 正規化
 		shotVec = VNorm(shotVec);
 
@@ -272,9 +285,11 @@ void Player::UpdateIdle(const InputState& input)
 
 void Player::UpdateIdleShot(const InputState& input)
 {
+	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
+	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
 	if (pos_.y < 0.0f)
@@ -302,18 +317,28 @@ void Player::UpdateIdleShot(const InputState& input)
 
 void Player::UpdateDead(const InputState& input)
 {
-	assert(animNo_ == anim_dead);
+	assert(animNo_ == dead_anim_no);
 	pModel_->Update();
+
+	// ジャンプ処理
+	jumpAcc_ += gravity;
+	pos_.y += jumpAcc_;
+	if (pos_.y < 0.0f)
+	{
+		pos_.y = 0.0f;
+		jumpAcc_ = 0.0f;
+	}
 
 	if (pModel_->IsAnimEnd())
 	{
-		pMainScene_->SetGameOver(true);
+		// プレイヤーの特定部位の表示
+		SetVisible(true);
 	}
 }
 
 void Player::UpdateOnDamage(const InputState& input)
 {
-	assert(animNo_ == anim_damage);
+	assert(animNo_ == damage_anim_no);
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd())

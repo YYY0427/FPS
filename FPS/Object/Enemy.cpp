@@ -18,7 +18,7 @@ namespace
 	// アニメーション番号
 	constexpr int walk_anim = 8;
 	constexpr int anim_hit_bullet = 4;
-	constexpr int anim_dead = 3;
+	constexpr int dead_anim_no = 3;
 
 	// 当たり半径のサイズ
 	constexpr float col_radius = 70.0f;
@@ -150,8 +150,8 @@ void Enemy::OnDamage(int damage)
 	else
 	{
 		// 死亡アニメーションに移行
-		animNo_ = anim_dead;
-		pModel_->ChangeAnimation(anim_dead, false, false, 4);
+		animNo_ = dead_anim_no;
+		pModel_->ChangeAnimation(dead_anim_no, false, false, 4);
 		m_updateFunc = &Enemy::UpdateDead;
 	}
 }
@@ -209,6 +209,9 @@ void Enemy::UpdateToPlayer()
 	// 敵からプレイヤーへのベクトルを求める
 	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
 
+	// 角度の取得
+	angle_ = (atan2(toPlayer.x, toPlayer.z));
+
 	// 正規化
 	toPlayer = VNorm(toPlayer);
 
@@ -219,8 +222,8 @@ void Enemy::UpdateToPlayer()
 	pos_ = VAdd(pos_, vec);
 #endif
 
-	// プレイヤーのHPが0より小さい場合プレイヤーを追わない
-	if (pPlayer_->GetHP() <= 0)
+	// プレイヤーが死んでいる場合を追わない
+	if (pPlayer_->GetIsDead())
 	{
 		m_updateFunc = &Enemy::UpdateToFront;
 		frameCount_ = 0;
@@ -230,7 +233,7 @@ void Enemy::UpdateToPlayer()
 	pModel_->SetPos(pos_);
 
 	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
 void Enemy::UpdateToFront()
@@ -257,7 +260,7 @@ void Enemy::UpdateToFront()
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)
 	{
-		if (IsPlayerFront() && pPlayer_->GetHP() > 0)
+		if (IsPlayerFront() && !pPlayer_->GetIsDead())
 		{
 			m_updateFunc = &Enemy::UpdateToPlayer;
 			frameCount_ = 0;
@@ -293,7 +296,7 @@ void Enemy::UpdateTurn()
 	frameCount_++;
 	if (frameCount_ >= 30)
 	{
-		if (IsPlayerFront() && pPlayer_->GetHP() > 0)
+		if (IsPlayerFront() && !pPlayer_->GetIsDead())
 		{
 			m_updateFunc = &Enemy::UpdateToPlayer;
 			frameCount_ = 0;
@@ -331,7 +334,7 @@ void Enemy::UpdateHitDamage()
 void Enemy::UpdateDead()
 {
 	frameCount_++;
-	assert(animNo_ == anim_dead);
+	assert(animNo_ == dead_anim_no);
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd() && frameCount_ > 120)

@@ -27,7 +27,9 @@ namespace
 MainScene::MainScene(SceneManager& manager) :
 	Scene(manager),
 	updateFunc_(&MainScene::FadeInUpdate),
-	fadeTimer_(fade_interval)
+	fadeTimer_(fade_interval),
+	fadeValue_(255),
+	shadowMap_(-1)
 {
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
@@ -49,6 +51,7 @@ MainScene::~MainScene()
 
 void MainScene::Init()
 {
+	// ‰Šú‰»‚Æƒ|ƒCƒ“ƒ^‚ð“n‚·
 	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);

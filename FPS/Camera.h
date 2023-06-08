@@ -66,6 +66,10 @@ private:
 	bool isPass_ = false;
 
 	VECTOR distance_;
+
+	// 
 	VECTOR upVector_;
+
+	// ƒxƒNƒgƒ‹‚Ì‘å‚«‚³
 	float size_;
 };

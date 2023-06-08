@@ -47,9 +47,14 @@ private:
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 
+	// ゲームオーバー時のUI用ハンドル
+	int gameOverUIhandle_;
+
 	// フェイド
 	int fadeTimer_;
 	int fadeValue_;
+	int gameOverUIfadeValue_;
+
 
 	// シャドウマップ
 	int shadowMap_;

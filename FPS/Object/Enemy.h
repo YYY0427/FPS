@@ -18,23 +18,23 @@ public:
 	// 2DのUIの表示
 	void DrawUI();	
 
-	// モデルのハンドル取得
-	int GetModelHandle() const;
-
-	// 当たり判定のフレームインデックス取得
-	int GetColFrameIndex() const;
-
-	// 位置取得
-	VECTOR GetPos() const { return pos_; }
-
-	// 死亡情報の取得
-	bool GetDead() const { return isDead_; }
-
-	// 当たり判定の半径
-	float GetColRadius();
-
 	// ダメージを受けた
 	void OnDamage(int damage);
+
+	// モデルのハンドルのゲッター
+	int GetModelHandle() const;
+
+	// 当たり判定のフレームインデックスのゲッター
+	int GetColFrameIndex() const;
+
+	// 位置のゲッター
+	VECTOR GetPos() const { return pos_; }
+
+	// 死亡情報のゲッター
+	bool GetDead() const { return isDead_; }
+
+	// 当たり判定の半径のゲッター
+	float GetColRadius() const;
 
 private:
 	// プレイヤーが正面にいるかどうか
@@ -87,5 +87,6 @@ private:
 	// 死んでいるか
 	bool isDead_;
 
+	// モデルハンドルのファイル
 	const char* fileName_;
 };

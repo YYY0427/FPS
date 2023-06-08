@@ -33,22 +33,22 @@ Field::~Field()
 void Field::Init()
 {
 	// 3Dモデルをロードする
-	m_pModel.push_back(std::make_shared<Model>(file_name));
+	pModel_.push_back(std::make_shared<Model>(file_name));
 
 	// 最初にロードしたモデルと合わせてモデルを100個生成
-	int orgModel = m_pModel[0]->GetModelHandle();
+	int orgModel = pModel_[0]->GetModelHandle();
 	for (int i = 0; i < block_num - 1; i++)
 	{
 		// 最初にロードしたモデルをコピー
-		m_pModel.push_back(std::make_shared<Model>(orgModel));
+		pModel_.push_back(std::make_shared<Model>(orgModel));
 	}
 
 	// 地面に並べる
-	for (int i = 0; i < m_pModel.size(); i++)
+	for (int i = 0; i < pModel_.size(); i++)
 	{
 		float x = block_side_length * (i % block_num_x) - field_side_length_x / 2 + block_side_length / 2;
 		float z = block_side_length * (i / block_num_z) - field_side_length_z / 2 + block_side_length / 2;
-		m_pModel[i]->SetPos(VGet(x, -block_side_length / 2.0f, z));		// 上面 y = 0.0fになるよう配置
+		pModel_[i]->SetPos(VGet(x, -block_side_length / 2.0f, z));		// 上面 y = 0.0fになるよう配置
 	}
 }
 
@@ -58,7 +58,7 @@ void Field::Update()
 
 void Field::Draw()
 {
-	for (auto& model : m_pModel)
+	for (auto& model : pModel_)
 	{
 		model->Draw();
 	}

@@ -10,6 +10,7 @@
 #include "../Object/Field.h"
 #include "../Object/Shot.h"
 #include "../Object/Enemy.h"
+#include "../DrawFunctions.h"
 
 namespace
 {
@@ -22,6 +23,8 @@ namespace
 	// クロスヘアの位置
 	constexpr int reticle_pos_x = Game::screen_width / 2;
 	constexpr int reticle_pos_y = Game::screen_height / 2;
+
+	constexpr int game_over_fade_interval = 60;
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -29,17 +32,19 @@ MainScene::MainScene(SceneManager& manager) :
 	updateFunc_(&MainScene::FadeInUpdate),
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
-	shadowMap_(-1)
+	shadowMap_(-1),
+	gameOverUIhandle_(-1)
 {
+	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
 	pField_ = std::make_shared<Field>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
-	// ショットの生成
 	for (int i = 0; i < shot_max; i++)
 	{
 		pShot_.push_back(std::make_shared<Shot>());
 	}
+
 	Init();
 }
 
@@ -114,6 +119,14 @@ void MainScene::Draw()
 	DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
 	DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 
+	if (pPlayer_->GetIsDead())
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
+	//  SetDrawBlendMode(DX_BLENDMODE_ALPHA, gameOverUIfadeValue_);
+		DrawGraph(0,  0, gameOverUIhandle_, true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+
 	// フェイド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeValue_);
 	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x000000, true);
@@ -149,6 +162,7 @@ void MainScene::FadeInUpdate(const InputState& input)
 	if (--fadeTimer_ == 0)
 	{
 		updateFunc_ = &MainScene::NormalUpdate;
+		fadeTimer_ = 0;
 	}
 }
 
@@ -196,7 +210,17 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 	}
 
+	if (pPlayer_->GetIsDead())
+	{
+		fadeTimer_++;
+		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(fadeTimer_)) / static_cast<float>(game_over_fade_interval));
+		if (fadeTimer_ >= 100)
+		{
+			fadeTimer_ = 100;
+		}	 
+	}
 
+	// シーン切り替え
 	if (input.IsTriggered(InputType::next))
 	{
 		updateFunc_ = &MainScene::FadeOutUpdate;

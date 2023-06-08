@@ -13,10 +13,11 @@ namespace
 }
 
 Shot::Shot() :
-	m_isExsit(false),
-	m_pos(VGet(0, 0, 0)),
-	m_lastPos(VGet(0, 0, 0)),
-	m_vec(VGet(0, 0, 0))
+	handle_(-1),
+	isExsit_(false),
+	pos_(VGet(0, 0, 0)),
+	lastPos_(VGet(0, 0, 0)),
+	vec_(VGet(0, 0, 0))
 {
 }
 
@@ -36,27 +37,27 @@ void Shot::Init(int handle)
 
 void Shot::Update()
 {
-	if (!m_isExsit)	return;
+	if (!isExsit_)	return;
 
 	// まっすぐ進む
-	m_lastPos = m_pos;
-	m_pos = VAdd(m_pos, m_vec);
+	lastPos_ = pos_;
+	pos_ = VAdd(pos_, vec_);
 
 	// プレイヤーから一定以上離れたら消す
 	VECTOR playerPos = pPlayer_->GetPos();
-	VECTOR toPlayer = VSub(playerPos, m_pos);
+	VECTOR toPlayer = VSub(playerPos, pos_);
 
 	if (VSize(toPlayer) > erase_distance)
 	{
-		m_isExsit = false;
+		isExsit_ = false;
 	}
 
-	MV1SetPosition(handle_, m_pos);
+	MV1SetPosition(handle_, pos_);
 }
 
 void Shot::Draw()
 {
-	if (!m_isExsit)	return;
+	if (!isExsit_)	return;
 	MV1DrawModel(handle_);
 }
 
@@ -67,11 +68,11 @@ int Shot::LoadModel() const
 
 void Shot::Start(VECTOR pos, VECTOR vec)
 {
-	m_isExsit = true;
+	isExsit_ = true;
 
-	m_pos = pos;
-	m_lastPos = pos;
-	m_vec = vec;
+	pos_ = pos;
+	lastPos_ = pos;
+	vec_ = vec;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
 	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));

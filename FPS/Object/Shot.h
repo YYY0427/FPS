@@ -15,27 +15,28 @@ public:
 	void Update();
 	void Draw();
 
+	// モデルのロードのゲッター
 	int LoadModel() const;
 
-	// 弾が存在しているか
-	bool isExist() const { return m_isExsit; }
+	// 弾が存在しているかのゲッター
+	bool isExist() const { return isExsit_; }
 
 	// 発射
 	void Start(VECTOR pos, VECTOR vec);
 
-	// ショットの中心位置取得
-	VECTOR GetPos() const { return m_pos; };
+	// ショットの中心位置のゲッター
+	VECTOR GetPos() const { return pos_; };
 
-	// 前のフレームの位置情報取得
-	VECTOR GetLastPos() const { return m_lastPos; };
+	// 前のフレームの位置情報のゲッター
+	VECTOR GetLastPos() const { return lastPos_; };
 
-	// 弾を消す
-	void SetExsit(bool isExsit) { m_isExsit = isExsit; }
+	// 弾を消すセッター
+	void SetExsit(bool isExsit) { isExsit_ = isExsit; }
 
-	// プレイヤーのポインタの取得
+	// プレイヤーのポインタのセッター
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
-	// カメラのポインタの取得
+	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 private:
 	// ポインタ
@@ -43,16 +44,18 @@ private:
 	std::shared_ptr<Camera> pCamera_;
 
 	// 存在する
-	bool m_isExsit;
+	bool isExsit_;
+
+	// モデルのハンドル
+	int handle_;
 
 	// 現在位置
-	VECTOR m_pos;
+	VECTOR pos_;
 
 	// 1フレーム前の位置
-	VECTOR m_lastPos;
+	VECTOR lastPos_;
 
 	// 移動方向
-	VECTOR m_vec;
+	VECTOR vec_;
 
-	int handle_ = -1;
 };

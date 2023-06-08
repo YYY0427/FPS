@@ -127,8 +127,7 @@ int Enemy::GetColFrameIndex() const
 {
 	return pModel_->GetColFrameIndex();
 }
-
-float Enemy::GetColRadius()
+float Enemy::GetColRadius() const
 {
 	return col_radius;
 }

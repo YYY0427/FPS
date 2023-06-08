@@ -100,7 +100,7 @@ void Player::Draw()
 	pModel_->Draw();
 }
 
-float Player::GetColRadius()
+float Player::GetColRadius() const
 {
 	return col_radius;
 }

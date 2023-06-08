@@ -18,23 +18,23 @@ public:
 	void Update(const InputState& input);
 	void Draw();
 
-	// MainSceneのポインタの取得
+	// MainSceneのポインタのセッター
 	void SetMainScene(std::shared_ptr<MainScene>pMainScene) { pMainScene_ = pMainScene; }
 
-	// プレイヤーの位置を取得する
+	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
 
-	// モデルハンドルの取得
+	// モデルハンドルのゲッター
 	int GetHandle() const { return pModel_->GetModelHandle(); }
 
-	// プレイヤーのHPの取得
+	// プレイヤーのHPのゲッター
 	int GetHP() const { return hp_; }
 
-	// プレイヤーが死んでいるかの取得
+	// プレイヤーが死んでいるかのゲッター
 	bool GetIsDead() const { return isDead_; }
 
-	// 当たり判定の半径
-	float GetColRadius();
+	// 当たり判定の半径のゲッター
+	float GetColRadius() const;
 
 	// ダメージを受けた
 	void OnDamage(int damage);
@@ -42,7 +42,7 @@ public:
 	// FPSとTPS切り替え用のフレームの表示非表示
 	void SetVisible(bool visible);
 
-	// カメラのポインタの取得
+	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
 private:

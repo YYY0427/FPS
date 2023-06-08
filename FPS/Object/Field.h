@@ -15,5 +15,5 @@ public:
 	void Update();
 	void Draw();
 private:
-	std::vector<std::shared_ptr<Model>> m_pModel;
+	std::vector<std::shared_ptr<Model>> pModel_;
 };

@@ -11,9 +11,11 @@ public:
 	Shot();
 	virtual ~Shot();
 
-	void Init();
+	void Init(int handle);
 	void Update();
 	void Draw();
+
+	int LoadModel() const;
 
 	// ’e‚ª‘¶İ‚µ‚Ä‚¢‚é‚©
 	bool isExist() const { return m_isExsit; }

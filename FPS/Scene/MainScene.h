@@ -31,10 +31,20 @@ public:
 	float GetReticlePosY() const;
 
 private:
-	std::shared_ptr<Camera> pCamera_ = nullptr;
-	std::shared_ptr<Player> pPlayer_ = nullptr;
-	std::shared_ptr<Field> pField_ = nullptr;
-	std::shared_ptr<EnemyManager> pEnemyManager_ = nullptr;
+	void FadeInUpdate(const InputState& input);
+	void NormalUpdate(const InputState& input);
+	void FadeOutUpdate(const InputState& input);
+
+private:
+	// メンバ関数ポインタ
+	using UpdateFunc_t = void (MainScene::*) (const InputState& input);
+	UpdateFunc_t updateFunc_;
+
+	// ポインタ
+	std::shared_ptr<Camera> pCamera_ ;
+	std::shared_ptr<Player> pPlayer_;
+	std::shared_ptr<Field> pField_;
+	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 
 	// フェイド
@@ -43,11 +53,4 @@ private:
 
 	// シャドウマップ
 	int shadowMap_;
-
-	using UpdateFunc_t = void (MainScene::*) (const InputState& input);
-	UpdateFunc_t updateFunc_ = nullptr;
-
-	void FadeInUpdate(const InputState& input);
-	void NormalUpdate(const InputState& input);
-	void FadeOutUpdate(const InputState& input);
 };

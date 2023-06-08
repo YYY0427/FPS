@@ -47,7 +47,7 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 5;
+	constexpr int max_hp = 1;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
@@ -331,8 +331,7 @@ void Player::UpdateDead(const InputState& input)
 
 	if (pModel_->IsAnimEnd())
 	{
-		// プレイヤーの特定部位の表示
-		SetVisible(true);
+
 	}
 }
 

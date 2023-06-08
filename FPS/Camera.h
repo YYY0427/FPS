@@ -23,37 +23,49 @@ public:
 	// カメラの注視点の取得
 	VECTOR GetCameraTarget() const { return cameraTarget_; }
 private:
-	std::shared_ptr<Player> pPlayer_ = nullptr;
+	std::shared_ptr<Player> pPlayer_;
 	
-	VECTOR cameraPos_ = VGet(0, 0, 0);
-	VECTOR cameraInitPos_ = VGet(0, 0, 0);
-	VECTOR cameraTarget_ = VGet(0, 0, 0);
+	// カメラ
+	VECTOR cameraPos_;
+	VECTOR cameraInitPos_;
+	VECTOR cameraTarget_;
+	VECTOR cameraInitTarget_;
 
 	// カメラ角度
-	float cameraAngle_ = 0.0f;
+	float cameraAngle_;
 
 	// FPSかどうか
-	bool perspectiveFps_ = true;
+	bool perspectiveFps_;
 
 	// プレイヤーの向いている方向
-	float angle_ = 0.0f;
+	float angle_;
 
 	// マウスの現在位置
-	int mousePosX_ = 0;
-	int mousePosY_ = 0;
+	int mousePosX_;
+	int mousePosY_;
 
 	// 1フレーム前のマウスの位置
-	int preMousePosX_ = 0;
-	int preMousePosY_ = 0;
+	int preMousePosX_;
+	int preMousePosY_;
 
 	// マウスの移動量
-	float mouseMoveX_ = 0.0f;
-	float mouseMoveY_ = 0.0f;
+	float mouseMoveX_;
+	float mouseMoveY_;
 
 	// 回転角度
-	float rotateDegreeX_ = 0.0f;
-	float rotateDegreeY_ = 0.0f;
+	float rotateDegreeX_;
+	float rotateDegreeY_;
 
 	// マウスが画面端についたか
-	bool isMouseScreenEdge_ = false;
+	bool isMouseScreenEdge_;
+
+	// 死んでから経過したフレーム数
+	int deadFrame_;
+
+	// 一回しか通らない用
+	bool isPass_ = false;
+
+	VECTOR distance_;
+	VECTOR upVector_;
+	float size_;
 };

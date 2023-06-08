@@ -20,8 +20,8 @@ namespace
 	constexpr int shot_max = 128;
 
 	// クロスヘアの位置
-	constexpr float reticle_pos_x = Game::screen_width / 2;
-	constexpr float reticle_pos_y = Game::screen_height / 2;
+	constexpr int reticle_pos_x = Game::screen_width / 2;
+	constexpr int reticle_pos_y = Game::screen_height / 2;
 }
 
 MainScene::MainScene(SceneManager& manager) :
@@ -56,11 +56,13 @@ void MainScene::Init()
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pEnemyManager_->SetPlayer(pPlayer_);
+
+	int handle = pShot_[0]->LoadModel();
 	for (auto& shot : pShot_)
 	{
 		shot->SetPlayer(pPlayer_);
 		shot->SetCamera(pCamera_);
-		shot->Init();
+		shot->Init(handle);
 	}
 	pField_->Init();
 	pPlayer_->Init();
@@ -133,12 +135,12 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 
 float MainScene::GetReticlePosX() const
 {
-	return reticle_pos_x;
+	return static_cast<float>(reticle_pos_x);
 }
 
 float MainScene::GetReticlePosY() const
 {
-	return reticle_pos_y;
+	return static_cast<float>(reticle_pos_y);
 }
 
 void MainScene::FadeInUpdate(const InputState& input)

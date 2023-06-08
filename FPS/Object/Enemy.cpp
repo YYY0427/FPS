@@ -210,7 +210,7 @@ void Enemy::UpdateToPlayer()
 	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
 
 	// Šp“x‚Ìæ“¾
-	angle_ = (atan2(toPlayer.x, toPlayer.z));
+	angle_ = atan2(toPlayer.x, toPlayer.z);
 
 	// ³‹K‰»
 	toPlayer = VNorm(toPlayer);

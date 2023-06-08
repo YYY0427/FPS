@@ -25,9 +25,9 @@ Shot::~Shot()
 	MV1DeleteModel(handle_);
 }
 
-void Shot::Init()
+void Shot::Init(int handle)
 {
-	handle_ = MV1LoadModel(bullet_file_name);
+	handle_ = handle;
 	assert(handle_ != -1);
 
 	MV1SetScale(handle_, VGet(25, 25, 25));
@@ -58,6 +58,11 @@ void Shot::Draw()
 {
 	if (!m_isExsit)	return;
 	MV1DrawModel(handle_);
+}
+
+int Shot::LoadModel() const
+{
+	return MV1LoadModel(bullet_file_name);
 }
 
 void Shot::Start(VECTOR pos, VECTOR vec)

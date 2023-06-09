@@ -2,7 +2,7 @@
 #include "TitleScene.h"
 #include "PauseScene.h"
 #include "SceneManager.h"
-#include "../EnemyManager.h"
+#include "../Object/EnemyManager.h"
 #include "../Game.h"
 #include "../InputState.h"
 #include "../Camera.h"
@@ -24,6 +24,7 @@ namespace
 	constexpr int reticle_pos_x = Game::screen_width / 2;
 	constexpr int reticle_pos_y = Game::screen_height / 2;
 
+	// ゲームオーバー時の表示文字のフェード速度
 	constexpr int game_over_fade_interval = 60;
 }
 
@@ -115,16 +116,18 @@ void MainScene::Draw()
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
 
-	// クロスヘア
-	DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
-	DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
-
 	if (pPlayer_->GetIsDead())
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
 	//  SetDrawBlendMode(DX_BLENDMODE_ALPHA, gameOverUIfadeValue_);
 		DrawGraph(0,  0, gameOverUIhandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+	else
+	{
+		// クロスヘア
+		DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
+		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 	}
 
 	// フェイド
@@ -189,7 +192,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
 			result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), 48.0f);
 
-			if (result.HitNum > 0)	// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 			{
 				// 当たった
 				enemies->OnDamage(10);	// 敵にダメージ

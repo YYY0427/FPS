@@ -1,4 +1,4 @@
-#include "Enemy.h"
+#include "Bee.h"
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
@@ -17,15 +17,15 @@ namespace
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
-	constexpr int walk_anim = 8;
-	constexpr int anim_hit_bullet = 4;
-	constexpr int dead_anim_no = 3;
+	constexpr int walk_anim = 2;
+	constexpr int anim_hit_bullet = 3;
+	constexpr int dead_anim_no = 1;
 
 	// 当たり半径のサイズ
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 30;
+	constexpr int max_hp = 50;
 
 	// HPバーの表示
 	constexpr int hp_bar_width = 64;
@@ -35,10 +35,10 @@ namespace
 	constexpr int invincible_time = 60;
 }
 
-Enemy::Enemy(const char* fileName, std::shared_ptr<Player> pPlayer) 
+Bee::Bee(const char* fileName, std::shared_ptr<Player> pPlayer)
 {
 	pPlayer_ = pPlayer;
-	updateFunc_ = &Enemy::UpdateToFront;
+	updateFunc_ = &Bee::UpdateToFront;
 	animNo_ = walk_anim;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
@@ -50,16 +50,16 @@ Enemy::Enemy(const char* fileName, std::shared_ptr<Player> pPlayer)
 	Init();
 }
 
-Enemy::~Enemy()
+Bee::~Bee()
 {
 }
 
-void Enemy::Update()
+void Bee::Update()
 {
 	(this->*updateFunc_)();
 }
 
-void Enemy::DrawUI()
+void Bee::DrawUI()
 {
 	// モデルのハンドル取得
 	int handle = pModel_->GetModelHandle();
@@ -95,12 +95,12 @@ void Enemy::DrawUI()
 	DrawBoxAA(screenPos.x - hp_bar_width / 2, screenPos.y, screenPos.x + hp_bar_width / 2, screenPos.y + hp_bar_height, 0xffffff, false);
 }
 
-float Enemy::GetColRadius() const
+float Bee::GetColRadius() const
 {
 	return col_radius;
 }
 
-void Enemy::OnDamage(int damage)
+void Bee::OnDamage(int damage)
 {
 	if (damageFrame_ > 0)	return;
 	hp_ -= damage;
@@ -112,18 +112,18 @@ void Enemy::OnDamage(int damage)
 		animNo_ = anim_hit_bullet;
 		//	pModel_->ChangeAnimation(anim_hit_bullet, false, false, 60);
 		pModel_->SetAnimation(animNo_, false, false);
-		updateFunc_ = &Enemy::UpdateHitDamage;
+		updateFunc_ = &Bee::UpdateHitDamage;
 	}
 	else
 	{
 		// 死亡アニメーションに移行
 		animNo_ = dead_anim_no;
 		pModel_->ChangeAnimation(dead_anim_no, false, false, 4);
-		updateFunc_ = &Enemy::UpdateDead;
+		updateFunc_ = &Bee::UpdateDead;
 	}
 }
 
-bool Enemy::IsPlayerFront() const
+bool Bee::IsPlayerFront() const
 {
 	// 現在敵が向いている方向のベクトルを生成する
 	MATRIX enemyRotMtx = MGetRotY(angle_);
@@ -140,7 +140,7 @@ bool Enemy::IsPlayerFront() const
 	return (angle < view_angle);
 }
 
-void Enemy::UpdateToPlayer()
+void Bee::UpdateToPlayer()
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -192,7 +192,7 @@ void Enemy::UpdateToPlayer()
 	// プレイヤーが死んでいる場合を追わない
 	if (pPlayer_->GetIsDead())
 	{
-		updateFunc_ = &Enemy::UpdateToFront;
+		updateFunc_ = &Bee::UpdateToFront;
 		frameCount_ = 0;
 	}
 
@@ -203,7 +203,7 @@ void Enemy::UpdateToPlayer()
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Enemy::UpdateToFront()
+void Bee::UpdateToFront()
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -229,7 +229,7 @@ void Enemy::UpdateToFront()
 	{
 		if (IsPlayerFront() && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Enemy::UpdateToPlayer;
+			updateFunc_ = &Bee::UpdateToPlayer;
 			frameCount_ = 0;
 		}
 		else
@@ -240,16 +240,16 @@ void Enemy::UpdateToFront()
 			if (GetRand(1)) rotSpeed_ *= -1.0f;
 
 			// udpateを変更
-			updateFunc_ = &Enemy::UpdateTurn;
+			updateFunc_ = &Bee::UpdateTurn;
 			frameCount_ = 0;
-		}	
+		}
 	}
 
 	pModel_->SetPos(pos_);
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
-void Enemy::UpdateTurn()
+void Bee::UpdateTurn()
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -265,12 +265,12 @@ void Enemy::UpdateTurn()
 	{
 		if (IsPlayerFront() && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Enemy::UpdateToPlayer;
+			updateFunc_ = &Bee::UpdateToPlayer;
 			frameCount_ = 0;
 		}
 		else
 		{
-			updateFunc_ = &Enemy::UpdateToFront;
+			updateFunc_ = &Bee::UpdateToFront;
 			frameCount_ = 0;
 		}
 	}
@@ -279,7 +279,7 @@ void Enemy::UpdateTurn()
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
-void Enemy::UpdateHitDamage()
+void Bee::UpdateHitDamage()
 {
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
@@ -294,11 +294,11 @@ void Enemy::UpdateHitDamage()
 		pModel_->ChangeAnimation(walk_anim, true, true, 4);
 
 		// Updateを待機に
-		updateFunc_ = &Enemy::UpdateToPlayer;
+		updateFunc_ = &Bee::UpdateToPlayer;
 	}
 }
 
-void Enemy::UpdateDead()
+void Bee::UpdateDead()
 {
 	frameCount_++;
 	assert(animNo_ == dead_anim_no);

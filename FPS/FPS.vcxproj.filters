@@ -25,6 +25,12 @@
     <Filter Include="ヘッダー ファイル\Object">
       <UniqueIdentifier>{fb7ca24e-46e2-4c1c-9356-8ceaab3a2cd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Object\Enemy">
+      <UniqueIdentifier>{bc058655-0cc8-48a9-8709-d1a2bc4c7d13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Object\Enemy">
+      <UniqueIdentifier>{ce24853f-dab2-428e-ba69-c2617422b927}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -81,14 +87,20 @@
     <ClCompile Include="Object\Field.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Object\Enemy.cpp">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Object\Shot.cpp">
       <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Enemy.cpp">
+      <Filter>ソース ファイル\Object\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\EnemyBase.cpp">
+      <Filter>ソース ファイル\Object\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\EnemyManager.cpp">
+      <Filter>ソース ファイル\Object\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Bee.cpp">
+      <Filter>ソース ファイル\Object\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,10 +162,16 @@
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
     <ClInclude Include="Object\Enemy.h">
-      <Filter>ヘッダー ファイル\Object</Filter>
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Object\EnemyBase.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\EnemyManager.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Bee.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-class Enemy;
+class EnemyBase;
 class Player;
 
 class EnemyManager
@@ -18,10 +18,10 @@ public:
 
 	void DeadCheck();
 
-	std::vector<std::shared_ptr<Enemy>> GetEnemies() const { return pEnemies_; }
+	std::vector<std::shared_ptr<EnemyBase>> GetEnemies() const { return pEnemies_; }
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 private:
-	std::vector<std::shared_ptr<Enemy>> pEnemies_;
+	std::vector<std::shared_ptr<EnemyBase>> pEnemies_;
 	std::shared_ptr<Player> pPlayer_;
 };

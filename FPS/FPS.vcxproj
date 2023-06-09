@@ -152,9 +152,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Object\Bee.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DrawFunctions.cpp" />
-    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="Object\EnemyBase.cpp" />
+    <ClCompile Include="Object\EnemyManager.cpp" />
     <ClCompile Include="Object\Enemy.cpp" />
     <ClCompile Include="Object\Field.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -175,9 +177,11 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Object\Bee.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawFunctions.h" />
-    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="Object\EnemyBase.h" />
+    <ClInclude Include="Object\EnemyManager.h" />
     <ClInclude Include="Object\Enemy.h" />
     <ClInclude Include="Object\Field.h" />
     <ClInclude Include="Game.h" />

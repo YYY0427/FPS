@@ -1,16 +1,16 @@
 #pragma once
 #include "EnemyBase.h"
 
-class Enemy : public EnemyBase
+class Bee : public EnemyBase
 {
 public:
-	Enemy(const char* fileName, std::shared_ptr<Player> pPlayer);
-	virtual ~Enemy();
+	Bee(const char* fileName, std::shared_ptr<Player> pPlayer);
+	virtual ~Bee();
 
 	void Update();
 
 	// 2DのUIの表示
-	void DrawUI();	
+	void DrawUI();
 
 	// ダメージを受けた
 	void OnDamage(int damage);
@@ -39,5 +39,5 @@ private:
 
 private:
 	// メンバー関数ポインタ
-	void(Enemy::* updateFunc_)();
+	void(Bee::* updateFunc_)();
 };

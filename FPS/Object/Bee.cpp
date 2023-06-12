@@ -35,9 +35,8 @@ namespace
 	constexpr int invincible_time = 60;
 }
 
-Bee::Bee(const char* fileName, std::shared_ptr<Player> pPlayer)
+Bee::Bee(const char* fileName)
 {
-	pPlayer_ = pPlayer;
 	updateFunc_ = &Bee::UpdateToFront;
 	animNo_ = walk_anim;
 	frameCount_ = 0;

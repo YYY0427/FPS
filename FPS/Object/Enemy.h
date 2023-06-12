@@ -4,7 +4,7 @@
 class Enemy : public EnemyBase
 {
 public:
-	Enemy(const char* fileName, std::shared_ptr<Player> pPlayer);
+	Enemy(const char* fileName);
 	virtual ~Enemy();
 
 	void Update();

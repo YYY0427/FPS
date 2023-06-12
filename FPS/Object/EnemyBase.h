@@ -4,11 +4,12 @@
 
 class Player;
 class Model;
+class MainScene;
 
 class EnemyBase
 {
 public:
-	EnemyBase(){}
+	EnemyBase();
 	virtual ~EnemyBase(){}
 
 	void Init();
@@ -32,6 +33,12 @@ public:
 
 	// 死亡情報のゲッター
 	bool GetDead() const { return isDead_; }
+
+	// メインシーンのセッター
+	void SetMainScene(std::shared_ptr<MainScene> pMainScene) { pMainScene_ = pMainScene; }
+
+	// プレイヤーのセッター
+	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// 当たり判定の半径のゲッター
 	virtual float GetColRadius() const = 0;
@@ -59,9 +66,7 @@ protected:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
-
-	// メンバー関数ポインタ
-	void(EnemyBase::* m_updateFunc)() = nullptr;
+	std::shared_ptr<MainScene> pMainScene_;
 
 	// 再生しているアニメーション番号
 	int animNo_ = 0;

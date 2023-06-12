@@ -4,7 +4,7 @@
 class Bee : public EnemyBase
 {
 public:
-	Bee(const char* fileName, std::shared_ptr<Player> pPlayer);
+	Bee(const char* fileName);
 	virtual ~Bee();
 
 	void Update();

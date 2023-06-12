@@ -1,7 +1,12 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
+#include "../Scene/MainScene.h"
 #include <cassert>
+
+EnemyBase::EnemyBase()
+{
+}
 
 void EnemyBase::Init()
 {
@@ -17,20 +22,19 @@ void EnemyBase::Init()
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }
 
-void EnemyBase::Update()
-{
-	(this->*m_updateFunc)();
-}
-
 void EnemyBase::Draw()
 {
-	if (damageFrame_ > 0)
+	if (!pMainScene_->GetFadeInTheMiddle())
 	{
-		if (damageFrame_ % 2) return;
-	}
+		// ダメージ処理
+		if (damageFrame_ > 0)
+		{
+			if (damageFrame_ % 2) return;
+		}
 
-	// モデルの描画
-	pModel_->Draw();
+		// モデルの描画
+		pModel_->Draw();
+	}
 }
 
 int EnemyBase::GetModelHandle() const

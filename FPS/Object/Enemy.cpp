@@ -35,9 +35,8 @@ namespace
 	constexpr int invincible_time = 60;
 }
 
-Enemy::Enemy(const char* fileName, std::shared_ptr<Player> pPlayer) 
+Enemy::Enemy(const char* fileName)
 {
-	pPlayer_ = pPlayer;
 	updateFunc_ = &Enemy::UpdateToFront;
 	animNo_ = walk_anim;
 	frameCount_ = 0;
@@ -245,7 +244,10 @@ void Enemy::UpdateToFront()
 		}	
 	}
 
+	// 位置座標の設定
 	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
@@ -275,7 +277,10 @@ void Enemy::UpdateTurn()
 		}
 	}
 
+	// 位置座標の設定
 	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 

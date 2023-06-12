@@ -20,8 +20,8 @@ EnemyManager::~EnemyManager()
 
 void EnemyManager::Init()
 {
-	pEnemies_.push_back(std::make_shared<Enemy>(enemy_adress, pPlayer_));
-	pEnemies_.push_back(std::make_shared<Bee>(bee_adress, pPlayer_));
+	pEnemies_.push_back(std::make_shared<Enemy>(enemy_adress));
+	pEnemies_.push_back(std::make_shared<Bee>(bee_adress));
 }
 
 void EnemyManager::Update()

@@ -61,7 +61,6 @@ void MainScene::Init()
 	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
-	pEnemyManager_->SetPlayer(pPlayer_);
 
 	int handle = pShot_[0]->LoadModel();
 	for (auto& shot : pShot_)
@@ -74,6 +73,12 @@ void MainScene::Init()
 	pPlayer_->Init();
 	pEnemyManager_->Init();
 	pCamera_->Init();
+
+	for (auto& enemies : pEnemyManager_->GetEnemies())
+	{
+		enemies->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
+		enemies->SetPlayer(pPlayer_);
+	}
 
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
@@ -157,6 +162,15 @@ float MainScene::GetReticlePosX() const
 float MainScene::GetReticlePosY() const
 {
 	return static_cast<float>(reticle_pos_y);
+}
+
+bool MainScene::GetFadeInTheMiddle()
+{
+	if (fadeTimer_ > 0)
+	{
+		return true;
+	}
+	return false;
 }
 
 void MainScene::FadeInUpdate(const InputState& input)

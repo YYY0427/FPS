@@ -3,7 +3,7 @@
 #include <vector>
 
 class EnemyBase;
-class Player;
+class MainScene;
 
 class EnemyManager
 {
@@ -19,9 +19,8 @@ public:
 	void DeadCheck();
 
 	std::vector<std::shared_ptr<EnemyBase>> GetEnemies() const { return pEnemies_; }
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 private:
 	std::vector<std::shared_ptr<EnemyBase>> pEnemies_;
-	std::shared_ptr<Player> pPlayer_;
+	std::shared_ptr<MainScene> pMainScene_;
 };

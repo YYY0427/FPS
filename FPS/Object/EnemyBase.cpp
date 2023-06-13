@@ -24,6 +24,7 @@ void EnemyBase::Init()
 
 void EnemyBase::Draw()
 {
+	// フェード中の場合表示しない
 	if (!pMainScene_->GetFadeInTheMiddle())
 	{
 		// ダメージ処理

@@ -36,7 +36,6 @@ MainScene::MainScene(SceneManager& manager) :
 	shadowMap_(-1),
 	gameOverUIhandle_(-1)
 {
-	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
 	pField_ = std::make_shared<Field>();
@@ -80,6 +79,9 @@ void MainScene::Init()
 		enemies->SetPlayer(pPlayer_);
 	}
 
+	// 画像のロード
+	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
+
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
 	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
@@ -93,6 +95,8 @@ void MainScene::Update(const InputState& input)
 void MainScene::Draw()
 {
 	DrawString(0, 0, "MainScene", 0xffffff, true);
+
+	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x0000ff, true);
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);

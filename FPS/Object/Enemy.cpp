@@ -70,6 +70,8 @@ void Enemy::DrawUI()
 	// HPバーを表示する座標データのワールド座標を取得する
 	VECTOR hpPos = MV1GetFramePosition(handle, frameNo);
 
+	hpPos.y += 30;
+
 	// HPバー表示位置のワールド座標をスクリーン座標に変換する
 	VECTOR screenPos = ConvWorldPosToScreenPos(hpPos);
 
@@ -174,16 +176,16 @@ void Enemy::UpdateToPlayer()
 	m_pos = VAdd(m_pos, VScale(dir, 10.0f));
 #else
 	// 敵からプレイヤーへのベクトルを求める
-	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
+	toPlayer_ = VSub(pPlayer_->GetPos(), pos_);
 
 	// 角度の取得
-	angle_ = static_cast<float>(atan2(toPlayer.x, toPlayer.z));
+	angle_ = static_cast<float>(atan2(toPlayer_.x, toPlayer_.z));
 
 	// 正規化
-	toPlayer = VNorm(toPlayer);
+	toPlayer_ = VNorm(toPlayer_);
 
 	// 移動速度の反映
-	VECTOR vec = VScale(toPlayer, to_player_speed);
+	VECTOR vec = VScale(toPlayer_, to_player_speed);
 
 	// 移動
 	pos_ = VAdd(pos_, vec);

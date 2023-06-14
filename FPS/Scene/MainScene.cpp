@@ -104,7 +104,7 @@ void MainScene::Draw()
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
-	pField_->Draw();
+//	pField_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
@@ -116,7 +116,7 @@ void MainScene::Draw()
 
 	// シャドウマップを使用してモデルの描画
 	SetUseShadowMap(0, shadowMap_);
-	pField_->Draw();			
+//	pField_->Draw();			
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)

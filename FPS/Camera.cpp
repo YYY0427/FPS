@@ -6,20 +6,19 @@
 
 namespace
 {
-	// カメラの初期位置
+	// カメラの初期位置とカメラの初期注視点
 	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
 	constexpr VECTOR tps_camera_target{ 0, 400, -120 };
 
 	constexpr VECTOR fps_camera_pos{ 0, 200, -10 };
 	constexpr VECTOR fps_camera_target{ 0, 90, -500 };
-	constexpr VECTOR fps_dead_camera_target{0, 500, 100};
 
 	// カメラ視野角の設定
 	constexpr float perspective = 90.0f;
 
 	// 描画距離(near, far)
 	constexpr float near_distance = 5.0f;
-	constexpr float far_distance = 8400.0f;
+	constexpr float far_distance = 18400.0f;
 
 	// 倒れるアニメーションに何フレーム使うのか
 	constexpr float anim_frame_num = 180.0f;
@@ -87,7 +86,6 @@ void Camera::Init()
 
 	// カメラの視野角を設定(ラジアン)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
-
 }
 
 void Camera::Update(const InputState& input)
@@ -121,9 +119,9 @@ void Camera::Update(const InputState& input)
 
 	// Y軸のカメラの追従
 	VECTOR cameraTrans = pPlayer_->GetPos();
-	//	cameraTrans.y = 0.0f;							// Y軸カメラの追従を行わない
-	//	cameraTrans.y = pPlayer_->GetPos().y * 0.65f;	// Y軸カメラの追従を少し遅くする
-	cameraTrans.y = pPlayer_->GetPos().y;				// Y軸カメラの追従をプレイヤーの位置に合わせる
+//	cameraTrans.y = 0.0f;							// Y軸カメラの追従を行わない
+//	cameraTrans.y = pPlayer_->GetPos().y * 0.65f;	// Y軸カメラの追従を少し遅くする
+	cameraTrans.y = pPlayer_->GetPos().y;			// Y軸カメラの追従をプレイヤーの位置に合わせる
 
 	// 平行行列の作成(なにこれ??)
 	MATRIX playerTransMtx = MGetTranslate(cameraTrans);
@@ -137,6 +135,7 @@ void Camera::Update(const InputState& input)
 	MATRIX cameraMtxTarget = MMult(cameraRotMtx, playerTransMtx);
 	cameraPos_ = VTransform(cameraInitPos_, cameraMtxPos);
 
+	// 生きている場合のみプレイヤーにカメラを追従
 	if (!pPlayer_->GetIsDead())
 	{
 		cameraTarget_ = VTransform(cameraInitTarget_, cameraMtxTarget);

@@ -13,10 +13,13 @@ namespace
 	const char* const file_name = "data/model/player.mv1";
 
 	// プレイヤーの移動量
-	constexpr VECTOR player_vec_up{ 0, 0, -10 };
-	constexpr VECTOR player_vec_down{ 0, 0, 10 };
-	constexpr VECTOR player_vec_right{ -10, 0, 0 };
-	constexpr VECTOR player_vec_left{ 10, 0, 0 };
+	constexpr VECTOR player_vec_up{ 0, 0, -1 };
+	constexpr VECTOR player_vec_down{ 0, 0, 1 };
+	constexpr VECTOR player_vec_right{ -1, 0, 0 };
+	constexpr VECTOR player_vec_left{ 1, 0, 0 };
+
+	// プレイヤーの速度
+	constexpr float player_speed = 20.0f;
 
 	// ショットの速度
 	constexpr float shot_speed = 50.0f;
@@ -270,7 +273,7 @@ void Player::UpdateIdle(const InputState& input)
 		moveVec_ = VNorm(moveVec_);
 
 		// 正規化したベクトルにプレイヤーの速度をかける
-		moveVec_ = VScale(moveVec_, 10.0f);
+		moveVec_ = VScale(moveVec_, player_speed);
 
 		// 動かす
 		pos_ = VAdd(pos_, moveVec_);

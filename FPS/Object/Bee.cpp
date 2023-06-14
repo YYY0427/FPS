@@ -69,6 +69,8 @@ void Bee::DrawUI()
 	// HPバーを表示する座標データのワールド座標を取得する
 	VECTOR hpPos = MV1GetFramePosition(handle, frameNo);
 
+	hpPos.y += 30;
+
 	// HPバー表示位置のワールド座標をスクリーン座標に変換する
 	VECTOR screenPos = ConvWorldPosToScreenPos(hpPos);
 
@@ -267,7 +269,7 @@ void Bee::UpdateTurn()
 			updateFunc_ = &Bee::UpdateToPlayer;
 			frameCount_ = 0;
 		}
-		else
+		else if(!IsPlayerFront() && !pPlayer_->GetIsDead())
 		{
 			updateFunc_ = &Bee::UpdateToFront;
 			frameCount_ = 0;

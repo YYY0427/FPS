@@ -13,5 +13,4 @@ public:
 
 private:
 	int handle_;
-	VECTOR pos_;
 };

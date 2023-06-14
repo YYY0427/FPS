@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <memory>
 
 class Model;
@@ -15,5 +14,5 @@ public:
 	void Update();
 	void Draw();
 private:
-	std::vector<std::shared_ptr<Model>> pModel_;
+	std::shared_ptr<Model> pModel_;
 };

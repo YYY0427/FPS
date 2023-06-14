@@ -72,6 +72,9 @@ protected:
 	// 位置
 	VECTOR pos_ = VGet(0, 0, 0);
 
+	// プレイヤーからの距離
+	VECTOR toPlayer_ = VGet(0, 0, 0);
+
 	// 向いている方向
 	float angle_ = 0.0f;
 

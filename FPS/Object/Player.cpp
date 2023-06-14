@@ -13,9 +13,10 @@ namespace
 	const char* const file_name = "data/model/player.mv1";
 
 	// プレイヤーの移動量
-	constexpr VECTOR player_vec_z{ 0, 0, -10 };
-	constexpr VECTOR player_vec_x{ -10, 0, 0 };
-	constexpr VECTOR player_vec_y{ 0, -10, 0 };
+	constexpr VECTOR player_vec_up{ 0, 0, -10 };
+	constexpr VECTOR player_vec_down{ 0, 0, 10 };
+	constexpr VECTOR player_vec_right{ -10, 0, 0 };
+	constexpr VECTOR player_vec_left{ 10, 0, 0 };
 
 	// ショットの速度
 	constexpr float shot_speed = 50.0f;
@@ -62,7 +63,8 @@ Player::Player() :
 	hp_(max_hp),
 	damageFrame_(0),
 	isMoving_(false),
-	isDead_(false)
+	isDead_(false),
+	moveVec_(VGet(0, 0, 0))
 {
 }
 
@@ -171,13 +173,6 @@ void Player::UpdateIdle(const InputState& input)
 		isJumping = false;
 	}
 
-	// プレイヤーの回転値を取得する
-	VECTOR vect = MV1GetRotationXYZ(pModel_->GetModelHandle());
-
-	// カメラが向いている方向からベクトル変換
-	VECTOR moveZ = VTransform(player_vec_z, MGetRotY(pCamera_->GetCameraAngle()));
-	VECTOR moveX = VTransform(player_vec_x, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
-
 	// ジャンプ処理
 	if (!isJumping)
 	{
@@ -227,35 +222,59 @@ void Player::UpdateIdle(const InputState& input)
 		//}
 	}
 
+	// プレイヤーの回転値を取得する
+	VECTOR vect = MV1GetRotationXYZ(pModel_->GetModelHandle());
+
+	// カメラが向いている方向からベクトル変換して移動情報作成
+	VECTOR moveUp = VTransform(player_vec_up, MGetRotY(pCamera_->GetCameraAngle()));
+	VECTOR moveDown = VTransform(player_vec_down, MGetRotY(pCamera_->GetCameraAngle()));
+	VECTOR moveRight = VTransform(player_vec_right, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
+	VECTOR moveLeft = VTransform(player_vec_left, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
+
 	// 移動
 	isMoving_ = false;
+	moveVec_ = VGet(0, 0, 0);
+	VECTOR moveVecX = VGet(0, 0, 0);
+	VECTOR moveVecZ = VGet(0, 0, 0);
 	if (input.IsPressed(InputType::w))
 	{
-		pos_ = VAdd(pos_, moveZ);
+		moveVecZ = moveUp;
 
 		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::a))
 	{
-		pos_ = VSub(pos_, moveX);
+		moveVecX = moveLeft;
 
 		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::s))
 	{
-		pos_ = VSub(pos_, moveZ);
+		moveVecZ = moveDown;
 
 		isMoving_ = true;
 	}
 	if (input.IsPressed(InputType::d))
 	{
-		pos_ = VAdd(pos_, moveX);
+		moveVecX = moveRight;
 
 		isMoving_ = true;
 	}
 
 	if (isMoving_)
 	{
+		// x方向とz方向のベクトルを足して移動ベクトルを作成する
+		moveVec_ = VAdd(moveVecZ, moveVecX);
+
+		// 正規化
+		moveVec_ = VNorm(moveVec_);
+
+		// 正規化したベクトルにプレイヤーの速度をかける
+		moveVec_ = VScale(moveVec_, 10.0f);
+
+		// 動かす
+		pos_ = VAdd(pos_, moveVec_);
+
 		if (animNo_ == idle_anim_no)
 		{
 			// 歩行アニメに変更

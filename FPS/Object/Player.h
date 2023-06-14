@@ -93,4 +93,6 @@ private:
 
 	// ƒvƒŒƒCƒ„[‚ª€‚ñ‚Å‚¢‚é‚©
 	bool isDead_;
+
+	VECTOR moveVec_;
 };

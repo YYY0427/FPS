@@ -11,6 +11,8 @@
 #include "../Object/Shot.h"
 #include "../Object/Enemy.h"
 #include "../DrawFunctions.h"
+#include "../Object/SkyDoom.h"
+#include <cassert>
 
 namespace
 {
@@ -34,12 +36,14 @@ MainScene::MainScene(SceneManager& manager) :
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
 	shadowMap_(-1),
-	gameOverUIhandle_(-1)
+	gameOverUIhandle_(-1),
+	gameOverFadeTimer_(0)
 {
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
 	pField_ = std::make_shared<Field>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
+	pSkyDoom_ = std::make_shared<SkyDoom>();
 	for (int i = 0; i < shot_max; i++)
 	{
 		pShot_.push_back(std::make_shared<Shot>());
@@ -72,6 +76,7 @@ void MainScene::Init()
 	pPlayer_->Init();
 	pEnemyManager_->Init();
 	pCamera_->Init();
+	pSkyDoom_->Init();
 
 	for (auto& enemies : pEnemyManager_->GetEnemies())
 	{
@@ -95,7 +100,7 @@ void MainScene::Draw()
 {
 	DrawString(0, 0, "MainScene", 0xffffff, true);
 
-	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x0000ff, true);
+	pSkyDoom_->Draw();
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
@@ -124,13 +129,14 @@ void MainScene::Draw()
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
 
+	// プレイヤーが死んだら表示開始
 	if (pPlayer_->GetIsDead())
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
-	//  SetDrawBlendMode(DX_BLENDMODE_ALPHA, gameOverUIfadeValue_);
 		DrawGraph(0,  0, gameOverUIhandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
+	// プレイヤーが生きているときのみクロスヘアを表示
 	else
 	{
 		// クロスヘア
@@ -228,11 +234,11 @@ void MainScene::NormalUpdate(const InputState& input)
 
 	if (pPlayer_->GetIsDead())
 	{
-		fadeTimer_++;
-		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(fadeTimer_)) / static_cast<float>(game_over_fade_interval));
-		if (fadeTimer_ >= 100)
+		gameOverFadeTimer_++;
+		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(gameOverFadeTimer_)) / static_cast<float>(game_over_fade_interval));
+		if (gameOverFadeTimer_ >= 100)
 		{
-			fadeTimer_ = 100;
+			gameOverFadeTimer_ = 100;
 		}	 
 	}
 

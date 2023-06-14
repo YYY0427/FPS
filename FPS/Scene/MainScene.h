@@ -9,6 +9,7 @@ class Player;
 class Field;
 class Shot;
 class EnemyManager;
+class SkyDoom;
 
 /// <summary>
 /// メインシーン
@@ -46,15 +47,16 @@ private:
 	std::shared_ptr<Field> pField_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
+	std::shared_ptr<SkyDoom> pSkyDoom_;
 
 	// ゲームオーバー時のUI用ハンドル
 	int gameOverUIhandle_;
+	int gameOverFadeTimer_;
 
 	// フェイド
 	int fadeTimer_;
 	int fadeValue_;
 	int gameOverUIfadeValue_;
-
 
 	// シャドウマップ
 	int shadowMap_;

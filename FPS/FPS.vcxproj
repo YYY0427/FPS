@@ -171,6 +171,7 @@
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="Object\Shot.cpp" />
+    <ClCompile Include="Object\SkyDoom.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Scene\SoundSettingScene.cpp" />
     <ClCompile Include="Stage.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="Object\Shot.h" />
+    <ClInclude Include="Object\SkyDoom.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Scene\SoundSettingScene.h" />
     <ClInclude Include="Stage.h" />

@@ -7,10 +7,9 @@
 namespace
 {
 	// カメラの初期位置
-	constexpr VECTOR tps_camera_pos{ 0, 720, 620 };
+	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
 	constexpr VECTOR tps_camera_target{ 0, 400, -120 };
 
-//	constexpr VECTOR fps_camera_pos{ 0, 200, 21 };
 	constexpr VECTOR fps_camera_pos{ 0, 200, -10 };
 	constexpr VECTOR fps_camera_target{ 0, 90, -500 };
 	constexpr VECTOR fps_dead_camera_target{0, 500, 100};
@@ -18,8 +17,12 @@ namespace
 	// カメラ視野角の設定
 	constexpr float perspective = 90.0f;
 
+	// 描画距離(near, far)
+	constexpr float near_distance = 5.0f;
+	constexpr float far_distance = 8400.0f;
+
 	// 倒れるアニメーションに何フレーム使うのか
-	constexpr float anim_frame_num = 100.0f;
+	constexpr float anim_frame_num = 180.0f;
 
 	// 旋回速度
 	constexpr float rot_speed = 0.01f;
@@ -77,7 +80,7 @@ void Camera::Init()
 	rotateDegreeY_ = 180;
 
 	// カメラからどれだけ離れたところ( Near )から、 どこまで( Far )のものを描画するかを設定
-	SetCameraNearFar(5.0f, 2800.0f);
+	SetCameraNearFar(near_distance, far_distance);;
 
 	// カメラの位置、どこを見ているかを設定する
 	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraInitTarget_, VGet(0, 1, 0));
@@ -120,7 +123,7 @@ void Camera::Update(const InputState& input)
 	VECTOR cameraTrans = pPlayer_->GetPos();
 	//	cameraTrans.y = 0.0f;							// Y軸カメラの追従を行わない
 	//	cameraTrans.y = pPlayer_->GetPos().y * 0.65f;	// Y軸カメラの追従を少し遅くする
-	cameraTrans.y = pPlayer_->GetPos().y;			// Y軸カメラの追従をプレイヤーの位置に合わせる
+	cameraTrans.y = pPlayer_->GetPos().y;				// Y軸カメラの追従をプレイヤーの位置に合わせる
 
 	// 平行行列の作成(なにこれ??)
 	MATRIX playerTransMtx = MGetTranslate(cameraTrans);
@@ -139,7 +142,7 @@ void Camera::Update(const InputState& input)
 		cameraTarget_ = VTransform(cameraInitTarget_, cameraMtxTarget);
 	}
 	// プレイヤーが死んでいたらカメラを死亡時カメラに切り替え
-	else	
+	else if(pPlayer_->GetIsDead() && perspectiveFps_)
 	{
 		// 一回しか通らない
 		if (!isPass_)
@@ -158,7 +161,10 @@ void Camera::Update(const InputState& input)
 		}
 
 		// フレーム加算
-		deadFrame_++;
+		if (deadFrame_++ >= anim_frame_num - 1)
+		{
+			deadFrame_ = anim_frame_num - 1;
+		}
 
 		// 割合計算
 		float ratio = static_cast<float>(deadFrame_ / anim_frame_num); // 0～100
@@ -169,7 +175,7 @@ void Camera::Update(const InputState& input)
 	}
 
 	// カメラからどれだけ離れたところ( Near )から、 どこまで( Far )のものを描画するかを設定
-	SetCameraNearFar(5.0f, 2800.0f);
+	SetCameraNearFar(near_distance, far_distance);
 
 	// カメラの視野角を設定(ラジアン)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);

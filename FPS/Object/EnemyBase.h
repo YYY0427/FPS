@@ -4,13 +4,12 @@
 
 class Player;
 class Model;
-class MainScene;
 
 class EnemyBase
 {
 public:
 	EnemyBase();
-	virtual ~EnemyBase(){}
+	virtual ~EnemyBase();
 
 	void Init();
 	virtual void Update() = 0;
@@ -33,9 +32,6 @@ public:
 
 	// 死亡情報のゲッター
 	bool GetDead() const { return isDead_; }
-
-	// メインシーンのセッター
-	void SetMainScene(std::shared_ptr<MainScene> pMainScene) { pMainScene_ = pMainScene; }
 
 	// プレイヤーのセッター
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
@@ -66,7 +62,6 @@ protected:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
-	std::shared_ptr<MainScene> pMainScene_;
 
 	// 再生しているアニメーション番号
 	int animNo_ = 0;

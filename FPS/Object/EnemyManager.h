@@ -3,7 +3,6 @@
 #include <vector>
 
 class EnemyBase;
-class MainScene;
 
 class EnemyManager
 {
@@ -22,5 +21,4 @@ public:
 
 private:
 	std::vector<std::shared_ptr<EnemyBase>> pEnemies_;
-	std::shared_ptr<MainScene> pMainScene_;
 };

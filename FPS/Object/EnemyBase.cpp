@@ -8,6 +8,11 @@ EnemyBase::EnemyBase()
 {
 }
 
+EnemyBase::~EnemyBase()
+{
+
+}
+
 void EnemyBase::Init()
 {
 	// 3Dモデルの生成
@@ -24,18 +29,14 @@ void EnemyBase::Init()
 
 void EnemyBase::Draw()
 {
-	// フェード中の場合表示しない
-	if (!pMainScene_->GetFadeInTheMiddle())
+	// ダメージ処理
+	if (damageFrame_ > 0)
 	{
-		// ダメージ処理
-		if (damageFrame_ > 0)
-		{
-			if (damageFrame_ % 2) return;
-		}
-
-		// モデルの描画
-		pModel_->Draw();
+		if (damageFrame_ % 2) return;
 	}
+
+	// モデルの描画
+	pModel_->Draw();
 }
 
 int EnemyBase::GetModelHandle() const

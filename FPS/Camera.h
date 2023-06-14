@@ -31,14 +31,8 @@ private:
 	VECTOR cameraTarget_;
 	VECTOR cameraInitTarget_;
 
-	// カメラ角度
-	float cameraAngle_;
-
 	// FPSかどうか
 	bool perspectiveFps_;
-
-	// プレイヤーの向いている方向
-	float angle_;
 
 	// マウスの現在位置
 	int mousePosX_;

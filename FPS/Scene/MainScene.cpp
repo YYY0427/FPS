@@ -30,7 +30,7 @@ namespace
 
 MainScene::MainScene(SceneManager& manager) :
 	Scene(manager),
-	updateFunc_(&MainScene::FadeInUpdate),
+	updateFunc_(&MainScene::NormalUpdate),
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
 	shadowMap_(-1),
@@ -75,7 +75,6 @@ void MainScene::Init()
 
 	for (auto& enemies : pEnemyManager_->GetEnemies())
 	{
-		enemies->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
 		enemies->SetPlayer(pPlayer_);
 	}
 
@@ -168,27 +167,23 @@ float MainScene::GetReticlePosY() const
 	return static_cast<float>(reticle_pos_y);
 }
 
-bool MainScene::GetFadeInTheMiddle()
-{
-	if (fadeTimer_ > 0)
-	{
-		return true;
-	}
-	return false;
-}
-
 void MainScene::FadeInUpdate(const InputState& input)
 {
 	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
-	if (--fadeTimer_ == 0)
+	if (--fadeTimer_ <= 0)
 	{
-		updateFunc_ = &MainScene::NormalUpdate;
 		fadeTimer_ = 0;
 	}
 }
 
 void MainScene::NormalUpdate(const InputState& input)
 {
+	if (fadeTimer_ > 0)
+	{
+		// フェード処理
+		FadeInUpdate(input);
+	}
+
 	// 各クラスの更新処理
 	pField_->Update();
 	pPlayer_->Update(input);

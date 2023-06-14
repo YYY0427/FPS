@@ -30,9 +30,7 @@ Camera::Camera() :
 	cameraInitPos_(VGet(0, 0, 0)),
 	cameraTarget_(VGet(0, 0, 0)),
 	cameraInitTarget_(VGet(0, 0, 0)),
-	cameraAngle_(0.0f),
 	perspectiveFps_(true),
-	angle_(0.0f),
 	mousePosX_(0),
 	mousePosY_(0),
 	preMousePosX_(0),
@@ -75,8 +73,8 @@ void Camera::Init()
 	// カメラの注視点の設定
 	cameraInitTarget_ = fps_camera_target;
 
-	// カメラの向いている方向の設定
-	cameraAngle_ = angle_;
+	// カメラが向いているY座標の角度の初期化
+	rotateDegreeY_ = 180;
 
 	// カメラからどれだけ離れたところ( Near )から、 どこまで( Far )のものを描画するかを設定
 	SetCameraNearFar(5.0f, 2800.0f);
@@ -86,15 +84,11 @@ void Camera::Init()
 
 	// カメラの視野角を設定(ラジアン)
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
+
 }
 
 void Camera::Update(const InputState& input)
 {
-#if false
-	cameraAngle_ = pPlayer_->GetAngle();
-#else
-	cameraAngle_ = (cameraAngle_ * 0.8f) + (angle_ * 0.2f);
-#endif
 	if (!pPlayer_->GetIsDead())
 	{
 		// マウスの座標の取得

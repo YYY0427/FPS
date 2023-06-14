@@ -51,6 +51,7 @@ Enemy::Enemy(const char* fileName)
 
 Enemy::~Enemy()
 {
+
 }
 
 void Enemy::Update()

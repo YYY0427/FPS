@@ -30,9 +30,6 @@ public:
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
-	// フェード中かのゲッター
-	bool GetFadeInTheMiddle() ;
-
 private:
 	void FadeInUpdate(const InputState& input);
 	void NormalUpdate(const InputState& input);

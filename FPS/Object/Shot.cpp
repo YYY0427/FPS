@@ -31,10 +31,11 @@ Shot::~Shot()
 
 void Shot::Init(int handle)
 {
+	// インスタンス化
 	pModel_ = std::make_shared<Model>(handle);
 
+	// モデルの拡大率の設定
 	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
-//	pModel_->SetRot(VGet(0, pCamera_->GetCameraAngleX(), pCamera_->GetCameraAngleY()));
 }
 
 void Shot::Update()

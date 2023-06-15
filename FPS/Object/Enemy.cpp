@@ -133,13 +133,22 @@ bool Enemy::IsPlayerFront() const
 
 	// 敵からプレイヤーへのベクトル
 	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
-	toPlayer = VNorm(toPlayer);
+	VECTOR toPlayerNorm = VNorm(toPlayer);
 
 	// 内積から角度を求める
-	float dot = VDot(dir, toPlayer);
+	float dot = VDot(dir, toPlayerNorm);
 	float angle = acosf(dot);
 
-	return (angle < view_angle);
+	// 敵からプレイヤーへのベクトル
+	float distans = VSize(toPlayer);
+	
+	// 視野の中にプレイヤーがいてプレイヤーまでの距離が指定の距離以内の場合
+	// プレイヤーを追いかける
+	if (angle < view_angle && distans < 1000.0f)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Enemy::UpdateToPlayer()

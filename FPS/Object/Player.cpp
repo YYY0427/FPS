@@ -22,7 +22,7 @@ namespace
 	constexpr float player_speed = 20.0f;
 
 	// ショットの発射位置
-	constexpr VECTOR shot_init_pos{ -89.264f, 100.0f, -230 };
+	constexpr VECTOR shot_firing_init_pos{ -89.264f, 100.0f, -230.0f };
 
 	// ショットの速度
 	constexpr float shot_speed = 50.0f;
@@ -40,7 +40,7 @@ namespace
 	constexpr int punch_anim_no = 10;		// 銃で殴るモーション
 	constexpr int walk_shot_anim_no = 13;	// 移動している状態でショットを撃つ
 	constexpr int dead_anim_no = 0;			// 死亡アニメーション
-	constexpr int damage_anim_no = 2;		// 死亡アニメーション
+	constexpr int damage_anim_no = 2;		// ダメージアニメーション
 
 	// アニメーション切り替わりにかかるフレーム数
 	constexpr int anim_change_frame = 16;
@@ -198,10 +198,8 @@ void Player::UpdateIdle(const InputState& input)
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
 		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraAngleX());	// 横移動情報の行列作成		
-		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);	// 横移動情報行列とプレイヤーの平行移動行列の合成
-		VECTOR shootStartPos = VTransform(shot_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
-
-		VECTOR playerToGun = VSub(shot_init_pos, pos_);
+		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);			// 横移動情報行列とプレイヤーの平行移動行列の合成
+		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);			// ショットの発射初期位置と作成した行列からベクトルの生成
 
 		// レティクルの位置の取得
 		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));

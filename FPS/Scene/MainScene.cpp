@@ -64,6 +64,7 @@ void MainScene::Init()
 	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
+	pSkyDoom_->SetPlayer(pPlayer_);
 
 	int handle = pShot_[0]->LoadModel();
 	for (auto& shot : pShot_)
@@ -191,6 +192,7 @@ void MainScene::NormalUpdate(const InputState& input)
 	}
 
 	// 各クラスの更新処理
+	pSkyDoom_->Update();
 	pField_->Update();
 	pPlayer_->Update(input);
 	pEnemyManager_->Update();

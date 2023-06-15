@@ -18,7 +18,8 @@ public:
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// カメラのアングルの取得
-	float GetCameraAngle() const;
+	float GetCameraAngleX() const;
+	float GetCameraAngleY() const;
 
 	// カメラの注視点の取得
 	VECTOR GetCameraTarget() const { return cameraTarget_; }

@@ -30,6 +30,9 @@ public:
 	// 回転状態の設定
 	void SetRot(VECTOR rot);
 
+	// 拡大値の設定
+	void SetScale(VECTOR scale);
+
 	// アニメーションの制御
 
 	/// <summary>

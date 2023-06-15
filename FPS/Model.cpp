@@ -119,6 +119,11 @@ void Model::SetRot(VECTOR rot)
 	MV1SetRotationXYZ(m_modelHandle, rot);
 }
 
+void Model::SetScale(VECTOR scale)
+{
+	MV1SetScale(m_modelHandle, scale);
+}
+
 void Model::SetAnimation(int animNo, bool isLoop, bool isForceChange)
 {
 	if (!isForceChange)

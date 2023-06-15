@@ -21,6 +21,9 @@ namespace
 	// プレイヤーの速度
 	constexpr float player_speed = 20.0f;
 
+	// ショットの発射位置
+	constexpr VECTOR shot_init_pos{ -89.264f, 100.0f, -230 };
+
 	// ショットの速度
 	constexpr float shot_speed = 50.0f;
 
@@ -67,7 +70,8 @@ Player::Player() :
 	damageFrame_(0),
 	isMoving_(false),
 	isDead_(false),
-	moveVec_(VGet(0, 0, 0))
+	moveVec_(VGet(0, 0, 0)),
+	gunPos_(VGet(0, 0, 0))
 {
 }
 
@@ -80,6 +84,9 @@ void Player::Init()
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
 	pModel_->SetAnimation(animNo_, true, true);
+	gunPos_ = MV1GetFramePosition(pModel_->GetModelHandle(), 27);
+	gunPos_.y += 100;
+	gunPos_.z -= 250;
 }
 
 void Player::Update(const InputState& input)
@@ -188,15 +195,19 @@ void Player::UpdateIdle(const InputState& input)
 	// ショットを撃つ処理
 	if (input.IsPressed(InputType::shot))
 	{
-		// 弾の発射位置
-		VECTOR shootStart = MV1GetFramePosition(pModel_->GetModelHandle(), 27);
-		shootStart.y = 100.0f;
+		// 弾の発射位置の作成
+		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
+		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraAngleX());	// 横移動情報の行列作成		
+		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);	// 横移動情報行列とプレイヤーの平行移動行列の合成
+		VECTOR shootStartPos = VTransform(shot_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
+
+		VECTOR playerToGun = VSub(shot_init_pos, pos_);
 
 		// レティクルの位置の取得
 		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
 
 		// 終点から始点を引く
-		shotVec = VSub(shotVec, shootStart);
+		shotVec = VSub(shotVec, shootStartPos);
 
 		// 正規化
 		shotVec = VNorm(shotVec);
@@ -205,7 +216,7 @@ void Player::UpdateIdle(const InputState& input)
 		shotVec = VScale(shotVec, shot_speed);
 
 		// ショット開始
-		pMainScene_->StartShot(shootStart, shotVec);
+		pMainScene_->StartShot(shootStartPos, shotVec);
 
 		// 止まっている場合と走っている場合で分岐
 	//	if (!isMoving_)
@@ -229,10 +240,10 @@ void Player::UpdateIdle(const InputState& input)
 	VECTOR vect = MV1GetRotationXYZ(pModel_->GetModelHandle());
 
 	// カメラが向いている方向からベクトル変換して移動情報作成
-	VECTOR moveUp = VTransform(player_vec_up, MGetRotY(pCamera_->GetCameraAngle()));
-	VECTOR moveDown = VTransform(player_vec_down, MGetRotY(pCamera_->GetCameraAngle()));
-	VECTOR moveRight = VTransform(player_vec_right, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
-	VECTOR moveLeft = VTransform(player_vec_left, MGetRotY(pCamera_->GetCameraAngle() + vect.x));
+	VECTOR moveUp = VTransform(player_vec_up, MGetRotY(pCamera_->GetCameraAngleX()));
+	VECTOR moveDown = VTransform(player_vec_down, MGetRotY(pCamera_->GetCameraAngleX()));
+	VECTOR moveRight = VTransform(player_vec_right, MGetRotY(pCamera_->GetCameraAngleX() + vect.x));
+	VECTOR moveLeft = VTransform(player_vec_left, MGetRotY(pCamera_->GetCameraAngleX() + vect.x));
 
 	// 移動
 	isMoving_ = false;
@@ -302,7 +313,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	pModel_->SetPos(pos_);
-	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraAngle(), 0.0f));
+	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraAngleX(), 0.0f));
 }
 
 void Player::UpdateIdleShot(const InputState& input)

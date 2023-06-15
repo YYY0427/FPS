@@ -4,6 +4,7 @@
 
 class Player;
 class Camera;
+class Model;
 
 class Shot
 {
@@ -42,6 +43,7 @@ private:
 	// É|ÉCÉìÉ^
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Camera> pCamera_;
+	std::shared_ptr<Model> pModel_;
 
 	// ë∂ç›Ç∑ÇÈ
 	bool isExsit_;

@@ -7,8 +7,10 @@
 namespace
 {
 	// カメラの初期位置とカメラの初期注視点
-	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
-	constexpr VECTOR tps_camera_target{ 0, 400, -120 };
+//	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
+	constexpr VECTOR tps_camera_pos{ 500, 300, -300 };
+	constexpr VECTOR tps_camera_target{ 0, 0, 0 };
+//	constexpr VECTOR tps_camera_target{ 0, 400, -120 };
 
 	constexpr VECTOR fps_camera_pos{ 0, 200, -10 };
 	constexpr VECTOR fps_camera_target{ 0, 90, -500 };
@@ -121,7 +123,7 @@ void Camera::Update(const InputState& input)
 	VECTOR cameraTrans = pPlayer_->GetPos();
 //	cameraTrans.y = 0.0f;							// Y軸カメラの追従を行わない
 //	cameraTrans.y = pPlayer_->GetPos().y * 0.65f;	// Y軸カメラの追従を少し遅くする
-	cameraTrans.y = pPlayer_->GetPos().y;			// Y軸カメラの追従をプレイヤーの位置に合わせる
+//	cameraTrans.y = pPlayer_->GetPos().y;			// Y軸カメラの追従をプレイヤーの位置に合わせる
 
 	// 平行行列の作成(なにこれ??)
 	MATRIX playerTransMtx = MGetTranslate(cameraTrans);
@@ -228,7 +230,12 @@ void Camera::Update(const InputState& input)
 	preMousePosY_ = mousePosY_;
 }
 
-float Camera::GetCameraAngle() const
+float Camera::GetCameraAngleX() const
 {
 	return -(DX_PI_F * rotateDegreeX_ / 180);
+}
+
+float Camera::GetCameraAngleY() const
+{
+	return -(DX_PI_F * rotateDegreeY_ / 180);
 }

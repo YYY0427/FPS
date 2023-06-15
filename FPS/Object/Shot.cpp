@@ -1,6 +1,7 @@
 #include "Shot.h"
 #include "Player.h"
 #include "../Camera.h"
+#include "../Model.h"
 #include <cassert>
 
 namespace
@@ -8,8 +9,11 @@ namespace
 	// これ以上離れたら消す
 	constexpr float erase_distance = 3000.0f;
 
-	// 弾のアドレス
+	// モデルのアドレス
 	const char* const bullet_file_name = "Data/Model/bullet.mv1";
+
+	// モデルの拡大率
+	constexpr float model_magnification = 25.0f;
 }
 
 Shot::Shot() :
@@ -23,57 +27,63 @@ Shot::Shot() :
 
 Shot::~Shot()
 {
-	MV1DeleteModel(handle_);
 }
 
 void Shot::Init(int handle)
 {
-	handle_ = handle;
-	assert(handle_ != -1);
+	pModel_ = std::make_shared<Model>(handle);
 
-	MV1SetScale(handle_, VGet(25, 25, 25));
-	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));
+	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
+//	pModel_->SetRot(VGet(0, pCamera_->GetCameraAngleX(), pCamera_->GetCameraAngleY()));
 }
 
 void Shot::Update()
 {
 	if (!isExsit_)	return;
 
-	// まっすぐ進む
+	// 前フレームの位置の取得
 	lastPos_ = pos_;
+
+	// まっすぐ進む
 	pos_ = VAdd(pos_, vec_);
 
-	// プレイヤーから一定以上離れたら消す
+	// プレイヤーの位置の取得
 	VECTOR playerPos = pPlayer_->GetPos();
+
+	// プレイヤーからの距離を求める
 	VECTOR toPlayer = VSub(playerPos, pos_);
 
+	// プレイヤーから一定以上離れたら消す
 	if (VSize(toPlayer) > erase_distance)
 	{
 		isExsit_ = false;
 	}
 
-	MV1SetPosition(handle_, pos_);
+	// モデルのポジションの設定
+	pModel_->SetPos(pos_);
 }
 
 void Shot::Draw()
 {
 	if (!isExsit_)	return;
-	MV1DrawModel(handle_);
+	pModel_->Draw();
 }
 
 int Shot::LoadModel() const
 {
+	// モデルのロード
+	// 1回ロード(DuplicateModelを使ってコピーするために必要)
 	return MV1LoadModel(bullet_file_name);
 }
 
 void Shot::Start(VECTOR pos, VECTOR vec)
 {
+	// ショット開始
 	isExsit_ = true;
-
 	pos_ = pos;
 	lastPos_ = pos;
 	vec_ = vec;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
-	MV1SetRotationXYZ(handle_, VGet(0, pCamera_->GetCameraAngle(), 0));
+	pModel_->SetRot(VGet(-pCamera_->GetCameraAngleY(), pCamera_->GetCameraAngleX(), 0));
 }

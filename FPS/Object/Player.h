@@ -95,4 +95,6 @@ private:
 	bool isDead_;
 
 	VECTOR moveVec_;
+
+	VECTOR gunPos_;
 };

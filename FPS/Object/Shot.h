@@ -31,6 +31,9 @@ public:
 	// 前のフレームの位置情報のゲッター
 	VECTOR GetLastPos() const { return lastPos_; };
 
+	// 当たり判定の半径のゲッター
+	float GetColRadius() const;
+
 	// 弾を消すセッター
 	void SetExsit(bool isExsit) { isExsit_ = isExsit; }
 

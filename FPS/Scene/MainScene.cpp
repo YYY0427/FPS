@@ -145,6 +145,13 @@ void MainScene::Draw()
 		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 	}
 
+#ifdef _DEBUG
+	// デバック表示
+	DrawFormatString(10, 90, 0xffffff, "playerX = %f", pPlayer_->GetPos().x);
+	DrawFormatString(10, 120, 0xffffff, "playerY = %f", pPlayer_->GetPos().y);
+	DrawFormatString(10, 150, 0xffffff, "playerZ = %f", pPlayer_->GetPos().z);
+#endif
+
 	// フェイド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeValue_);
 	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x000000, true);
@@ -211,7 +218,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		{
 			// DxLibの関数を利用して当たり判定をとる
 			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-			result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), 48.0f);
+			result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
 
 			if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 			{

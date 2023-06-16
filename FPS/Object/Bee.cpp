@@ -94,6 +94,10 @@ void Bee::DrawUI()
 
 	// ògê¸
 	DrawBoxAA(screenPos.x - hp_bar_width / 2, screenPos.y, screenPos.x + hp_bar_width / 2, screenPos.y + hp_bar_height, 0xffffff, false);
+
+#ifdef _DEBUG
+//	DrawSphere3D(pos_, col_radius, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), false);
+#endif
 }
 
 float Bee::GetColRadius() const

@@ -94,7 +94,9 @@ private:
 	// プレイヤーが死んでいるか
 	bool isDead_;
 
-	VECTOR moveVec_;
+	// ショットを撃ってから何フレーム経過したかのカウント
+	int shotFrameCount_;
 
-	VECTOR gunPos_;
+	// 移動ベクトル
+	VECTOR moveVec_;
 };

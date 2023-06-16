@@ -22,7 +22,7 @@ namespace
 	constexpr float player_speed = 20.0f;
 
 	// ショットの発射位置
-	constexpr VECTOR shot_firing_init_pos{ -89.264f, 100.0f, -230.0f };
+	constexpr VECTOR shot_firing_init_pos{ -89.264f, 150.0f, -260.0f };
 
 	// ショットの速度
 	constexpr float shot_speed = 50.0f;
@@ -54,10 +54,13 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 1;
+	constexpr int max_hp = 3;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
+
+	// ショットの再使用まで待機フレーム数
+	constexpr int shot_wait_time = 10;
 }
 
 Player::Player() :
@@ -71,7 +74,7 @@ Player::Player() :
 	isMoving_(false),
 	isDead_(false),
 	moveVec_(VGet(0, 0, 0)),
-	gunPos_(VGet(0, 0, 0))
+	shotFrameCount_(0)
 {
 }
 
@@ -84,9 +87,6 @@ void Player::Init()
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
 	pModel_->SetAnimation(animNo_, true, true);
-	gunPos_ = MV1GetFramePosition(pModel_->GetModelHandle(), 27);
-	gunPos_.y += 100;
-	gunPos_.z -= 250;
 }
 
 void Player::Update(const InputState& input)
@@ -164,6 +164,9 @@ void Player::SetVisible(bool visible)
 
 void Player::UpdateIdle(const InputState& input)
 {
+	// フレームカウント
+	shotFrameCount_++;
+
 	// アニメーションを進める
 	pModel_->Update();
 
@@ -192,14 +195,14 @@ void Player::UpdateIdle(const InputState& input)
 		}
 	}
 
-	// ショットを撃つ処理
-	if (input.IsPressed(InputType::shot))
+	// ショットを撃つ処理()
+	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= shot_wait_time)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
 		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraAngleX());	// 横移動情報の行列作成		
 		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);			// 横移動情報行列とプレイヤーの平行移動行列の合成
-		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);			// ショットの発射初期位置と作成した行列からベクトルの生成
+		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
 
 		// レティクルの位置の取得
 		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
@@ -216,22 +219,12 @@ void Player::UpdateIdle(const InputState& input)
 		// ショット開始
 		pMainScene_->StartShot(shootStartPos, shotVec);
 
-		// 止まっている場合と走っている場合で分岐
-	//	if (!isMoving_)
-		{
-			// ショットアニメに変更する
-			animNo_ = idle_shot_anim_no;
-			pModel_->ChangeAnimation(animNo_, false, true, 4);
+		// ショットアニメに変更する
+		animNo_ = idle_shot_anim_no;
+		pModel_->ChangeAnimation(animNo_, false, true, 4);
 
-			updateFunc_ = &Player::UpdateIdleShot;
-			frameCount_ = 0;
-		}
-		//else
-		//{
-		//	// ショット歩行アニメに変更
-		//	animNo_ = walk_shot_anim_no;
-		//	pModel_->ChangeAnimation(walk_shot_anim_no, true, false, 4);
-		//}
+		// 初期化
+		shotFrameCount_ = 0;
 	}
 
 	// プレイヤーの回転値を取得する
@@ -302,12 +295,13 @@ void Player::UpdateIdle(const InputState& input)
 			animNo_ = idle_anim_no;
 			pModel_->ChangeAnimation(idle_anim_no, true, false, 4);
 		}
-		else if (animNo_ == walk_shot_anim_no)
-		{
-			// 待機アニメに変更
-			animNo_ = idle_anim_no;
-			pModel_->ChangeAnimation(idle_anim_no, true, false, 4);
-		}
+	}
+
+	// ショットアニメが終わり次第待機アニメに変更
+	if (pModel_->IsAnimEnd() && animNo_ == idle_shot_anim_no)
+	{
+		animNo_ = idle_anim_no;
+		pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
 	}
 
 	pModel_->SetPos(pos_);
@@ -359,11 +353,6 @@ void Player::UpdateDead(const InputState& input)
 		pos_.y = 0.0f;
 		jumpAcc_ = 0.0f;
 	}
-
-	if (pModel_->IsAnimEnd())
-	{
-
-	}
 }
 
 void Player::UpdateOnDamage(const InputState& input)
@@ -373,19 +362,12 @@ void Player::UpdateOnDamage(const InputState& input)
 
 	if (pModel_->IsAnimEnd())
 	{
-	//	if (!isMoving_)
-		{
-			// 待機アニメに変更する
-			animNo_ = idle_anim_no;
-			pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
+		// 待機アニメに変更する
+		animNo_ = idle_anim_no;
+		pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
 
-			// Updateを待機に
-			updateFunc_ = &Player::UpdateIdle;
-			frameCount_ = 0;
-		}
-	//	else
-		{
-
-		}
+		// Updateを待機に
+		updateFunc_ = &Player::UpdateIdle;
+		frameCount_ = 0;
 	}
 }

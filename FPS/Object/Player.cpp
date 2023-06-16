@@ -60,7 +60,7 @@ namespace
 	constexpr int invincible_time = 60;
 
 	// ショットの再使用まで待機フレーム数
-	constexpr int shot_wait_time = 10;
+	constexpr int shot_wait_time = 5;
 }
 
 Player::Player() :

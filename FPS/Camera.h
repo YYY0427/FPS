@@ -23,6 +23,10 @@ public:
 
 	// カメラの注視点の取得
 	VECTOR GetCameraTarget() const { return cameraTarget_; }
+
+	// マウスの位置の取得
+	int GetMousePosX() const { return mousePosX_; }
+	int GetMousePosY() const { return mousePosY_; }
 private:
 	std::shared_ptr<Player> pPlayer_;
 	

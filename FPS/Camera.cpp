@@ -217,7 +217,7 @@ void Camera::Update(const InputState& input)
 #endif
 
 	// マウスカーソルが画面端近くに近づいた場合初期位置に戻す
-	if (mousePosX_ >= Game::screen_width || mousePosX_ <= 0 ||
+	if (mousePosX_ >= Game::screen_width - 10 || mousePosX_ <= 0 ||
 		mousePosY_ >= Game::screen_height || mousePosY_ <= 0)
 	{
 		// マウスポインタの初期位置の設定

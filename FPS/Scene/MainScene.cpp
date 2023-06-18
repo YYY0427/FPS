@@ -150,6 +150,8 @@ void MainScene::Draw()
 	DrawFormatString(10, 90, 0xffffff, "playerX = %f", pPlayer_->GetPos().x);
 	DrawFormatString(10, 120, 0xffffff, "playerY = %f", pPlayer_->GetPos().y);
 	DrawFormatString(10, 150, 0xffffff, "playerZ = %f", pPlayer_->GetPos().z);
+
+	DrawFormatString(10, 180, 0xffffff, "mousePos = %d, %d", pCamera_->GetMousePosX(), pCamera_->GetMousePosY());
 #endif
 
 	// フェイド

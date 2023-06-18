@@ -13,7 +13,7 @@ namespace Game
 	const char* const title_text = "FPS";
 
 	// Windowサイズ
-	constexpr int screen_width = 1980;
+	constexpr int screen_width = 1920;
 	constexpr int screen_height = 1080;
 
 	// カラーモード

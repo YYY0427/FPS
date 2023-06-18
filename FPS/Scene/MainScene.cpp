@@ -66,6 +66,7 @@ void MainScene::Init()
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
 
+	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();
 	for (auto& shot : pShot_)
 	{
@@ -150,7 +151,6 @@ void MainScene::Draw()
 	DrawFormatString(10, 90, 0xffffff, "playerX = %f", pPlayer_->GetPos().x);
 	DrawFormatString(10, 120, 0xffffff, "playerY = %f", pPlayer_->GetPos().y);
 	DrawFormatString(10, 150, 0xffffff, "playerZ = %f", pPlayer_->GetPos().z);
-
 	DrawFormatString(10, 180, 0xffffff, "mousePos = %d, %d", pCamera_->GetMousePosX(), pCamera_->GetMousePosY());
 #endif
 
@@ -164,10 +164,16 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 {
 	for (auto& shot : pShot_)
 	{
+		// 画面内にすでに存在していた場合ショットしない
 		if (shot->isExist())
 		{
 			continue;
 		}
+
+		// 画面を揺らす度合いをセット
+		pCamera_->SetQuake(10, VGet(3, 0, 0));
+
+		// ショットスタート
 		shot->Start(pos, vec);
 		break;
 	}

@@ -27,6 +27,13 @@ public:
 	// マウスの位置の取得
 	int GetMousePosX() const { return mousePosX_; }
 	int GetMousePosY() const { return mousePosY_; }
+
+	// 画面を揺らす
+	void Quake();
+
+	// 画面の揺れ具合をセット
+	void SetQuake(int timer, VECTOR quake) { quakeTimer_ = timer, quake_ = quake; }
+
 private:
 	std::shared_ptr<Player> pPlayer_;
 	
@@ -71,4 +78,8 @@ private:
 
 	// ベクトルの大きさ
 	float size_;
+
+	// 画面揺れ
+	int quakeTimer_;
+	VECTOR quake_;
 };

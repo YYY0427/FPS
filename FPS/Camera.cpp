@@ -23,7 +23,7 @@ namespace
 	constexpr float far_distance = 18400.0f;
 
 	// 倒れるアニメーションに何フレーム使うのか
-	constexpr float anim_frame_num = 180.0f;
+	constexpr int anim_frame_num = 180;
 
 	// 旋回速度
 	constexpr float rot_speed = 0.01f;
@@ -47,7 +47,9 @@ Camera::Camera() :
 	deadFrame_(0),
 	distance_(VGet(0, 0, 0)),
 	upVector_(VGet(0, 0, 0)),
-	size_(0.0f)
+	size_(0.0f),
+	quakeTimer_(0),
+	quake_(VGet(0, 0, 0))
 {
 }
 
@@ -228,6 +230,9 @@ void Camera::Update(const InputState& input)
 	// 座標の保存
 	preMousePosX_ = mousePosX_;
 	preMousePosY_ = mousePosY_;
+
+	// カメラを揺らす
+	Quake();
 }
 
 float Camera::GetCameraAngleX() const
@@ -238,4 +243,20 @@ float Camera::GetCameraAngleX() const
 float Camera::GetCameraAngleY() const
 {
 	return -(DX_PI_F * rotateDegreeY_ / 180);
+}
+
+void Camera::Quake()
+{
+	if (quakeTimer_ > 0)
+	{
+		quake_ = VScale(quake_, -0.95f);
+
+		--quakeTimer_;
+	}
+	else
+	{
+		quake_ = VGet(0, 0, 0);
+	}
+
+	cameraInitPos_ = VAdd(cameraInitPos_, quake_);
 }

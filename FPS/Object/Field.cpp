@@ -5,10 +5,10 @@
 namespace
 {
 	// モデルのファイル名
-	const char* const file_name = "Data/Model/Desert.mv1";
+	const char* const file_name = "Data/Model/bridge.mv1";
 
 	// モデルの拡大率
-	constexpr float model_magnification = 25.0f;
+	constexpr float model_magnification = 50.0f;
 }
 
 Field::Field()
@@ -27,7 +27,7 @@ void Field::Init()
 
 	MV1SetScale(pModel_->GetModelHandle(), VGet(model_magnification, model_magnification, model_magnification));
 
-	pModel_->SetPos(VGet(0, -80, 0));
+	pModel_->SetPos(VGet(0, 0, 0));
 }
 
 void Field::Update()

@@ -6,7 +6,7 @@
 namespace
 {
 	// アドレス
-	const char* const file_name = "Data/Model/SkyDoom.mv1";
+	const char* const file_name = "Data/Model/skyDoom.mv1";
 
 	// モデルの拡大率
 	constexpr float model_magnification = 100.0f;

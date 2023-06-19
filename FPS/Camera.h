@@ -13,6 +13,7 @@ public:
 
 	void Init();
 	void Update(const InputState& input);
+	void Draw();
 
 	// プレイヤーのポインタの取得
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
@@ -35,6 +36,7 @@ public:
 	void SetQuake(int timer, VECTOR quake) { quakeTimer_ = timer, quake_ = quake; }
 
 private:
+	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	
 	// カメラ
@@ -50,17 +52,13 @@ private:
 	int mousePosX_;
 	int mousePosY_;
 
-	// 1フレーム前のマウスの位置
-	int preMousePosX_;
-	int preMousePosY_;
-
 	// マウスの移動量
 	float mouseMoveX_;
 	float mouseMoveY_;
 
 	// 回転角度
-	float rotateDegreeX_;
-	float rotateDegreeY_;
+	float cameraYawX_;
+	float cameraYawY_;
 
 	// マウスが画面端についたか
 	bool isMouseScreenEdge_;

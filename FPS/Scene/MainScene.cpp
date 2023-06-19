@@ -106,7 +106,7 @@ void MainScene::Draw()
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
-//	pField_->Draw();
+	pField_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
@@ -118,7 +118,7 @@ void MainScene::Draw()
 
 	// シャドウマップを使用してモデルの描画
 	SetUseShadowMap(0, shadowMap_);
-//	pField_->Draw();			
+	pField_->Draw();			
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	for (auto& shot : pShot_)
@@ -151,7 +151,7 @@ void MainScene::Draw()
 	DrawFormatString(10, 90, 0xffffff, "playerX = %f", pPlayer_->GetPos().x);
 	DrawFormatString(10, 120, 0xffffff, "playerY = %f", pPlayer_->GetPos().y);
 	DrawFormatString(10, 150, 0xffffff, "playerZ = %f", pPlayer_->GetPos().z);
-	DrawFormatString(10, 180, 0xffffff, "mousePos = %d, %d", pCamera_->GetMousePosX(), pCamera_->GetMousePosY());
+	pCamera_->Draw();
 #endif
 
 	// フェイド

@@ -73,7 +73,7 @@ void Shot::Draw()
 	pModel_->Draw();
 
 #ifdef _DEBUG
-	DrawCapsule3D(pos_, lastPos_, col_radius, 8, 0xffffff, 0xff0000, false);
+//	DrawCapsule3D(pos_, lastPos_, col_radius, 8, 0xffffff, 0xff0000, false);
 #endif 
 }
 
@@ -93,7 +93,7 @@ void Shot::Start(VECTOR pos, VECTOR vec)
 	vec_ = vec;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
-	pModel_->SetRot(VGet(-pCamera_->GetCameraAngleY(), pCamera_->GetCameraAngleX(), 0));
+	pModel_->SetRot(VGet(/*pCamera_->GetCameraAngleY() */  0, pCamera_->GetCameraAngleX(), 0));
 }
 
 float Shot::GetColRadius() const

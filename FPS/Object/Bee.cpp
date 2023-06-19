@@ -17,9 +17,9 @@ namespace
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
-	constexpr int walk_anim = 2;
-	constexpr int anim_hit_bullet = 3;
-	constexpr int dead_anim_no = 1;
+	constexpr int walk_anim = 1;
+	constexpr int ondamage_anim = 2;
+	constexpr int dead_anim_no = 0;
 
 	// 当たり半径のサイズ
 	constexpr float col_radius = 70.0f;
@@ -114,7 +114,7 @@ void Bee::OnDamage(int damage)
 	if (hp_ > 0)
 	{
 		// 弾が当たった時のアニメーションに切り替える
-		animNo_ = anim_hit_bullet;
+		animNo_ = ondamage_anim;
 		//	pModel_->ChangeAnimation(anim_hit_bullet, false, false, 60);
 		pModel_->SetAnimation(animNo_, false, false);
 		updateFunc_ = &Bee::UpdateHitDamage;
@@ -298,7 +298,7 @@ void Bee::UpdateHitDamage()
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	assert(animNo_ == anim_hit_bullet);
+	assert(animNo_ == ondamage_anim);
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd())

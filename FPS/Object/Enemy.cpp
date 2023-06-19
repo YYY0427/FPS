@@ -18,7 +18,7 @@ namespace
 
 	// アニメーション番号
 	constexpr int walk_anim = 8;
-	constexpr int anim_hit_bullet = 4;
+	constexpr int ondamage_anim = 4;
 	constexpr int dead_anim_no = 3;
 
 	// 当たり半径のサイズ
@@ -115,7 +115,7 @@ void Enemy::OnDamage(int damage)
 	if (hp_ > 0)
 	{
 		// 弾が当たった時のアニメーションに切り替える
-		animNo_ = anim_hit_bullet;
+		animNo_ = ondamage_anim;
 		//	pModel_->ChangeAnimation(anim_hit_bullet, false, false, 60);
 		pModel_->SetAnimation(animNo_, false, false);
 		updateFunc_ = &Enemy::UpdateHitDamage;
@@ -305,7 +305,7 @@ void Enemy::UpdateHitDamage()
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	assert(animNo_ == anim_hit_bullet);
+	assert(animNo_ == ondamage_anim);
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd())

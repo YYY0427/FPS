@@ -6,7 +6,7 @@ namespace
 {
 	// “G‚ÌƒAƒhƒŒƒX
 	const char* const enemy_adress = "Data/Model/enemyCol.mv1";
-	const char* const bee_adress = "Data/Model/Bee.mv1";
+	const char* const bee_adress = "Data/Model/beeCol.mv1";
 }
 
 EnemyManager::EnemyManager()

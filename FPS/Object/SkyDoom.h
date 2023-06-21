@@ -20,9 +20,14 @@ public:
 
 private:
 	// ポインタ
-	std::shared_ptr<Model> pModel_;
+	std::shared_ptr<Model> pSkydoom_;
+	std::shared_ptr<Model> pCloud_;
+	std::shared_ptr<Model> pCloud2_;
 	std::shared_ptr<Player> pPlayer_;
 
 	// プレイヤーの位置
 	VECTOR playerPos_;
+
+	// 回転量
+	float rot_;
 };

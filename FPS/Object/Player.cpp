@@ -25,7 +25,7 @@ namespace
 	constexpr VECTOR shot_firing_init_pos{ -89.264f, 150.0f, -260.0f };
 
 	// ショットの速度
-	constexpr float shot_speed = 50.0f;
+	constexpr float shot_speed = 100.0f;
 
 	// ジャンプ力
 	constexpr float jump_power = 16.0f;

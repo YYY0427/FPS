@@ -13,11 +13,12 @@
 #include "../DrawFunctions.h"
 #include "../Object/SkyDoom.h"
 #include <cassert>
+#include <stdlib.h>
 
 namespace
 {
 	// フェードの速度
-	constexpr int fade_interval = 60;
+	constexpr int fade_interval = 30;
 
 	// 画面内に存在できる弾の最大数
 	constexpr int shot_max = 128;
@@ -147,11 +148,22 @@ void MainScene::Draw()
 	}
 
 #ifdef _DEBUG
+	int cnt = 0;
+	for (auto& shot : pShot_)
+	{
+		if (shot->isExist())
+		{
+			continue;
+		}
+		cnt++;
+	}
+
 	// デバック表示
-	DrawFormatString(10, 90, 0xffffff, "playerX = %f", pPlayer_->GetPos().x);
-	DrawFormatString(10, 120, 0xffffff, "playerY = %f", pPlayer_->GetPos().y);
-	DrawFormatString(10, 150, 0xffffff, "playerZ = %f", pPlayer_->GetPos().z);
+	DrawFormatString(10, 90, 0x000000, "playerX = %f", pPlayer_->GetPos().x);
+	DrawFormatString(10, 120, 0x000000, "playerY = %f", pPlayer_->GetPos().y);
+	DrawFormatString(10, 150, 0x000000, "playerZ = %f", pPlayer_->GetPos().z);
 	pCamera_->Draw();
+	DrawFormatString(10, 210, 0x000000, "shotNum = %d", cnt);
 #endif
 
 	// フェイド
@@ -248,7 +260,6 @@ void MainScene::NormalUpdate(const InputState& input)
 			pPlayer_->OnDamage(1);
 		}
 	}
-
 	if (pPlayer_->GetIsDead())
 	{
 		gameOverFadeTimer_++;

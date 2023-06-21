@@ -17,7 +17,7 @@ namespace
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
-	constexpr int walk_anim = 1;
+	constexpr int walk_anim_no = 1;
 	constexpr int ondamage_anim = 2;
 	constexpr int dead_anim_no = 0;
 
@@ -38,7 +38,7 @@ namespace
 Bee::Bee(const char* fileName)
 {
 	updateFunc_ = &Bee::UpdateToFront;
-	animNo_ = walk_anim;
+	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
 	hp_ = max_hp;
@@ -304,8 +304,8 @@ void Bee::UpdateHitDamage()
 	if (pModel_->IsAnimEnd())
 	{
 		// 待機アニメに変更する
-		animNo_ = walk_anim;
-		pModel_->ChangeAnimation(walk_anim, true, true, 4);
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(walk_anim_no, true, true, 4);
 
 		// Updateを待機に
 		updateFunc_ = &Bee::UpdateToPlayer;

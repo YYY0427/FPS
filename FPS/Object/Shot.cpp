@@ -7,7 +7,7 @@
 namespace
 {
 	// これ以上離れたら消す
-	constexpr float erase_distance = 3000.0f;
+	constexpr float erase_distance = 18400.0f;
 
 	// モデルのアドレス
 	const char* const bullet_file_name = "Data/Model/bullet.mv1";

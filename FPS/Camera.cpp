@@ -89,9 +89,9 @@ void Camera::Init()
 
 void Camera::Update(const InputState& input)
 {
+	// プレイヤーが生きている場合のみマウスの座標の取得
 	if (!pPlayer_->GetIsDead())
 	{
-		// マウスの座標の取得
 		GetMousePoint(&mousePosX_, &mousePosY_);
 	}
 
@@ -214,7 +214,7 @@ void Camera::Update(const InputState& input)
 
 void Camera::Draw()
 {
-	DrawFormatString(10, 180, 0xffffff, "mousePos = %d, %d", mousePosX_, mousePosY_);
+	DrawFormatString(10, 180, 0x000000, "mousePos = %d, %d", mousePosX_, mousePosY_);
 }
 
 float Camera::GetCameraAngleX() const

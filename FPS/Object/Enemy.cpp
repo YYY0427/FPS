@@ -17,9 +17,10 @@ namespace
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
-	constexpr int walk_anim = 8;
+	constexpr int walk_anim_no = 8;
 	constexpr int ondamage_anim = 4;
 	constexpr int dead_anim_no = 3;
+	constexpr int attack_anim_no = 0;
 
 	// 当たり半径のサイズ
 	constexpr float col_radius = 70.0f;
@@ -33,12 +34,15 @@ namespace
 
 	// ダメージ受けた時の無敵時間
 	constexpr int invincible_time = 60;
+
+	// プレイヤーに攻撃する距離
+	constexpr float attack_distance = 140.0f;
 }
 
 Enemy::Enemy(const char* fileName)
 {
 	updateFunc_ = &Enemy::UpdateToFront;
-	animNo_ = walk_anim;
+	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
 	hp_ = max_hp;
@@ -204,6 +208,16 @@ void Enemy::UpdateToPlayer()
 	pos_ = VAdd(pos_, vec);
 #endif
 
+	float distans = VSize(VSub(pPlayer_->GetPos(), pos_));
+
+	if (distans < attack_distance)
+	{
+		animNo_ = attack_anim_no;
+		pModel_->SetAnimation(animNo_, true, false);
+		updateFunc_ = &Enemy::UpdateToAttack;
+		frameCount_ = 0;
+	}
+
 	// プレイヤーが死んでいる場合を追わない
 	if (pPlayer_->GetIsDead())
 	{
@@ -267,6 +281,33 @@ void Enemy::UpdateToFront()
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
+void Enemy::UpdateToAttack()
+{
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
+
+	assert(animNo_ == attack_anim_no);
+	pModel_->Update();
+
+	// プレイヤーから敵までの距離
+	float distans = VSize(VSub(pPlayer_->GetPos(), pos_));
+
+	if (attack_distance < distans)
+	{
+		animNo_ = walk_anim_no;
+		pModel_->SetAnimation(animNo_, true, false);
+		updateFunc_ = &Enemy::UpdateToPlayer;
+		frameCount_ = 0;
+	}
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+}
+
 void Enemy::UpdateTurn()
 {
 	// ダメージ処理
@@ -311,8 +352,8 @@ void Enemy::UpdateHitDamage()
 	if (pModel_->IsAnimEnd())
 	{
 		// 待機アニメに変更する
-		animNo_ = walk_anim;
-		pModel_->ChangeAnimation(walk_anim, true, true, 4);
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(walk_anim_no, true, true, 4);
 
 		// Updateを待機に
 		updateFunc_ = &Enemy::UpdateToPlayer;

@@ -6,14 +6,18 @@
 namespace
 {
 	// アドレス
-	const char* const file_name = "Data/Model/skyDoom.mv1";
+	const char* const skydoom_file_name = "Data/Model/summerSkyDoom.mv1";
+	const char* const cloud1_file_name = "Data/Model/cloud.mv1";
+	const char* const cloud2_file_name = "Data/Model/cloud2.mv1";
 
 	// モデルの拡大率
 	constexpr float model_magnification = 100.0f;
+	constexpr float model_magnification2 = 13.0f;
 }
 
 SkyDoom::SkyDoom(): 
-	playerPos_(VGet(0, 0, 0))
+	playerPos_(VGet(0, 0, 0)),
+	rot_(0.0f)
 {
 }
 
@@ -24,29 +28,46 @@ SkyDoom::~SkyDoom()
 void SkyDoom::Init()
 {
 	// インスタンス化
-	pModel_ = std::make_shared<Model>(file_name);
+	pSkydoom_ = std::make_shared<Model>(skydoom_file_name);
+	pCloud_ = std::make_shared<Model>(cloud1_file_name);
+	pCloud2_ = std::make_shared<Model>(cloud2_file_name);
 
 	// プレイヤーの位置の取得
 	playerPos_ = pPlayer_->GetPos();
 
 	// モデルのポジションの設定
-	pModel_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pSkydoom_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pCloud_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pCloud2_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
 
 	// モデルの拡大率の設定
-	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
+	pSkydoom_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
+	pCloud_->SetScale(VGet(model_magnification2, model_magnification2, model_magnification2));
+	pCloud2_->SetScale(VGet(model_magnification2, model_magnification2, model_magnification2));
 }
 
 void SkyDoom::Update()
 {
+	// 回転加算
+	rot_ += 0.0001f;
+
 	// プレイヤーの位置の取得
 	playerPos_ = pPlayer_->GetPos();
 
 	// モデルのポジションの設定
-	pModel_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pSkydoom_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pCloud_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+	pCloud2_->SetPos(VGet(playerPos_.x, 0, playerPos_.z));
+
+	// モデルの回転の設定
+	pCloud_->SetRot(VGet(0, rot_, 0));
+	pCloud2_->SetRot(VGet(0, rot_, 0));
 }
 
 void SkyDoom::Draw()
 {
 	// モデルの表示
-	pModel_->Draw();
+	pSkydoom_->Draw();
+	pCloud_->Draw();
+	pCloud2_->Draw();
 }

@@ -28,6 +28,9 @@ private:
 	// 前に移動する(プレイヤーが見えていない)
 	void UpdateToFront();
 
+	// 攻撃する
+	void UpdateToAttack();
+
 	// 方向転換を行う(プレイヤーが見えていない)
 	void UpdateTurn();
 

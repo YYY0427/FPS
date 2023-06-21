@@ -9,19 +9,10 @@ public:
 
 	void Update();
 
-	// 2DのUIの表示
-	void DrawUI();	
-
 	// ダメージを受けた
 	void OnDamage(int damage);
 
-	// 当たり判定の半径のゲッター
-	float GetColRadius() const;
-
 private:
-	// プレイヤーが正面にいるかどうか
-	bool IsPlayerFront() const;
-
 	// プレイヤーに向かう
 	void UpdateToPlayer();
 
@@ -36,10 +27,6 @@ private:
 
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
-
-	// 死亡アニメーション
-	void UpdateDead();
-
 private:
 	// メンバー関数ポインタ
 	void(Enemy::* updateFunc_)();

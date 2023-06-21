@@ -16,7 +16,7 @@ public:
 	void Draw();
 
 	// 2DのUIの表示
-	virtual void DrawUI() = 0;
+	void DrawUI();
 
 	// ダメージを受けた
 	virtual void OnDamage(int damage) = 0;
@@ -37,11 +37,11 @@ public:
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// 当たり判定の半径のゲッター
-	virtual float GetColRadius() const = 0;
+	float GetColRadius() const { return colRadius_; };
 
 protected:
 	// プレイヤーが正面にいるかどうか
-	virtual bool IsPlayerFront() const = 0;
+	bool IsPlayerFront() const;
 
 	// プレイヤーに向かう
 	virtual void UpdateToPlayer() = 0;
@@ -56,15 +56,18 @@ protected:
 	virtual void UpdateHitDamage() = 0;
 
 	// 死亡アニメーション
-	virtual void UpdateDead() = 0;
+	virtual void UpdateDead();
 
 protected:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
 
-	// 再生しているアニメーション番号
+	// 現在再生しているアニメーション番号
 	int animNo_ = 0;
+
+	// アニメーション番号
+	int deadAnimNo_ = 0;
 
 	// フレームカウント
 	int frameCount_ = 0;
@@ -84,6 +87,15 @@ protected:
 	// HP
 	int hp_ = 0;
 
+	// 最大HP
+	int maxHp_ = 0;
+
+	// HPバーの横幅
+	int hpBarWidth_ = 0;
+
+	// HPバーの縦幅
+	int hpBarHeight_ = 0;
+
 	// 無敵時間
 	int damageFrame_ = 0;
 
@@ -92,4 +104,16 @@ protected:
 
 	// モデルハンドルのファイル
 	const char* fileName_ = nullptr;
+
+	// 当たり判定の半径
+	float colRadius_ = 0.0f;
+
+	// 視野角
+	float viewAngle_ = 0.0f;
+
+	// キャラクターの向いている方向
+	VECTOR dir_ = VGet(0, 0, 0);
+
+	// 敵が死んでから消えるまでの時間
+	int deadDisappearTime_ = 0;
 };

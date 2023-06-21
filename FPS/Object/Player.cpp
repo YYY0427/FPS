@@ -68,6 +68,7 @@ Player::Player() :
 	animNo_(idle_anim_no),
 	frameCount_(0),
 	pos_(VGet(0, 0, 0)),
+	pastPos_(VGet(0, 0, 0)),
 	jumpAcc_(0.0f),
 	hp_(max_hp),
 	damageFrame_(0),

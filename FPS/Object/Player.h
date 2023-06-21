@@ -24,6 +24,9 @@ public:
 	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
 
+	// プレイヤーの1フレーム前の位置のゲッター
+	VECTOR Get1FramePastPos() const { return; }
+
 	// モデルハンドルのゲッター
 	int GetHandle() const { return pModel_->GetModelHandle(); }
 
@@ -78,6 +81,9 @@ private:
 
 	// プレイヤーの位置
 	VECTOR pos_;
+
+	// プレイヤーの1フレーム前の位置
+	VECTOR pastPos_;
 
 	// ジャンプ処理用加速度
 	float jumpAcc_;

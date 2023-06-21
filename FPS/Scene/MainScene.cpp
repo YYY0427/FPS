@@ -270,6 +270,8 @@ void MainScene::NormalUpdate(const InputState& input)
 		}	 
 	}
 
+	MV1_COLL_RESULT_POLY_DIM result;
+
 	// ƒV[ƒ“Ø‚è‘Ö‚¦
 	if (input.IsTriggered(InputType::next))
 	{

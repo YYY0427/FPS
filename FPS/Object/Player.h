@@ -7,6 +7,7 @@ class InputState;
 class Model;
 class Camera;
 class MainScene;
+class Field;
 
 class Player
 {
@@ -18,14 +19,18 @@ public:
 	void Update(const InputState& input);
 	void Draw();
 
+	void CollisionField();
+
 	// MainSceneのポインタのセッター
 	void SetMainScene(std::shared_ptr<MainScene>pMainScene) { pMainScene_ = pMainScene; }
 
+	void SetField(std::shared_ptr<Field> pField) { pField_ = pField; }
+
+	// カメラのポインタのセッター
+	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
+
 	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
-
-	// プレイヤーの1フレーム前の位置のゲッター
-	VECTOR Get1FramePastPos() const { return; }
 
 	// モデルハンドルのゲッター
 	int GetHandle() const { return pModel_->GetModelHandle(); }
@@ -44,9 +49,6 @@ public:
 
 	// FPSとTPS切り替え用のフレームの表示非表示
 	void SetVisible(bool visible);
-
-	// カメラのポインタのセッター
-	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
 private:
 	// 待機
@@ -73,6 +75,8 @@ private:
 
 	std::shared_ptr<Camera> pCamera_;
 
+	std::shared_ptr<Field> pField_;
+
 	// 再生しているアニメーション番号
 	int animNo_;
 
@@ -81,9 +85,6 @@ private:
 
 	// プレイヤーの位置
 	VECTOR pos_;
-
-	// プレイヤーの1フレーム前の位置
-	VECTOR pastPos_;
 
 	// ジャンプ処理用加速度
 	float jumpAcc_;
@@ -105,4 +106,7 @@ private:
 
 	// 移動ベクトル
 	VECTOR moveVec_;
+
+	// ジャンプ中か
+	bool isJump_;
 };

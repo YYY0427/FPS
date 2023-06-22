@@ -9,7 +9,7 @@
 
 namespace
 {
-	constexpr int fade_interval = 60;
+	constexpr int fade_interval = 30;
 }
 
 void TitleScene::FadeInUpdate(const InputState& input)

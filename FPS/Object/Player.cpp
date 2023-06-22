@@ -4,6 +4,7 @@
 #include "../InputState.h"
 #include "../Camera.h"
 #include "../Scene/MainScene.h"
+#include "../Object/Field.h"
 #include <DxLib.h>
 #include <cassert>
 
@@ -41,6 +42,7 @@ namespace
 	constexpr int walk_shot_anim_no = 13;	// 移動している状態でショットを撃つ
 	constexpr int dead_anim_no = 0;			// 死亡アニメーション
 	constexpr int damage_anim_no = 2;		// ダメージアニメーション
+	constexpr int fall_anim_no = 7;			// 落下アニメーション
 
 	// アニメーション切り替わりにかかるフレーム数
 	constexpr int anim_change_frame = 16;
@@ -68,14 +70,14 @@ Player::Player() :
 	animNo_(idle_anim_no),
 	frameCount_(0),
 	pos_(VGet(0, 0, 0)),
-	pastPos_(VGet(0, 0, 0)),
 	jumpAcc_(0.0f),
 	hp_(max_hp),
 	damageFrame_(0),
 	isMoving_(false),
 	isDead_(false),
 	moveVec_(VGet(0, 0, 0)),
-	shotFrameCount_(0)
+	shotFrameCount_(0),
+	isJump_(false)
 {
 }
 
@@ -111,6 +113,118 @@ void Player::Draw()
 
 	// モデルの描画
 	pModel_->Draw();
+}
+
+void Player::CollisionField()
+{
+	MV1_COLL_RESULT_POLY* Yuka[2048]{};
+	MV1_COLL_RESULT_POLY* poly;
+	MV1_COLL_RESULT_POLY_DIM HitDim;
+	HITRESULT_LINE LineRes;
+
+	// 初期化
+	bool HitFlag = false;
+	int polyNum = 0;
+
+	// 移動前のプレイヤーの座標
+	VECTOR oldPos = pos_;
+
+	// 移動後のプレイヤーの座標
+	VECTOR moveAfterPos = VAdd(oldPos, moveVec_);
+
+	// プレイヤーとフィールドの当たり判定(何枚のポリゴンと当たっているか)
+	HitDim = MV1CollCheck_Sphere(pField_->GetModelHandle(), -1, oldPos, 300.0f + VSize(moveVec_));
+
+	// 検出されたポリゴンの数だけ繰り返し
+	for (int i = 0; i < HitDim.HitNum; i++)
+	{
+		// ＸＺ平面に垂直かどうかはポリゴンの法線のＹ成分が０に限りなく近いかどうかで判断する
+		if (HitDim.Dim[i].Normal.y < 0.000001f && HitDim.Dim[i].Normal.y > -0.000001f)
+		{
+			// 処理なし
+		}
+		else
+		{
+			// ポリゴンの数が列挙できる限界数に達していなかったらポリゴンを配列に追加
+			if (polyNum < 2048)
+			{
+				// ポリゴンの構造体のアドレスを床ポリゴンポインタ配列に保存する
+				Yuka[polyNum] = &HitDim.Dim[i];
+
+				// 床ポリゴンの数を加算する
+				polyNum++;
+			}
+		}
+	}
+
+	// 床ポリゴンとの当たり判定
+	if (polyNum != 0)
+	{
+		float MaxY;
+
+		// 床ポリゴンに当たったかどうかのフラグを倒しておく
+		HitFlag = false;
+
+		// 一番高い床ポリゴンにぶつける為の判定用変数を初期化
+		MaxY = 0.0f;
+
+		// 床ポリゴンの数だけ繰り返し
+		for (int i = 0; i < polyNum; i++)
+		{
+			// i番目の床ポリゴンのアドレスを床ポリゴンポインタ配列から取得
+			poly = Yuka[i];
+
+			// ジャンプ中かどうかで処理を分岐
+			if (isJump_)
+			{
+				// ジャンプ中の場合は頭の先から足先より少し低い位置の間で当たっているかを判定
+				LineRes = HitCheck_Line_Triangle(VAdd(moveAfterPos, VGet(0.0f, 300.0f, 0.0f)), VAdd(moveAfterPos, VGet(0.0f, -1.0f, 0.0f)), poly->Position[0], poly->Position[1], poly->Position[2]);
+			}
+			else
+			{
+				// 走っている場合は頭の先からそこそこ低い位置の間で当たっているかを判定( 傾斜で落下状態に移行してしまわない為 )
+				LineRes = HitCheck_Line_Triangle(VAdd(moveAfterPos, VGet(0.0f, 300.0f, 0.0f)), VAdd(moveAfterPos, VGet(0.0f, -40.0f, 0.0f)), poly->Position[0], poly->Position[1], poly->Position[2]);
+			}
+
+			// 当たっていなかったら何もしない
+			if (LineRes.HitFlag == FALSE) continue;
+
+			// 既に当たったポリゴンがあり、且つ今まで検出した床ポリゴンより低い場合は何もしない
+			if (HitFlag  && MaxY > LineRes.Position.y) continue;
+
+			// ポリゴンに当たったフラグを立てる
+			HitFlag = true;
+
+			// 接触したＹ座標を保存する
+			MaxY = LineRes.Position.y;
+		}
+
+		// 床ポリゴンに当たったかどうかで処理を分岐
+		if (HitFlag)
+		{
+			// 当たった場合
+
+			// 接触したポリゴンで一番高いＹ座標をプレイヤーのＹ座標にする
+			moveAfterPos.y = MaxY;
+
+			// Ｙ軸方向の移動速度は０に
+			jumpAcc_ = 0.0f;
+		}
+		else
+		{
+			moveAfterPos.y -= 20;
+		}
+	}
+	else
+	{
+		// 1枚もフィールドポリゴンと当たっていない場合落下
+		moveAfterPos.y -= 20;
+	}
+
+	pos_ = moveAfterPos;
+
+	// 検出したプレイヤーの周囲のポリゴン情報を開放する
+	MV1CollResultPolyDimTerminate(HitDim);
 }
 
 float Player::GetColRadius() const
@@ -176,23 +290,23 @@ void Player::UpdateIdle(const InputState& input)
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// ジャンプ処理
-	bool isJumping = true;	
 	jumpAcc_ += gravity;
-	pos_.y += jumpAcc_;
+//	pos_.y += jumpAcc_;
 	if (pos_.y < 0.0f)
 	{
-		pos_.y = 0.0f;
+	//	pos_.y = 0.0f;
 		jumpAcc_ = 0.0f;
 
-		isJumping = false;
+		isJump_ = false;
 	}
 
 	// ジャンプ処理
-	if (!isJumping)
+	if (!isJump_)
 	{
 		if (input.IsTriggered(InputType::jump))
 		{
 			jumpAcc_ = jump_power;
+			isJump_ = true;
 		}
 	}
 
@@ -278,8 +392,9 @@ void Player::UpdateIdle(const InputState& input)
 		// 正規化したベクトルにプレイヤーの速度をかける
 		moveVec_ = VScale(moveVec_, player_speed);
 
+
 		// 動かす
-		pos_ = VAdd(pos_, moveVec_);
+	//	pos_ = VAdd(pos_, moveVec_);
 
 		if (animNo_ == idle_anim_no)
 		{
@@ -297,6 +412,9 @@ void Player::UpdateIdle(const InputState& input)
 			pModel_->ChangeAnimation(idle_anim_no, true, false, 4);
 		}
 	}
+
+	// 当たり判定チェック
+	CollisionField();
 
 	// ショットアニメが終わり次第待機アニメに変更
 	if (pModel_->IsAnimEnd() && animNo_ == idle_shot_anim_no)
@@ -317,10 +435,10 @@ void Player::UpdateIdleShot(const InputState& input)
 
 	// ジャンプ処理
 	jumpAcc_ += gravity;
-	pos_.y += jumpAcc_;
+//	pos_.y += jumpAcc_;
 	if (pos_.y < 0.0f)
 	{
-		pos_.y = 0.0f;
+	//	pos_.y = 0.0f;
 		jumpAcc_ = 0.0f;
 	}
 
@@ -348,10 +466,10 @@ void Player::UpdateDead(const InputState& input)
 
 	// ジャンプ処理
 	jumpAcc_ += gravity;
-	pos_.y += jumpAcc_;
+//	pos_.y += jumpAcc_;
 	if (pos_.y < 0.0f)
 	{
-		pos_.y = 0.0f;
+	//	pos_.y = 0.0f;
 		jumpAcc_ = 0.0f;
 	}
 }

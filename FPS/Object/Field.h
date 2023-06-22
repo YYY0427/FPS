@@ -1,8 +1,6 @@
 #pragma once
 #include <memory>
-
-class Model;
-class Field;
+#include "../Model.h"
 
 class Field
 {
@@ -13,6 +11,8 @@ public:
 	void Init();
 	void Update();
 	void Draw();
+
+	int GetModelHandle() const { return pModel_->GetModelHandle(); }
 private:
 	std::shared_ptr<Model> pModel_;
 };

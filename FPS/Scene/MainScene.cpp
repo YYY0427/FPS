@@ -66,6 +66,7 @@ void MainScene::Init()
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
+	pPlayer_->SetField(pField_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();
@@ -269,8 +270,6 @@ void MainScene::NormalUpdate(const InputState& input)
 			gameOverFadeTimer_ = 100;
 		}	 
 	}
-
-	MV1_COLL_RESULT_POLY_DIM result;
 
 	// シーン切り替え
 	if (input.IsTriggered(InputType::next))

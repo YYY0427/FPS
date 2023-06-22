@@ -202,16 +202,24 @@ void Player::CollisionField()
 		// 床ポリゴンに当たったかどうかで処理を分岐
 		if (HitFlag)
 		{
-			// 当たった場合
+			//// 当たった場合 ////
 
 			// 接触したポリゴンで一番高いＹ座標をプレイヤーのＹ座標にする
 			moveAfterPos.y = MaxY;
 
-			// Ｙ軸方向の移動速度は０に
-			jumpAcc_ = 0.0f;
+			//// ジャンプ処理
+			//jumpAcc_ += gravity;
+			////	pos_.y += jumpAcc_;
+			//if (pos_.y < 0.0f)
+			//{
+			//	//	pos_.y = 0.0f;
+			//	jumpAcc_ = 0.0f;
+			//}
 		}
 		else
 		{
+			//// 当たっていない場合 ////
+
 			moveAfterPos.y -= 20;
 		}
 	}
@@ -289,16 +297,16 @@ void Player::UpdateIdle(const InputState& input)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// ジャンプ処理
-	jumpAcc_ += gravity;
-//	pos_.y += jumpAcc_;
-	if (pos_.y < 0.0f)
-	{
-	//	pos_.y = 0.0f;
-		jumpAcc_ = 0.0f;
+	//// ジャンプ処理
+	//jumpAcc_ += gravity;
+	//pos_.y += jumpAcc_;
+	//if (pos_.y < 0.0f)
+	//{
+	////	pos_.y = 0.0f;
+	//	jumpAcc_ = 0.0f;
 
-		isJump_ = false;
-	}
+	//	isJump_ = false;
+	//}
 
 	// ジャンプ処理
 	if (!isJump_)
@@ -433,14 +441,14 @@ void Player::UpdateIdleShot(const InputState& input)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// ジャンプ処理
-	jumpAcc_ += gravity;
-//	pos_.y += jumpAcc_;
-	if (pos_.y < 0.0f)
-	{
-	//	pos_.y = 0.0f;
-		jumpAcc_ = 0.0f;
-	}
+	//// ジャンプ処理
+	//jumpAcc_ += gravity;
+	//pos_.y += jumpAcc_;
+	//if (pos_.y < 0.0f)
+	//{
+	////	pos_.y = 0.0f;
+	//	jumpAcc_ = 0.0f;
+	//}
 
 	// ショットアニメ以外でこのUpdateは呼ばれない
 	assert(animNo_ == idle_shot_anim_no);
@@ -464,14 +472,14 @@ void Player::UpdateDead(const InputState& input)
 	assert(animNo_ == dead_anim_no);
 	pModel_->Update();
 
-	// ジャンプ処理
-	jumpAcc_ += gravity;
-//	pos_.y += jumpAcc_;
-	if (pos_.y < 0.0f)
-	{
-	//	pos_.y = 0.0f;
-		jumpAcc_ = 0.0f;
-	}
+	//// ジャンプ処理
+	//jumpAcc_ += gravity;
+	//pos_.y += jumpAcc_;
+	//if (pos_.y < 0.0f)
+	//{
+	////	pos_.y = 0.0f;
+	//	jumpAcc_ = 0.0f;
+	//}
 }
 
 void Player::UpdateOnDamage(const InputState& input)

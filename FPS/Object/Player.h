@@ -77,6 +77,12 @@ private:
 
 	std::shared_ptr<Field> pField_;
 
+	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
+	MV1_COLL_RESULT_POLY* yuka_[2048]{};
+
+	// 床ポリゴンと判断されたポリゴンの構造体のアドレスを保存しておくためのポインタ配列
+	MV1_COLL_RESULT_POLY* kabe_[2048]{};
+
 	// 再生しているアニメーション番号
 	int animNo_;
 

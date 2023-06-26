@@ -23,7 +23,7 @@ public:
 	void CollisionField();
 
 	// MainSceneのポインタのセッター
-	void SetMainScene(std::shared_ptr<MainScene>pMainScene) { pMainScene_ = pMainScene; }
+	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
 
 	void SetField(std::vector<std::shared_ptr<Field>> pField) { pField_ = pField; }
 
@@ -69,7 +69,8 @@ private:
 	void(Player::* updateFunc_)(const InputState& input);
 
 	// メインシーン
-	std::shared_ptr<MainScene> pMainScene_;
+//	std::shared_ptr<MainScene> pMainScene_;
+	MainScene* pMainScene_;
 
 	// プレイヤーのモデル
 	std::shared_ptr<Model> pModel_;

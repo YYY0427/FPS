@@ -77,7 +77,8 @@ Player::Player() :
 	isDead_(false),
 	moveVec_(VGet(0, 0, 0)),
 	shotFrameCount_(0),
-	isJump_(false)
+	isJump_(false),
+	pMainScene_(nullptr)
 {
 }
 
@@ -521,10 +522,6 @@ void Player::UpdateIdle(const InputState& input)
 		// 正規化したベクトルにプレイヤーの速度をかける
 		moveVec_ = VScale(moveVec_, player_speed);
 
-
-		// 動かす
-	//	pos_ = VAdd(pos_, moveVec_);
-
 		if (animNo_ == idle_anim_no)
 		{
 			// 歩行アニメに変更
@@ -543,7 +540,6 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-//	CollisionField();
 	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更

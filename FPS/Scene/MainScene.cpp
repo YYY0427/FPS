@@ -63,7 +63,7 @@ MainScene::~MainScene()
 void MainScene::Init()
 {
 	// 初期化とポインタを渡す
-	pPlayer_->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
+	pPlayer_->SetMainScene(this);
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
@@ -86,7 +86,7 @@ void MainScene::Init()
 	for (auto& enemies : pEnemyManager_->GetEnemies())
 	{
 		enemies->SetPlayer(pPlayer_);
-		enemies->SetMainScene(static_cast<std::shared_ptr<MainScene>>(this));
+		enemies->SetMainScene(this);
 	}
 
 	// 画像のロード

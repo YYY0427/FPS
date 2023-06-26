@@ -38,7 +38,8 @@ public:
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// メインシーンのセッター
-	void SetMainScene(std::shared_ptr<MainScene> pMainScene) { pMainScene_ = pMainScene; }
+//	void SetMainScene(std::shared_ptr<MainScene> pMainScene) { pMainScene_ = pMainScene; }
+	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
 
 	// 当たり判定の半径のゲッター
 	float GetColRadius() const { return colRadius_; };
@@ -66,7 +67,8 @@ protected:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
-	std::shared_ptr<MainScene> pMainScene_;
+//	std::shared_ptr<MainScene> pMainScene_;
+	MainScene* pMainScene_;
 
 	// 現在再生しているアニメーション番号
 	int animNo_ = 0;

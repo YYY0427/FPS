@@ -31,6 +31,7 @@ public:
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
+	// モデルとフィールドの当たり判定
 	VECTOR ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec);
 
 private:

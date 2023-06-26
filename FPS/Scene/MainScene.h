@@ -6,10 +6,10 @@
 
 class Camera;
 class Player;
-class Field;
 class Shot;
 class EnemyManager;
 class SkyDoom;
+class FieldManager;
 
 /// <summary>
 /// メインシーン
@@ -31,6 +31,8 @@ public:
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
+	VECTOR ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec);
+
 private:
 	void FadeInUpdate(const InputState& input);
 	void NormalUpdate(const InputState& input);
@@ -44,7 +46,7 @@ private:
 	// ポインタ
 	std::shared_ptr<Camera> pCamera_ ;
 	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<Field> pField_;
+	std::shared_ptr<FieldManager> pFieldManager_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;
@@ -60,4 +62,10 @@ private:
 
 	// シャドウマップ
 	int shadowMap_;
+
+	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
+	MV1_COLL_RESULT_POLY* yuka_[2048]{};
+
+	// 床ポリゴンと判断されたポリゴンの構造体のアドレスを保存しておくためのポインタ配列
+	MV1_COLL_RESULT_POLY* kabe_[2048]{};
 };

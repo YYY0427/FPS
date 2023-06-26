@@ -1,6 +1,7 @@
 #pragma once
 #include <DxLib.h>
 #include <memory>
+#include <vector>
 #include "../Model.h"
 
 class InputState;
@@ -24,7 +25,7 @@ public:
 	// MainSceneのポインタのセッター
 	void SetMainScene(std::shared_ptr<MainScene>pMainScene) { pMainScene_ = pMainScene; }
 
-	void SetField(std::shared_ptr<Field> pField) { pField_ = pField; }
+	void SetField(std::vector<std::shared_ptr<Field>> pField) { pField_ = pField; }
 
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
@@ -75,7 +76,7 @@ private:
 
 	std::shared_ptr<Camera> pCamera_;
 
-	std::shared_ptr<Field> pField_;
+	std::vector<std::shared_ptr<Field>> pField_;
 
 	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
 	MV1_COLL_RESULT_POLY* yuka_[2048]{};

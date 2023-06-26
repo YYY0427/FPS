@@ -2,6 +2,7 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
+#include "../Scene/MainScene.h"
 #include <cassert>
 
 namespace
@@ -116,8 +117,8 @@ void Enemy::UpdateToPlayer()
 	// 移動速度の反映
 	VECTOR vec = VScale(toPlayer_, to_player_speed);
 
-	// 移動
-	pos_ = VAdd(pos_, vec);
+	// フィールドとの当たり判定を行い、その結果によって移動
+	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
 
 	// プレイヤーまでの距離
 	float distans = VSize(VSub(pPlayer_->GetPos(), pos_));
@@ -166,8 +167,8 @@ void Enemy::UpdateToFront()
 	// 移動速度を反映させる
 	VECTOR vec = VScale(dir, to_front_speed);
 
-	// 移動させる
-	pos_ = VAdd(pos_, vec);
+	// フィールドとの当たり判定を行い、その結果によって移動
+	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)

@@ -4,6 +4,7 @@
 
 class Player;
 class Model;
+class Tower;
 class MainScene;
 
 class EnemyBase
@@ -37,9 +38,9 @@ public:
 	// プレイヤーのセッター
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
-	// メインシーンのセッター
-//	void SetMainScene(std::shared_ptr<MainScene> pMainScene) { pMainScene_ = pMainScene; }
 	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
+
+	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
 	// 当たり判定の半径のゲッター
 	float GetColRadius() const { return colRadius_; };
@@ -67,8 +68,14 @@ protected:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
-//	std::shared_ptr<MainScene> pMainScene_;
-	MainScene* pMainScene_;
+	std::shared_ptr<Tower> pTower_;
+	MainScene* pMainScene_ = nullptr;
+
+	enum Target
+	{
+		player,
+		tower
+	};
 
 	// 現在再生しているアニメーション番号
 	int animNo_ = 0;
@@ -83,7 +90,7 @@ protected:
 	VECTOR pos_ = VGet(0, 0, 0);
 
 	// プレイヤーからの距離
-	VECTOR toPlayer_ = VGet(0, 0, 0);
+	VECTOR toTarget_ = VGet(0, 0, 0);
 
 	// 向いている方向
 	float angle_ = 0.0f;

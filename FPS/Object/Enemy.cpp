@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "../Model.h"
 #include "../Scene/MainScene.h"
+#include "Tower.h"
 #include <cassert>
 
 namespace
@@ -42,7 +43,7 @@ namespace
 
 Enemy::Enemy(const char* fileName)
 {
-	updateFunc_ = &Enemy::UpdateToFront;
+	updateFunc_ = &Enemy::UpdateToTower;
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
@@ -99,39 +100,47 @@ void Enemy::OnDamage(int damage)
 	}
 }
 
-void Enemy::UpdateToPlayer()
+void Enemy::Tracking(VECTOR pos, int target)
 {
 	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// 敵からプレイヤーへのベクトルを求める
-	toPlayer_ = VSub(pPlayer_->GetPos(), pos_);
+	// 敵から目標へのベクトルを求める
+	toTarget_ = VSub(pos, pos_);
 
 	// 角度の取得
-	angle_ = static_cast<float>(atan2(toPlayer_.x, toPlayer_.z));
+	angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
 
 	// 正規化
-	toPlayer_ = VNorm(toPlayer_);
+	toTarget_ = VNorm(toTarget_);
 
 	// 移動速度の反映
-	VECTOR vec = VScale(toPlayer_, to_player_speed);
+	VECTOR vec = VScale(toTarget_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
 
-	// プレイヤーまでの距離
-	float distans = VSize(VSub(pPlayer_->GetPos(), pos_));
+	// ターゲットまでの距離
+	float distans = VSize(VSub(pos, pos_));
 
-	// プレイヤーまでの距離が特定距離以内なら攻撃アニメーションに移行
+	// 目標までまでの距離が特定距離以内なら攻撃アニメーションに移行
 	if (distans < attack_distance)
 	{
 		// アニメーション設定
 		animNo_ = attack_anim_no;
 		pModel_->ChangeAnimation(animNo_, true, false, 4);
 
-		// updateの変更
-		updateFunc_ = &Enemy::UpdateToAttack;
+		// 現在向かっている対象によって攻撃対象を決定
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &Enemy::UpdateAttackToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &Enemy::UpdateAttackToTower;
+			break;
+		}
 		frameCount_ = 0;
 	}
 
@@ -150,6 +159,56 @@ void Enemy::UpdateToPlayer()
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+}
+
+void Enemy::Attacking(VECTOR pos, int target)
+{
+	assert(animNo_ == attack_anim_no);
+
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
+
+	// プレイヤーまでの距離
+	float distans = VSize(VSub(pos, pos_));
+
+	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
+	if (attack_distance < distans)
+	{
+		// アニメーション設定
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(animNo_, true, false, 4);
+
+		// updateを変更
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &Enemy::UpdateToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &Enemy::UpdateToTower;
+		}
+		frameCount_ = 0;
+	}
+
+	// アニメーション更新処理
+	pModel_->Update();
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+}
+
+void Enemy::UpdateToPlayer()
+{
+	Tracking(pPlayer_->GetPos(), player);
+}
+
+void Enemy::UpdateToTower()
+{
+	Tracking(pTower_->GetPos(), tower);
 }
 
 void Enemy::UpdateToFront()
@@ -203,37 +262,14 @@ void Enemy::UpdateToFront()
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
-void Enemy::UpdateToAttack()
+void Enemy::UpdateAttackToPlayer()
 {
-	assert(animNo_ == attack_anim_no);
+	Attacking(pPlayer_->GetPos(), player);
+}
 
-	// ダメージ処理
-	damageFrame_--;
-	if (damageFrame_ < 0) damageFrame_ = 0;
-
-	// プレイヤーまでの距離
-	float distans = VSize(VSub(pPlayer_->GetPos(), pos_));
-
-	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
-	if (attack_distance < distans)
-	{
-		// アニメーション設定
-		animNo_ = walk_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		// updateを変更
-		updateFunc_ = &Enemy::UpdateToPlayer;
-		frameCount_ = 0;
-	}
-
-	// アニメーション更新処理
-	pModel_->Update();
-
-	// 位置座標の設定
-	pModel_->SetPos(pos_);
-
-	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+void Enemy::UpdateAttackToTower()
+{
+	Attacking(pTower_->GetPos(), tower);
 }
 
 void Enemy::UpdateTurn()

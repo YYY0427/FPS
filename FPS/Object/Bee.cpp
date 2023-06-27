@@ -105,16 +105,16 @@ void Bee::UpdateToPlayer()
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// 敵からプレイヤーへのベクトルを求める
-	toPlayer_ = VSub(pPlayer_->GetPos(), pos_);
+	toTarget_ = VSub(pPlayer_->GetPos(), pos_);
 
 	// 角度の取得
-	angle_ = static_cast<float>(atan2(toPlayer_.x, toPlayer_.z));
+	angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
 
 	// 正規化
-	toPlayer_ = VNorm(toPlayer_);
+	toTarget_ = VNorm(toTarget_);
 
 	// 移動速度の反映
-	VECTOR vec = VScale(toPlayer_, to_player_speed);
+	VECTOR vec = VScale(toTarget_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);

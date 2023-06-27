@@ -13,20 +13,33 @@ public:
 	void OnDamage(int damage);
 
 private:
-	// プレイヤーに向かう
+	// 追跡処理
+	void Tracking(VECTOR pos, int target);
+
+	// 攻撃処理
+	void Attacking(VECTOR pos, int target);
+
+	// プレイヤーを追跡
 	void UpdateToPlayer();
+
+	// タワーを追跡
+	void UpdateToTower();
+
+	// プレイヤーに攻撃する
+	void UpdateAttackToPlayer();
+
+	// タワーに攻撃する
+	void UpdateAttackToTower();
 
 	// 前に移動する(プレイヤーが見えていない)
 	void UpdateToFront();
-
-	// 攻撃する
-	void UpdateToAttack();
 
 	// 方向転換を行う(プレイヤーが見えていない)
 	void UpdateTurn();
 
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
+
 private:
 	// メンバー関数ポインタ
 	void(Enemy::* updateFunc_)();

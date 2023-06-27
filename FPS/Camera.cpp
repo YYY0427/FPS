@@ -122,7 +122,7 @@ void Camera::Update(const InputState& input)
 	// プレイヤーの回転に合わせてカメラの位置、注視点を回転させる
 	// プレイヤーの回転情報と平行移動情報を合成
 	MATRIX cameraRotMtxSide = MGetRotY(cameraYawX_);			// 横移動情報の作成
-	MATRIX cameraRotMtxVertical = MGetRotX(-cameraYawY_);	// 縦移動情報の作成
+	MATRIX cameraRotMtxVertical = MGetRotX(-cameraYawY_);		// 縦移動情報の作成
 	MATRIX cameraRotMtx = MMult(cameraRotMtxVertical, cameraRotMtxSide);
 	MATRIX cameraMtxPos = MMult(cameraRotMtxSide, playerTransMtx);
 	MATRIX cameraMtxTarget = MMult(cameraRotMtx, playerTransMtx);
@@ -133,7 +133,6 @@ void Camera::Update(const InputState& input)
 	{
 		cameraTarget_ = VTransform(cameraInitTarget_, cameraMtxTarget);
 	}
-
 	// プレイヤーが死んでいたらカメラを死亡時カメラに切り替え
 	else if(pPlayer_->GetIsDead() && perspectiveFps_)
 	{
@@ -160,8 +159,11 @@ void Camera::Update(const InputState& input)
 		}
 
 		// 割合計算
-		float ratio = static_cast<float>(deadFrame_ / anim_frame_num); // 0～100
+	//	float ratio = static_cast<float>(deadFrame_ / anim_frame_num); // 0～100
+		float ratio = static_cast<float>(deadFrame_) / static_cast<float>(anim_frame_num); // 0～100
 		float ratio2 = 1.0f - ratio;								   // 100～0	
+
+	//	printfDx("%f, %f, %f\n", cameraPos_.x, cameraPos_.y, cameraPos_.z);
 
 		// カメラの見ている方向のベクトルとカメラの位置からカメラの見ている座標を求める
 		cameraTarget_ = VAdd(VAdd(VScale(distance_, ratio2), VScale(upVector_, ratio)), cameraPos_);

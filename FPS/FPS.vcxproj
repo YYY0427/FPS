@@ -176,6 +176,7 @@
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Scene\SoundSettingScene.cpp" />
     <ClCompile Include="Stage.cpp" />
+    <ClCompile Include="Object\Tower.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +204,7 @@
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Scene\SoundSettingScene.h" />
     <ClInclude Include="Stage.h" />
+    <ClInclude Include="Object\Tower.h" />
     <ClInclude Include="Vec2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

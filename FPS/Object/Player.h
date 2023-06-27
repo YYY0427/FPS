@@ -8,7 +8,6 @@ class InputState;
 class Model;
 class Camera;
 class MainScene;
-class Field;
 
 class Player
 {
@@ -20,12 +19,8 @@ public:
 	void Update(const InputState& input);
 	void Draw();
 
-	void CollisionField();
-
 	// MainSceneのポインタのセッター
 	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
-
-	void SetField(std::vector<std::shared_ptr<Field>> pField) { pField_ = pField; }
 
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
@@ -69,15 +64,12 @@ private:
 	void(Player::* updateFunc_)(const InputState& input);
 
 	// メインシーン
-//	std::shared_ptr<MainScene> pMainScene_;
 	MainScene* pMainScene_;
 
 	// プレイヤーのモデル
 	std::shared_ptr<Model> pModel_;
 
 	std::shared_ptr<Camera> pCamera_;
-
-	std::vector<std::shared_ptr<Field>> pField_;
 
 	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
 	MV1_COLL_RESULT_POLY* yuka_[2048]{};

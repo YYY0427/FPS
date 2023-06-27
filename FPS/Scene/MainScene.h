@@ -10,6 +10,7 @@ class Shot;
 class EnemyManager;
 class SkyDoom;
 class FieldManager;
+class Tower;
 
 /// <summary>
 /// メインシーン
@@ -34,6 +35,8 @@ public:
 	// モデルとフィールドの当たり判定
 	VECTOR ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec);
 
+	float GetMaxY() const { return maxY_; }
+
 private:
 	void FadeInUpdate(const InputState& input);
 	void NormalUpdate(const InputState& input);
@@ -51,6 +54,7 @@ private:
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;
+	std::shared_ptr<Tower> pTower_;
 
 	// ゲームオーバー時のUI用ハンドル
 	int gameOverUIhandle_;
@@ -69,4 +73,8 @@ private:
 
 	// 床ポリゴンと判断されたポリゴンの構造体のアドレスを保存しておくためのポインタ配列
 	MV1_COLL_RESULT_POLY* kabe_[2048]{};
+
+	VECTOR moveAfterPos_;
+
+	float maxY_;
 };

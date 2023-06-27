@@ -13,6 +13,7 @@
 #include "../DrawFunctions.h"
 #include "../Object/SkyDoom.h"
 #include "../Object/FieldManager.h"
+#include "../Object/Tower.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -46,6 +47,7 @@ MainScene::MainScene(SceneManager& manager) :
 	pFieldManager_ = std::make_shared<FieldManager>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
 	pSkyDoom_ = std::make_shared<SkyDoom>();
+	pTower_ = std::make_shared<Tower>();
 	for (int i = 0; i < shot_max; i++)
 	{
 		pShot_.push_back(std::make_shared<Shot>());
@@ -67,7 +69,6 @@ void MainScene::Init()
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
-	pPlayer_->SetField(pFieldManager_->GetField());
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();
@@ -82,11 +83,13 @@ void MainScene::Init()
 	pEnemyManager_->Init();
 	pCamera_->Init();
 	pSkyDoom_->Init();
+	pTower_->Init();
 
 	for (auto& enemies : pEnemyManager_->GetEnemies())
 	{
 		enemies->SetPlayer(pPlayer_);
 		enemies->SetMainScene(this);
+		enemies->SetTower(pTower_);
 	}
 
 	// 画像のロード
@@ -134,6 +137,8 @@ void MainScene::Draw()
 
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
+
+	pTower_->Draw();
 
 	// プレイヤーが死んだら表示開始
 	if (pPlayer_->GetIsDead())
@@ -380,13 +385,11 @@ VECTOR MainScene::ColisionToField(int modelHandle, bool isMove, bool isJump, VEC
 		// 床ポリゴンとの当たり判定
 		if (yukaNum != 0)
 		{
-			float MaxY;
-
 			// 床ポリゴンに当たったかどうかのフラグを倒しておく
 			hitFlag = false;
 
 			// 一番高い床ポリゴンにぶつける為の判定用変数を初期化
-			MaxY = 0.0f;
+			maxY_ = 0.0f;
 
 			// 床ポリゴンの数だけ繰り返し
 			for (int i = 0; i < yukaNum; i++)
@@ -410,13 +413,13 @@ VECTOR MainScene::ColisionToField(int modelHandle, bool isMove, bool isJump, VEC
 				if (!lineRes.HitFlag) continue;
 
 				// 既に当たったポリゴンがあり、且つ今まで検出した床ポリゴンより低い場合は何もしない
-				if (hitFlag && MaxY > lineRes.Position.y) continue;
+				if (hitFlag && maxY_ > lineRes.Position.y) continue;
 
 				// ポリゴンに当たったフラグを立てる
 				hitFlag = true;
 
 				// 接触したＹ座標を保存する
-				MaxY = lineRes.Position.y;
+				maxY_ = lineRes.Position.y;
 			}
 
 			// 床ポリゴンに当たったかどうかで処理を分岐
@@ -424,14 +427,19 @@ VECTOR MainScene::ColisionToField(int modelHandle, bool isMove, bool isJump, VEC
 			{
 				//// 当たった場合 ////
 
-				// 接触したポリゴンで一番高いＹ座標をプレイヤーのＹ座標にする
-				moveAfterPos.y = MaxY;
+				if (!isJump)
+				{
+					// 接触したポリゴンで一番高いＹ座標をプレイヤーのＹ座標にする
+					moveAfterPos.y = maxY_;
+				}
 			}
 			else
 			{
 				//// 当たっていない場合 ////
-
-				moveAfterPos.y -= 20;
+				if (!isJump)
+				{
+					moveAfterPos.y -= 20;
+				}
 			}
 		}
 		else
@@ -468,6 +476,7 @@ void MainScene::NormalUpdate(const InputState& input)
 	pFieldManager_->Update();
 	pPlayer_->Update(input);
 	pEnemyManager_->Update();
+	pTower_->Update();
 	for (auto& shot : pShot_)
 	{
 		shot->Update();

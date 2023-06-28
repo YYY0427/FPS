@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <DxLib.h>
+#include <DxDataTypeWin.h>
 
 class Model;
 
@@ -14,9 +15,12 @@ public:
 	void Update();
 	void Draw();
 
+	void Ondamage(int damage);
+
 	VECTOR GetPos() const { return pos_; }
 private:
 	std::shared_ptr<Model> pModel_;
 	VECTOR pos_;
 	int hp_;
+	int damageFrame_;
 };

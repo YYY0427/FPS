@@ -56,7 +56,7 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 1;
+	constexpr int max_hp = 3;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
@@ -105,7 +105,7 @@ void Player::Draw()
 	// HPの描画
 	for (int i = 0; i < hp_; i++)
 	{
-		DrawCircle(Game::screen_width - 400 + (i * 70), 100, 30, 0xff0000, true);
+		DrawCircle(100 + (i * 70), 130, 30, 0xff0000, true);
 	}
 
 	// ダメージ処理

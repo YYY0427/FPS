@@ -93,7 +93,7 @@ void Shot::Start(VECTOR pos, VECTOR vec)
 	vec_ = vec;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
-	pModel_->SetRot(VGet(/*pCamera_->GetCameraAngleY() */  0, pCamera_->GetCameraAngleX(), 0));
+	pModel_->SetRot(VGet(-pCamera_->GetCameraAngleY(), pCamera_->GetCameraAngleX(), 0.0f));
 }
 
 float Shot::GetColRadius() const

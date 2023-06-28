@@ -1,7 +1,9 @@
 #include "Tower.h"
 #include "../Model.h"
 
-Tower::Tower()
+Tower::Tower() :
+	pos_(VGet(0, 0, 0)),
+	hp_(0)
 {
 }
 

@@ -2,8 +2,8 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
-#include "../Scene/MainScene.h"
 #include "Tower.h"
+#include "../Collision.h"
 #include <cassert>
 
 namespace
@@ -119,7 +119,7 @@ void Enemy::Tracking(VECTOR pos, int target)
 	VECTOR vec = VScale(toTarget_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
+	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
 
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
@@ -227,7 +227,7 @@ void Enemy::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
+	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), true, false, pos_, vec);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)

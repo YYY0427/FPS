@@ -5,7 +5,7 @@
 class Player;
 class Model;
 class Tower;
-class MainScene;
+class Collision;
 
 class EnemyBase
 {
@@ -38,9 +38,9 @@ public:
 	// プレイヤーのセッター
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
-	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
-
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
+
+	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 
 	// 当たり判定の半径のゲッター
 	float GetColRadius() const { return colRadius_; };
@@ -69,7 +69,7 @@ protected:
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
 	std::shared_ptr<Tower> pTower_;
-	MainScene* pMainScene_ = nullptr;
+	Collision* pCollision_ = nullptr;
 
 	enum Target
 	{

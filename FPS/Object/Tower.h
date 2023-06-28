@@ -18,4 +18,5 @@ public:
 private:
 	std::shared_ptr<Model> pModel_;
 	VECTOR pos_;
+	int hp_;
 };

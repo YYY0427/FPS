@@ -8,6 +8,7 @@ class InputState;
 class Model;
 class Camera;
 class MainScene;
+class Collision;
 
 class Player
 {
@@ -24,6 +25,8 @@ public:
 
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
+
+	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 
 	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
@@ -66,16 +69,12 @@ private:
 	// メインシーン
 	MainScene* pMainScene_;
 
+	Collision* pCollision_;
+
 	// プレイヤーのモデル
 	std::shared_ptr<Model> pModel_;
 
 	std::shared_ptr<Camera> pCamera_;
-
-	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
-	MV1_COLL_RESULT_POLY* yuka_[2048]{};
-
-	// 床ポリゴンと判断されたポリゴンの構造体のアドレスを保存しておくためのポインタ配列
-	MV1_COLL_RESULT_POLY* kabe_[2048]{};
 
 	// 再生しているアニメーション番号
 	int animNo_;

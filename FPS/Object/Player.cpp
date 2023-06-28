@@ -4,6 +4,7 @@
 #include "../InputState.h"
 #include "../Camera.h"
 #include "../Scene/MainScene.h"
+#include "../Collision.h"
 #include <DxLib.h>
 #include <cassert>
 
@@ -77,7 +78,8 @@ Player::Player() :
 	moveVec_(VGet(0, 0, 0)),
 	shotFrameCount_(0),
 	isJump_(false),
-	pMainScene_(nullptr)
+	pMainScene_(nullptr),
+	pCollision_(nullptr)
 {
 }
 
@@ -89,6 +91,7 @@ void Player::Init()
 {
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
+
 	pModel_->SetAnimation(animNo_, true, true);
 }
 
@@ -177,7 +180,7 @@ void Player::UpdateIdle(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pMainScene_->GetMaxY())
+	if (pos_.y <= pCollision_->GetMaxY())
 	{
 	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
@@ -294,7 +297,8 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
+//	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
+	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更
 	if (pModel_->IsAnimEnd() && animNo_ == idle_shot_anim_no)
@@ -328,7 +332,7 @@ void Player::UpdateIdleShot(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pMainScene_->GetMaxY())
+	if (pos_.y <= pCollision_->GetMaxY())
 	{
 	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
@@ -356,9 +360,9 @@ void Player::UpdateDead(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pMainScene_->GetMaxY())
+	if (pos_.y <= pCollision_->GetMaxY())
 	{
-		pos_.y = pMainScene_->GetMaxY();
+		pos_.y = pCollision_->GetMaxY();
 		jumpAcc_ = 0.0f;
 		isJump_ = false;
 	}

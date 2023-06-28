@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Object\FieldManager.cpp" />
     <ClCompile Include="Object\Bee.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Object\FieldManager.h" />
     <ClInclude Include="Object\Bee.h" />
     <ClInclude Include="Camera.h" />

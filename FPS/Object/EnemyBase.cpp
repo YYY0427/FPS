@@ -1,7 +1,6 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
-#include "../Scene/MainScene.h"
 #include <cassert>
 
 EnemyBase::EnemyBase()

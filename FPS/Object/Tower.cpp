@@ -4,7 +4,7 @@
 namespace
 {
 	// Å‘åHP
-	constexpr int max_hp = 50;
+	constexpr int max_hp = 5;
 
 	// ƒ_ƒ[ƒW‚ðŽó‚¯‚½Žž‚Ì–³“GŽžŠÔ
 	constexpr int invincible_time = 60;
@@ -65,6 +65,8 @@ void Tower::Draw()
 	DrawSphere3D(pos_, colRadius_, 50.0f, 0xff0000, 0xff0000, true);
 
 	DrawString(1250, 80, "Tower‚ÌHP", 0x000000);
+
+	DrawFormatString(1100, 80, 0x000000, "%d", hp_);
 }
 
 void Tower::OnDamage(int damage)
@@ -73,4 +75,5 @@ void Tower::OnDamage(int damage)
 	if (damageFrame_ > 0)	return;
 	hp_ -= damage;
 	damageFrame_ = invincible_time;
+	if (hp_ <= 0) hp_ = 0;
 }

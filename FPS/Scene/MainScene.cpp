@@ -123,6 +123,7 @@ void MainScene::Draw()
 	pFieldManager_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
+	pTower_->Draw();
 	for (auto& shot : pShot_)
 	{
 		shot->Draw();
@@ -135,6 +136,7 @@ void MainScene::Draw()
 	pFieldManager_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
+	pTower_->Draw();
 	for (auto& shot : pShot_)
 	{
 		shot->Draw();
@@ -144,8 +146,6 @@ void MainScene::Draw()
 
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
-
-	pTower_->Draw();
 
 	// プレイヤーが死んだら表示開始
 	if (pPlayer_->GetIsDead())

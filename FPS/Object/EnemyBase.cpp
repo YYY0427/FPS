@@ -24,6 +24,8 @@ void EnemyBase::Init()
 	pos_.y = 0.0f;
 	pos_.z = static_cast<float>(GetRand(2000) - 1000);
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
+
+	pModel_->Update();
 }
 
 void EnemyBase::Draw()

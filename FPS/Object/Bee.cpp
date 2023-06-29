@@ -153,12 +153,12 @@ void Bee::Tracking(VECTOR pos, int target, int attackDistance)
 		frameCount_ = 0;
 	}
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
+
+	// アニメーション更新処理
+	pModel_->Update();
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
@@ -193,12 +193,11 @@ void Bee::Attacking(VECTOR pos, int target, int attackDistance)
 		frameCount_ = 0;
 	}
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
+	// アニメーション更新処理
+	pModel_->Update();
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
@@ -264,11 +263,11 @@ void Bee::UpdateToFront()
 		}
 	}
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
+
+	// アニメーション更新処理
+	pModel_->Update();
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
@@ -298,12 +297,14 @@ void Bee::UpdateTurn()
 		}
 	}
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
+
+	// アニメーション更新処理
+	pModel_->Update();
+
+	
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }

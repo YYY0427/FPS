@@ -56,7 +56,7 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 3;
+	constexpr int max_hp = 10;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
@@ -202,7 +202,7 @@ void Player::UpdateIdle(const InputState& input)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
-		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraAngleX());	// 横移動情報の行列作成		
+		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());	// 横移動情報の行列作成		
 		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);			// 横移動情報行列とプレイヤーの平行移動行列の合成
 		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
 
@@ -233,10 +233,10 @@ void Player::UpdateIdle(const InputState& input)
 	VECTOR vect = MV1GetRotationXYZ(pModel_->GetModelHandle());
 
 	// カメラが向いている方向からベクトル変換して移動情報作成
-	VECTOR moveUp = VTransform(player_vec_up, MGetRotY(pCamera_->GetCameraAngleX()));
-	VECTOR moveDown = VTransform(player_vec_down, MGetRotY(pCamera_->GetCameraAngleX()));
-	VECTOR moveRight = VTransform(player_vec_right, MGetRotY(pCamera_->GetCameraAngleX() + vect.x));
-	VECTOR moveLeft = VTransform(player_vec_left, MGetRotY(pCamera_->GetCameraAngleX() + vect.x));
+	VECTOR moveUp = VTransform(player_vec_up, MGetRotY(pCamera_->GetCameraYaw()));
+	VECTOR moveDown = VTransform(player_vec_down, MGetRotY(pCamera_->GetCameraYaw()));
+	VECTOR moveRight = VTransform(player_vec_right, MGetRotY(pCamera_->GetCameraYaw() + vect.x));
+	VECTOR moveLeft = VTransform(player_vec_left, MGetRotY(pCamera_->GetCameraYaw() + vect.x));
 
 	// 移動
 	isMoving_ = false;
@@ -314,7 +314,7 @@ void Player::UpdateIdle(const InputState& input)
 	pModel_->SetPos(pos_);
 
 	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraAngleX(), 0.0f));
+	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraYaw(), 0.0f));
 }
 
 void Player::UpdateIdleShot(const InputState& input)

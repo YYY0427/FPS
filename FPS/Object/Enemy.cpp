@@ -35,10 +35,13 @@ namespace
 	constexpr int hp_bar_height = 10;
 
 	// ダメージ受けた時の無敵時間
-	constexpr int invincible_time = 60;
+	constexpr int invincible_time = 10;
 
 	// プレイヤーに攻撃する距離
-	constexpr float attack_distance = 140.0f;
+	constexpr float player_attack_distance = 140.0f;
+
+	// タワーに攻撃する距離
+	constexpr float tower_attack_distance = 190.0f;
 }
 
 Enemy::Enemy(const char* fileName)
@@ -100,7 +103,7 @@ void Enemy::OnDamage(int damage)
 	}
 }
 
-void Enemy::Tracking(VECTOR pos, int target)
+void Enemy::Tracking(VECTOR pos, int target, int attackDistance)
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -125,7 +128,7 @@ void Enemy::Tracking(VECTOR pos, int target)
 	float distans = VSize(VSub(pos, pos_));
 
 	// 目標までまでの距離が特定距離以内なら攻撃アニメーションに移行
-	if (distans < attack_distance)
+	if (distans < attackDistance)
 	{
 		// アニメーション設定
 		animNo_ = attack_anim_no;
@@ -161,7 +164,7 @@ void Enemy::Tracking(VECTOR pos, int target)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Enemy::Attacking(VECTOR pos, int target)
+void Enemy::Attacking(VECTOR pos, int target, int attacDistance)
 {
 	assert(animNo_ == attack_anim_no);
 
@@ -173,7 +176,7 @@ void Enemy::Attacking(VECTOR pos, int target)
 	float distans = VSize(VSub(pos, pos_));
 
 	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
-	if (attack_distance < distans)
+	if (attacDistance < distans)
 	{
 		// アニメーション設定
 		animNo_ = walk_anim_no;
@@ -203,12 +206,12 @@ void Enemy::Attacking(VECTOR pos, int target)
 
 void Enemy::UpdateToPlayer()
 {
-	Tracking(pPlayer_->GetPos(), player);
+	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
 void Enemy::UpdateToTower()
 {
-	Tracking(pTower_->GetPos(), tower);
+	Tracking(pTower_->GetPos(), tower, tower_attack_distance);
 }
 
 void Enemy::UpdateToFront()
@@ -264,12 +267,12 @@ void Enemy::UpdateToFront()
 
 void Enemy::UpdateAttackToPlayer()
 {
-	Attacking(pPlayer_->GetPos(), player);
+	Attacking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
 void Enemy::UpdateAttackToTower()
 {
-	Attacking(pTower_->GetPos(), tower);
+	Attacking(pTower_->GetPos(), tower, tower_attack_distance);
 }
 
 void Enemy::UpdateTurn()

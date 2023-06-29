@@ -74,6 +74,7 @@ void MainScene::Init()
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
 	pCollision_->SetFieldManager(pFieldManager_);
+	pCollision_->SetTower(pTower_);
 	pPlayer_->SetCollision(pCollision_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
@@ -244,37 +245,58 @@ void MainScene::NormalUpdate(const InputState& input)
 	}
 	pCamera_->Update(input);
 
-	// 弾と敵の当たり判定
-	for (auto& shot : pShot_)
+	// TODO:Collisionクラスに移す
 	{
-		if (!shot->isExist()) continue;
+		// 弾と敵の当たり判定
+		for (auto& shot : pShot_)
+		{
+			if (!shot->isExist()) continue;
 
+			for (auto& enemies : pEnemyManager_->GetEnemies())
+			{
+				// DxLibの関数を利用して当たり判定をとる
+				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+				result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
+
+				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				{
+					// 当たった
+					enemies->OnDamage(10);	// 敵にダメージ
+					shot->SetExsit(false);	// 敵に当たった弾を消す
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
+			}
+		}
+
+		// 敵とプレイヤーの当たり判定
+		for (auto& enemies : pEnemyManager_->GetEnemies())
+		{
+			float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
+			if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
+			{
+				pPlayer_->OnDamage(1);
+			}
+		}
+
+		// 敵とタワーの当たり判定
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
 			// DxLibの関数を利用して当たり判定をとる
 			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-			result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
+			result = MV1CollCheck_Sphere(enemies->GetModelHandle(), enemies->GetColFrameIndex(), pTower_->GetPos(), pTower_->GetColRadius());
 
 			if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 			{
 				// 当たった
-				enemies->OnDamage(10);	// 敵にダメージ
-				shot->SetExsit(false);	// 敵に当たった弾を消す
+				pTower_->OnDamage(1);	// タワーにダメージ
 			}
 			// 当たり判定情報の後始末
 			MV1CollResultPolyDimTerminate(result);
 		}
 	}
 
-	// 敵とプレイヤーの当たり判定
-	for (auto& enemies : pEnemyManager_->GetEnemies())
-	{
-		float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
-		if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
-		{
-			pPlayer_->OnDamage(1);
-		}
-	}
+	// プレイヤーが死んだらゲームオーバー演出開始
 	if (pPlayer_->GetIsDead())
 	{
 		gameOverFadeTimer_++;

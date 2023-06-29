@@ -65,6 +65,10 @@ void Shot::Update()
 
 	// モデルのポジションの設定
 	pModel_->SetPos(pos_);
+
+	// FIXME:
+	// カメラの回転
+	pModel_->SetRot(VGet(pCamera_->GetCameraPitch() + DX_PI_F / 5, pCamera_->GetCameraYaw() + DX_PI_F, 0.0f));
 }
 
 void Shot::Draw()
@@ -93,7 +97,11 @@ void Shot::Start(VECTOR pos, VECTOR vec)
 	vec_ = vec;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
-	pModel_->SetRot(VGet(-pCamera_->GetCameraAngleY(), pCamera_->GetCameraAngleX(), 0.0f));
+	pModel_->SetRot(VGet(pCamera_->GetCameraPitch(), pCamera_->GetCameraYaw(), 0.0f));
+
+	// FIXME:
+	// カメラの回転
+	pModel_->SetRot(VGet(pCamera_->GetCameraPitch() + DX_PI_F / 5, pCamera_->GetCameraYaw() + DX_PI_F, 0.0f));
 }
 
 float Shot::GetColRadius() const

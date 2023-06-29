@@ -35,10 +35,13 @@ namespace
 	constexpr int hp_bar_height = 10;
 
 	// ダメージ受けた時の無敵時間
-	constexpr int invincible_time = 60;
+	constexpr int invincible_time = 10;
 
 	// プレイヤーに攻撃する距離
-	constexpr float attack_distance = 140.0f;
+	constexpr float player_attack_distance = 140.0f;
+
+	// タワーに攻撃する距離
+	constexpr float tower_attack_distance = 190.0f;
 }
 
 Bee::Bee(const char* fileName)
@@ -99,7 +102,7 @@ void Bee::OnDamage(int damage)
 	}
 }
 
-void Bee::Tracking(VECTOR pos, int target)
+void Bee::Tracking(VECTOR pos, int target, int attackDistance)
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -124,7 +127,7 @@ void Bee::Tracking(VECTOR pos, int target)
 	float distans = VSize(VSub(pos, pos_));
 
 	// 目標までまでの距離が特定距離以内なら攻撃アニメーションに移行
-	if (distans < attack_distance)
+	if (distans < attackDistance)
 	{
 		// アニメーション設定
 		animNo_ = attack_anim_no;
@@ -160,7 +163,7 @@ void Bee::Tracking(VECTOR pos, int target)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Bee::Attacking(VECTOR pos, int target)
+void Bee::Attacking(VECTOR pos, int target, int attackDistance)
 {
 	assert(animNo_ == attack_anim_no);
 
@@ -172,7 +175,7 @@ void Bee::Attacking(VECTOR pos, int target)
 	float distans = VSize(VSub(pos, pos_));
 
 	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
-	if (attack_distance < distans)
+	if (attackDistance < distans)
 	{
 		// アニメーション設定
 		animNo_ = walk_anim_no;
@@ -202,22 +205,22 @@ void Bee::Attacking(VECTOR pos, int target)
 
 void Bee::UpdateToPlayer()
 {
-	Tracking(pPlayer_->GetPos(), player);
+	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
 void Bee::UpdateToTower()
 {
-	Tracking(pTower_->GetPos(), tower);
+	Tracking(pTower_->GetPos(), tower, tower_attack_distance);
 }
 
 void Bee::UpdateAttackToPlayer()
 {
-	Attacking(pPlayer_->GetPos(), player);
+	Attacking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
 void Bee::UpdateAttackToTower()
 {
-	Attacking(pTower_->GetPos(), tower);
+	Attacking(pTower_->GetPos(), tower, tower_attack_distance);
 }
 
 void Bee::UpdateToFront()

@@ -39,8 +39,8 @@ Camera::Camera() :
 	mousePosY_(0),
 	mouseMoveX_(0.0f),
 	mouseMoveY_(0.0f),
-	cameraYawX_(0.0f),
-	cameraYawY_(0.0f),
+	cameraYaw_(0.0f),
+	cameraPitch_(0.0f),
 	isMouseScreenEdge_(false),
 	deadFrame_(0),
 	distance_(VGet(0, 0, 0)),
@@ -103,26 +103,25 @@ void Camera::Update(const InputState& input)
 	mouseMoveY_ = static_cast<float>(mousePosY_ - (Game::screen_height / 2));
 
 	// カメラの回転にマウスの移動量を足す
-	cameraYawX_ += mouseMoveX_ * rot_speed;
-	cameraYawY_ += mouseMoveY_ * rot_speed;
+	cameraYaw_ += mouseMoveX_ * rot_speed;
+	cameraPitch_ += mouseMoveY_ * rot_speed;
 
 	// カメラの回転の制限
-	if (cameraYawY_ <= 150 * rot_speed)	cameraYawY_ = 150 * rot_speed;
-	if (cameraYawY_ >= 350 * rot_speed)	cameraYawY_ = 350 * rot_speed;
+	if (cameraPitch_ <= 150 * rot_speed)	cameraPitch_ = 150 * rot_speed;
+	if (cameraPitch_ >= 350 * rot_speed)	cameraPitch_ = 350 * rot_speed;
 
 	// Y軸のカメラの追従
 	VECTOR cameraTrans = pPlayer_->GetPos();
 	//	cameraTrans.y = 0.0f;							// Y軸カメラの追従を行わない
 	//	cameraTrans.y = pPlayer_->GetPos().y * 0.65f;	// Y軸カメラの追従を少し遅くする
-	//	cameraTrans.y = pPlayer_->GetPos().y;			// Y軸カメラの追従をプレイヤーの位置に合わせる
 
 	// 平行行列の作成(なにこれ??)
 	MATRIX playerTransMtx = MGetTranslate(cameraTrans);
 
 	// プレイヤーの回転に合わせてカメラの位置、注視点を回転させる
 	// プレイヤーの回転情報と平行移動情報を合成
-	MATRIX cameraRotMtxSide = MGetRotY(cameraYawX_);			// 横移動情報の作成
-	MATRIX cameraRotMtxVertical = MGetRotX(-cameraYawY_);		// 縦移動情報の作成
+	MATRIX cameraRotMtxSide = MGetRotY(cameraYaw_);				// 横移動情報の作成
+	MATRIX cameraRotMtxVertical = MGetRotX(-cameraPitch_);		// 縦移動情報の作成
 	MATRIX cameraRotMtx = MMult(cameraRotMtxVertical, cameraRotMtxSide);
 	MATRIX cameraMtxPos = MMult(cameraRotMtxSide, playerTransMtx);
 	MATRIX cameraMtxTarget = MMult(cameraRotMtx, playerTransMtx);
@@ -132,6 +131,7 @@ void Camera::Update(const InputState& input)
 	if (!pPlayer_->GetIsDead())
 	{
 		cameraTarget_ = VTransform(cameraInitTarget_, cameraMtxTarget);
+	//	cameraTarget_ = cameraInitTarget_;
 	}
 	// プレイヤーが死んでいたらカメラを死亡時カメラに切り替え
 	else if(pPlayer_->GetIsDead() && perspectiveFps_)
@@ -159,11 +159,8 @@ void Camera::Update(const InputState& input)
 		}
 
 		// 割合計算
-	//	float ratio = static_cast<float>(deadFrame_ / anim_frame_num); // 0～100
 		float ratio = static_cast<float>(deadFrame_) / static_cast<float>(anim_frame_num); // 0～100
-		float ratio2 = 1.0f - ratio;								   // 100～0	
-
-	//	printfDx("%f, %f, %f\n", cameraPos_.x, cameraPos_.y, cameraPos_.z);
+		float ratio2 = 1.0f - ratio;													   // 100～0	
 
 		// カメラの見ている方向のベクトルとカメラの位置からカメラの見ている座標を求める
 		cameraTarget_ = VAdd(VAdd(VScale(distance_, ratio2), VScale(upVector_, ratio)), cameraPos_);
@@ -219,14 +216,14 @@ void Camera::Draw()
 	DrawFormatString(10, 180, 0x000000, "mousePos = %d, %d", mousePosX_, mousePosY_);
 }
 
-float Camera::GetCameraAngleX() const
+float Camera::GetCameraYaw() const
 {
-	return cameraYawX_;
+	return cameraYaw_;
 }
 
-float Camera::GetCameraAngleY() const
+float Camera::GetCameraPitch() const
 {
-	return cameraYawY_;
+	return cameraPitch_;
 }
 
 void Camera::Quake()

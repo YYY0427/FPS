@@ -5,6 +5,7 @@
 class FieldManager;
 class EnemyManager;
 class Player;
+class Tower;
 
 class Collision
 {
@@ -20,11 +21,13 @@ public:
 	void SetFieldManager(std::shared_ptr<FieldManager> pFieldManager) { pFieldManager_ = pFieldManager; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
+	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
 private:
 	std::shared_ptr<FieldManager> pFieldManager_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::shared_ptr<Player> pPlayer_;
+	std::shared_ptr<Tower> pTower_;
 
 	// ポリゴンの構造体のアドレスを保存しておくためのポインタ配列
 	MV1_COLL_RESULT_POLY* yuka_[2048]{};

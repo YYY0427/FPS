@@ -2,7 +2,9 @@
 #include "Object/FieldManager.h"
 #include "Object/Field.h"
 
-Collision::Collision()
+Collision::Collision() :
+	moveAfterPos_(VGet(0, 0, 0)),
+	maxY_(0.0f)
 {
 }
 

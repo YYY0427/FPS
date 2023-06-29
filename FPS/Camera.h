@@ -19,8 +19,10 @@ public:
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 	// カメラのアングルの取得
-	float GetCameraAngleX() const;
-	float GetCameraAngleY() const;
+	float GetCameraYaw() const;
+	float GetCameraPitch() const;
+
+	VECTOR GetInitTarget() const { return cameraInitTarget_; }
 
 	// カメラの注視点の取得
 	VECTOR GetCameraTarget() const { return cameraTarget_; }
@@ -57,8 +59,8 @@ private:
 	float mouseMoveY_;
 
 	// 回転角度
-	float cameraYawX_;
-	float cameraYawY_;
+	float cameraYaw_;
+	float cameraPitch_;
 
 	// マウスが画面端についたか
 	bool isMouseScreenEdge_;

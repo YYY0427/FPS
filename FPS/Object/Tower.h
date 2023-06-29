@@ -19,10 +19,12 @@ public:
 
 	VECTOR GetPos() const { return pos_; }
 	float GetColRadius() const { return colRadius_; }
+	int GetIsDead() const { return isDead_; }
 private:
 	std::shared_ptr<Model> pModel_;
 	VECTOR pos_;
 	int hp_;
 	int damageFrame_;
 	float colRadius_;
+	bool isDead_;
 };

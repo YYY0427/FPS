@@ -4,7 +4,7 @@
 namespace
 {
 	// Å‘åHP
-	constexpr int max_hp = 5;
+	constexpr int max_hp = 100;
 
 	// ƒ_ƒ[ƒW‚ðŽó‚¯‚½Žž‚Ì–³“GŽžŠÔ
 	constexpr int invincible_time = 60;
@@ -20,7 +20,8 @@ Tower::Tower() :
 	pos_(VGet(0, 0, 0)),
 	hp_(0),
 	damageFrame_(0),
-	colRadius_(0.0f)
+	colRadius_(0.0f),
+	isDead_(false)
 {
 }
 
@@ -75,5 +76,9 @@ void Tower::OnDamage(int damage)
 	if (damageFrame_ > 0)	return;
 	hp_ -= damage;
 	damageFrame_ = invincible_time;
-	if (hp_ <= 0) hp_ = 0;
+	if (hp_ <= 0)
+	{
+		isDead_ = true;
+		hp_ = 0;
+	}
 }

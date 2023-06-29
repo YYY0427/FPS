@@ -42,6 +42,8 @@ namespace
 
 	// タワーに攻撃する距離
 	constexpr float tower_attack_distance = 190.0f;
+
+	constexpr float lost_distance = 2000.0f;
 }
 
 Bee::Bee(const char* fileName)
@@ -102,7 +104,7 @@ void Bee::OnDamage(int damage)
 	}
 }
 
-void Bee::Tracking(VECTOR pos, int target, int attackDistance)
+void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -145,6 +147,10 @@ void Bee::Tracking(VECTOR pos, int target, int attackDistance)
 		}
 		frameCount_ = 0;
 	}
+	if (target == player && distans > lost_distance)
+	{
+		updateFunc_ = &Bee::UpdateToTower;
+	}
 
 	// プレイヤーが死んでいる場合を追わない
 	if (pPlayer_->GetIsDead())
@@ -163,7 +169,7 @@ void Bee::Tracking(VECTOR pos, int target, int attackDistance)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Bee::Attacking(VECTOR pos, int target, int attackDistance)
+void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 {
 	assert(animNo_ == attack_anim_no);
 

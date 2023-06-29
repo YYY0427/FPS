@@ -2,6 +2,7 @@
 #include "Object/Player.h"
 #include "InputState.h"
 #include "Game.h"
+#include "Object/Tower.h"
 #include <DxLib.h>
 
 namespace
@@ -90,7 +91,7 @@ void Camera::Init()
 void Camera::Update(const InputState& input)
 {
 	// プレイヤーが生きている場合のみマウスの座標の取得
-	if (!pPlayer_->GetIsDead())
+	if (!pPlayer_->GetIsDead() && !pTower_->GetIsDead())
 	{
 		GetMousePoint(&mousePosX_, &mousePosY_);
 	}
@@ -208,7 +209,7 @@ void Camera::Update(const InputState& input)
 #endif
 
 	// カメラを揺らす
-	Quake();
+//	Quake();
 }
 
 void Camera::Draw()

@@ -14,10 +14,10 @@ public:
 	
 private:
 	// ’ÇÕˆ—
-	void Tracking(VECTOR pos, int target, int attackDistance);
+	void Tracking(VECTOR pos, int target, float attackDistance);
 
 	// UŒ‚ˆ—
-	void Attacking(VECTOR pos, int target, int attacDistance);
+	void Attacking(VECTOR pos, int target, float attacDistance);
 
 	// ƒvƒŒƒCƒ„[‚ğ’ÇÕ
 	void UpdateToPlayer();

@@ -40,6 +40,7 @@ MainScene::MainScene(SceneManager& manager) :
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
 	shadowMap_(-1),
+	youdeadUIhandle_(-1),
 	gameOverUIhandle_(-1),
 	gameOverFadeTimer_(0)
 {
@@ -76,6 +77,8 @@ void MainScene::Init()
 	pCollision_->SetFieldManager(pFieldManager_);
 	pCollision_->SetTower(pTower_);
 	pPlayer_->SetCollision(pCollision_);
+	pCamera_->SetTower(pTower_);
+	pPlayer_->SetTower(pTower_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();
@@ -100,7 +103,8 @@ void MainScene::Init()
 	}
 
 	// 画像のロード
-	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
+	youdeadUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
+	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/gameOver.png");
 
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
@@ -147,11 +151,18 @@ void MainScene::Draw()
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
 
-	// プレイヤーが死んだら表示開始
-	if (pPlayer_->GetIsDead())
+	// タワーが死んだら表示開始
+	if (pTower_->GetIsDead() && !pPlayer_->GetIsDead())
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
-		DrawGraph(0,  0, gameOverUIhandle_, true);
+		DrawGraph(0, 0, gameOverUIhandle_, true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+	// プレイヤーが死んだら表示開始
+	if (pPlayer_->GetIsDead() && !pTower_->GetIsDead())
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
+		DrawGraph(0,  0, youdeadUIhandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	// プレイヤーが生きているときのみクロスヘアを表示
@@ -282,6 +293,9 @@ void MainScene::NormalUpdate(const InputState& input)
 		// 敵とタワーの当たり判定
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
+			// 死んでいたら当たり判定を行わない
+			if (enemies->GetDead()) continue;
+
 			// DxLibの関数を利用して当たり判定をとる
 			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
 			result = MV1CollCheck_Sphere(enemies->GetModelHandle(), enemies->GetColFrameIndex(), pTower_->GetPos(), pTower_->GetColRadius());
@@ -297,7 +311,7 @@ void MainScene::NormalUpdate(const InputState& input)
 	}
 
 	// プレイヤーが死んだらゲームオーバー演出開始
-	if (pPlayer_->GetIsDead())
+	if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
 	{
 		gameOverFadeTimer_++;
 		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(gameOverFadeTimer_)) / static_cast<float>(game_over_fade_interval));
@@ -307,11 +321,13 @@ void MainScene::NormalUpdate(const InputState& input)
 		}	 
 	}
 
+#ifdef _DEBUG
 	// シーン切り替え
 	if (input.IsTriggered(InputType::next))
 	{
 		updateFunc_ = &MainScene::FadeOutUpdate;
 	}
+#endif
 	if (input.IsTriggered(InputType::pause))
 	{
 		manager_.PushScene(new PauseScene(manager_));

@@ -42,6 +42,9 @@ namespace
 
 	// タワーに攻撃する距離
 	constexpr float tower_attack_distance = 190.0f;
+
+	// 目標を見失う距離
+	constexpr float lost_distance = 2000.0f;
 }
 
 Enemy::Enemy(const char* fileName)
@@ -103,7 +106,7 @@ void Enemy::OnDamage(int damage)
 	}
 }
 
-void Enemy::Tracking(VECTOR pos, int target, int attackDistance)
+void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -146,6 +149,10 @@ void Enemy::Tracking(VECTOR pos, int target, int attackDistance)
 		}
 		frameCount_ = 0;
 	}
+	if (target == player && distans > lost_distance)
+	{
+		updateFunc_ = &Enemy::UpdateToTower;
+	}
 
 	// プレイヤーが死んでいる場合を追わない
 	if (pPlayer_->GetIsDead())
@@ -164,7 +171,7 @@ void Enemy::Tracking(VECTOR pos, int target, int attackDistance)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Enemy::Attacking(VECTOR pos, int target, int attacDistance)
+void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 {
 	assert(animNo_ == attack_anim_no);
 
@@ -196,7 +203,6 @@ void Enemy::Attacking(VECTOR pos, int target, int attacDistance)
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
-
 
 	// アニメーション更新処理
 	pModel_->Update();

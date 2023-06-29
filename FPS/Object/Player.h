@@ -9,6 +9,7 @@ class Model;
 class Camera;
 class MainScene;
 class Collision;
+class Tower;
 
 class Player
 {
@@ -27,6 +28,8 @@ public:
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
 	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
+
+	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
 	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
@@ -75,6 +78,8 @@ private:
 	std::shared_ptr<Model> pModel_;
 
 	std::shared_ptr<Camera> pCamera_;
+
+	std::shared_ptr<Tower> pTower_;
 
 	// 再生しているアニメーション番号
 	int animNo_;

@@ -5,6 +5,7 @@
 #include "../Camera.h"
 #include "../Scene/MainScene.h"
 #include "../Collision.h"
+#include "Tower.h"
 #include <DxLib.h>
 #include <cassert>
 
@@ -125,8 +126,10 @@ float Player::GetColRadius() const
 
 void Player::OnDamage(int damage)
 {
-	// ダメージ処理
 	if (damageFrame_ > 0)	return;
+	if (pTower_->GetIsDead()) return;
+
+	// ダメージ処理
 	hp_ -= damage;
 	damageFrame_ = invincible_time;
 
@@ -172,6 +175,12 @@ void Player::UpdateIdle(const InputState& input)
 {
 	// フレームカウント
 	shotFrameCount_++;
+
+	if (pTower_->GetIsDead())
+	{
+		animNo_ = dead_anim_no;
+		updateFunc_ = &Player::UpdateDead;
+	}
 
 	// ダメージ処理
 	damageFrame_--;
@@ -297,7 +306,6 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-//	pos_ = pMainScene_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更

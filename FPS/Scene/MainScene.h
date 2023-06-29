@@ -54,6 +54,7 @@ private:
 	Collision* pCollision_;
 
 	// ゲームオーバー時のUI用ハンドル
+	int youdeadUIhandle_;
 	int gameOverUIhandle_;
 	int gameOverFadeTimer_;
 

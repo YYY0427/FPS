@@ -29,10 +29,13 @@ public:
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
+	// 当たり判定ポインタのセッター
 	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 
+	// タワーのセッター
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
+	// プレイヤーが落下したかのゲッター
 	bool IsFall() const { return isFall_; }
 
 	// プレイヤーの位置のゲッター

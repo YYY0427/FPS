@@ -4,7 +4,7 @@
 namespace
 {
 	// Å‘åHP
-	constexpr int max_hp = 100;
+	constexpr int max_hp = 10;
 
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½‚Ì–³“GŠÔ
 	constexpr int invincible_time = 60;

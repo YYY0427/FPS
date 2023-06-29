@@ -13,7 +13,7 @@ public:
 	PauseScene(SceneManager& manager);
 	virtual ~PauseScene();
 
-	virtual void Update(const InputState& input)override;
+	virtual void Update(const InputState& input) override;
 	void Draw();
 
 private:

@@ -11,7 +11,7 @@ namespace
 
 	// HPバー
 	constexpr int hp_bar_width = 500;	// HPバーの横幅
-	constexpr int hp_bar_height = 50;	// HPバーの立幅
+	constexpr int hp_bar_height = 50;	// HPバーの縦幅
 	constexpr int hp_bar_x_pos = 1500;	// HPバーのx座標
 	constexpr int hp_bar_y_pos = 100;	// HPバーのy座標
 }

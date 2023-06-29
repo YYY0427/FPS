@@ -209,7 +209,7 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 		}
 
 		// 画面を揺らす度合いをセット
-		pCamera_->SetQuake(10, VGet(3, 0, 0));
+		pCamera_->SetQuake(10, VGet(0, 2, 0));
 
 		// ショットスタート
 		shot->Start(pos, vec);
@@ -227,7 +227,16 @@ float MainScene::GetReticlePosY() const
 	return static_cast<float>(reticle_pos_y);
 }
 
-void MainScene::FadeInUpdate(const InputState& input)
+void MainScene::PlayerFallFade()
+{
+	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
+	if (++fadeTimer_ == fade_interval)
+	{
+		pPlayer_->SetRespawn();
+	}
+}
+
+void MainScene::FadeInUpdate()
 {
 	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
 	if (--fadeTimer_ <= 0)
@@ -236,12 +245,22 @@ void MainScene::FadeInUpdate(const InputState& input)
 	}
 }
 
+void MainScene::FadeOutUpdate(const InputState& input)
+{
+	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
+	if (++fadeTimer_ == fade_interval)
+	{
+		manager_.ChangeScene(new TitleScene(manager_));
+		return;
+	}
+}
+
 void MainScene::NormalUpdate(const InputState& input)
 {
-	if (fadeTimer_ > 0)
+	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
 	{
 		// フェード処理
-		FadeInUpdate(input);
+		FadeInUpdate();
 	}
 
 	// 各クラスの更新処理
@@ -331,15 +350,5 @@ void MainScene::NormalUpdate(const InputState& input)
 	if (input.IsTriggered(InputType::pause))
 	{
 		manager_.PushScene(new PauseScene(manager_));
-	}
-}
-
-void MainScene::FadeOutUpdate(const InputState& input)
-{
-	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
-	if (++fadeTimer_ == fade_interval)
-	{
-		manager_.ChangeScene(new TitleScene(manager_));
-		return;
 	}
 }

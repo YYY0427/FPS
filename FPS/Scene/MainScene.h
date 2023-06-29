@@ -33,10 +33,12 @@ public:
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
-private:
-	void FadeInUpdate(const InputState& input);
-	void NormalUpdate(const InputState& input);
+	void PlayerFallFade();
 	void FadeOutUpdate(const InputState& input);
+	void FadeInUpdate();
+
+private:
+	void NormalUpdate(const InputState& input);
 
 private:
 	// メンバ関数ポインタ

@@ -21,6 +21,8 @@ public:
 	void Update(const InputState& input);
 	void Draw();
 
+	void SetRespawn();
+
 	// MainSceneのポインタのセッター
 	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
 
@@ -30,6 +32,8 @@ public:
 	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
+
+	bool IsFall() const { return isFall_; }
 
 	// プレイヤーの位置のゲッター
 	VECTOR GetPos() const { return pos_; }
@@ -113,4 +117,7 @@ private:
 
 	// ジャンプ中か
 	bool isJump_;
+
+	// 地面から落ちたか
+	bool isFall_;
 };

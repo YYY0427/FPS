@@ -57,13 +57,16 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 10;
+	constexpr int max_hp = 5;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
 
 	// ショットの再使用まで待機フレーム数
 	constexpr int shot_wait_time = 5;
+
+	// リスポーン地点
+	constexpr VECTOR respawn_point{0, 0, 0};
 }
 
 Player::Player() :
@@ -80,7 +83,8 @@ Player::Player() :
 	shotFrameCount_(0),
 	isJump_(false),
 	pMainScene_(nullptr),
-	pCollision_(nullptr)
+	pCollision_(nullptr),
+	isFall_(false)
 {
 }
 
@@ -117,6 +121,13 @@ void Player::Draw()
 
 	// モデルの描画
 	pModel_->Draw();
+}
+
+void Player::SetRespawn()
+{
+	isFall_ = false;
+	OnDamage(1);
+	pos_ = respawn_point;
 }
 
 float Player::GetColRadius() const
@@ -176,10 +187,18 @@ void Player::UpdateIdle(const InputState& input)
 	// フレームカウント
 	shotFrameCount_++;
 
+	// タワーが死んでいたらプレイヤーを動かさない
 	if (pTower_->GetIsDead())
 	{
 		animNo_ = dead_anim_no;
 		updateFunc_ = &Player::UpdateDead;
+	}
+
+	// 地面から落ちた場合ダメージをくらい、リスポーン地点に戻る
+	if (pos_.y < pCollision_->GetMaxY() - 1500.0f)
+	{
+		isFall_ = true;
+		pMainScene_->PlayerFallFade();
 	}
 
 	// ダメージ処理

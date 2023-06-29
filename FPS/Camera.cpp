@@ -209,7 +209,7 @@ void Camera::Update(const InputState& input)
 #endif
 
 	// ƒJƒƒ‰‚ğ—h‚ç‚·
-//	Quake();
+	Quake();
 }
 
 void Camera::Draw()

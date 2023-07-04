@@ -67,6 +67,10 @@ namespace
 
 	// リスポーン地点
 	constexpr VECTOR respawn_point{0, 0, 0};
+
+	// 速度（1=1m、60fps固定として、時速10km）
+	// 10000m ÷ 時間 ÷ 分 ÷ 秒 ÷ フレーム
+//	constexpr float player_speed = 10000.0f / 60.0f / 60.0f / 60.0f;
 }
 
 Player::Player() :

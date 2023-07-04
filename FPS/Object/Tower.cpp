@@ -4,7 +4,7 @@
 namespace
 {
 	// Å‘åHP
-	constexpr int max_hp = 10;
+	constexpr int max_hp = 100;
 
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½‚Ì–³“GŠÔ
 	constexpr int invincible_time = 60;
@@ -34,7 +34,7 @@ void Tower::Init()
 //	pModel_ = std::make_shared<Model>();
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
-	pos_ = VGet(100, 100, 0);
+	pos_ = VGet(100, 100, 500);
 }
 
 void Tower::Update()

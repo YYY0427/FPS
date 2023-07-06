@@ -30,7 +30,7 @@ namespace
 	constexpr float shot_speed = 100.0f;
 
 	// ジャンプ力
-	constexpr float jump_power = 16.0f;
+	constexpr float jump_power = 45.0f;
 
 	// 重力
 	constexpr float gravity = -1.0f;
@@ -125,6 +125,8 @@ void Player::Draw()
 		DrawCircle(100 + (i * 70), 130, 30, 0xff0000, true);
 	}
 
+	DrawFormatString(20, 300, 0x000000, "%f", pCollision_->GetPlayerMinY());
+
 	// ダメージ処理
 	if (damageFrame_ > 0)
 	{
@@ -207,7 +209,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 地面から落ちた場合ダメージをくらい、リスポーン地点に戻る
-	if (pos_.y < pCollision_->GetMaxY() - 1500.0f)
+	if (pos_.y < pCollision_->GetPlayerMinY() - 2000.0f)
 	{
 		isFall_ = true;
 		pMainScene_->PlayerFallFade();
@@ -220,7 +222,7 @@ void Player::UpdateIdle(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetMaxY())
+	if (pos_.y + 50.0f <= pCollision_->GetPlayerMinY())
 	{
 	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
@@ -337,7 +339,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
+	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_, Collision::Chara::player);
 //	pos_ = pCollision_->ColisionToTower(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更
@@ -372,7 +374,7 @@ void Player::UpdateIdleShot(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetMaxY())
+	if (pos_.y <= pCollision_->GetPlayerMinY())
 	{
 	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
@@ -400,9 +402,9 @@ void Player::UpdateDead(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetMaxY())
+	if (pos_.y <= pCollision_->GetPlayerMinY())
 	{
-		pos_.y = pCollision_->GetMaxY();
+		pos_.y = pCollision_->GetPlayerMinY();
 		jumpAcc_ = 0.0f;
 		isJump_ = false;
 	}

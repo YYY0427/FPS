@@ -19,18 +19,24 @@ public:
 
 	void WallCollCheck(bool isMove, VECTOR vec);
 
-	void FloorCollCheck(bool isJump);
+	void FloorCollCheck(bool isJump, int chara);
 
-	VECTOR ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec);
+	VECTOR ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara);
 
 	VECTOR ColisionToTower(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec);
 
-	float GetMaxY() const { return minY_; }
+	float GetPlayerMinY() const { return playerMinY_; }
 
 	void SetFieldManager(std::shared_ptr<Field> pField) { pField_ = pField; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
+
+	enum Chara
+	{
+		player,
+		enemy
+	};
 
 private:
 	std::shared_ptr<Field> pField_;
@@ -52,10 +58,10 @@ private:
 	VECTOR moveAfterPos_;
 	VECTOR oldPos_;
 
-	float minY_;
-
 	bool isHitFlag_;
 
 	int yukaNum_;
 	int kabeNum_;
+
+	float playerMinY_;
 };

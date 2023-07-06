@@ -5,7 +5,6 @@
 Collision::Collision() :
 	moveAfterPos_(VGet(0, 0, 0)),
 	oldPos_(VGet(0, 0, 0)),
-	minY_(0.0f),
 	yukaNum_(0),
 	kabeNum_(0),
 	isHitFlag_(false)
@@ -20,7 +19,6 @@ void Collision::Init()
 {
 	moveAfterPos_ = VGet(0, 0, 0);
 	oldPos_ = VGet(0, 0, 0);
-	minY_ = 0.0f;
 	yukaNum_ = 0;
 	kabeNum_ = 0;
 	isHitFlag_ = false;
@@ -45,8 +43,6 @@ void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTO
 	// モデルとフィールドの当たり判定(何枚のポリゴンと当たっているか)
 //	hitDim_ = MV1CollCheck_Sphere(objectModelHandle, -1, oldPos_, (refPoly_.MaxPosition.y + 50.0f) + VSize(vec));
 	hitDim_ = MV1CollCheck_Capsule(objectModelHandle, -1, oldPos_, VGet(oldPos_.x, oldPos_.y + refPoly_.MaxPosition.y, oldPos_.z), 50.0f);
-
-//	DrawSphere3D(oldPos_, (refPoly_.MaxPosition.y + 50.0f) + VSize(vec), 12, 0xffffff, 0xffffff, false);
 
 	// 検出されたポリゴンの数だけ繰り返し
 	for (int i = 0; i < hitDim_.HitNum; i++)
@@ -113,7 +109,8 @@ void Collision::WallCollCheck(bool isMove, VECTOR vec)
 
 				// 壁に当たったら壁に遮られない移動成分分だけ移動する
 				{
-					VECTOR SlideVec;	// プレイヤーをスライドさせるベクトル
+					// プレイヤーをスライドさせるベクトル
+					VECTOR SlideVec;	
 
 					// 進行方向ベクトルと壁ポリゴンの法線ベクトルに垂直なベクトルを算出
 					SlideVec = VCross(vec, poly_->Normal);
@@ -122,12 +119,8 @@ void Collision::WallCollCheck(bool isMove, VECTOR vec)
 					// 元の移動成分から壁方向の移動成分を抜いたベクトル
 					SlideVec = VCross(poly_->Normal, SlideVec);
 
-				//	SlideVec = VSub(SlideVec, VGet(100.0f, 100.0f, 100.0f));
-
 					// それを移動前の座標に足したものを新たな座標とする
 					moveAfterPos_ = VAdd(oldPos_, SlideVec);
-
-				//	moveAfterPos_ = oldPos_;
 				}
 
 				// 新たな移動座標で壁ポリゴンと当たっていないかどうかを判定する
@@ -188,7 +181,6 @@ void Collision::WallCollCheck(bool isMove, VECTOR vec)
 					// 当たっていたら規定距離分プレイヤーを壁の法線方向に移動させる
 				//	moveAfterPos_ = VAdd(moveAfterPos_, VScale(poly_->Normal, 5.0f));
 					moveAfterPos_ = VAdd(moveAfterPos_, VScale(poly_->Normal, 0.1f));
-				//	moveAfterPos_ = oldPos_;
 
 					// 移動した上で壁ポリゴンと接触しているかどうかを判定
 					for (j = 0; j < kabeNum_; j++)
@@ -209,7 +201,7 @@ void Collision::WallCollCheck(bool isMove, VECTOR vec)
 	}
 }
 
-void Collision::FloorCollCheck(bool isJump)
+void Collision::FloorCollCheck(bool isJump, int chara)
 {
 	// 床ポリゴンとの当たり判定
 	if (yukaNum_ != 0)
@@ -218,7 +210,7 @@ void Collision::FloorCollCheck(bool isJump)
 		isHitFlag_ = false;
 
 		// 一番高い床ポリゴンにぶつける為の判定用変数を初期化
-		minY_ = 0.0f;
+		float minY = 0.0f;
 
 		// 床ポリゴンの数だけ繰り返し
 		for (int i = 0; i < yukaNum_; i++)
@@ -242,13 +234,18 @@ void Collision::FloorCollCheck(bool isJump)
 			if (!lineRes_.HitFlag) continue;
 
 			// 既に当たったポリゴンがあり、且つ今まで検出した床ポリゴンより低い場合は何もしない
-			if (isHitFlag_ && minY_ > lineRes_.Position.y) continue;
+			if (isHitFlag_ && minY > lineRes_.Position.y) continue;
 
 			// ポリゴンに当たったフラグを立てる
 			isHitFlag_ = true;
 
 			// 接触したＹ座標を保存する
-			minY_ = lineRes_.Position.y;
+			minY = lineRes_.Position.y;
+
+			if (chara == player)
+			{
+				playerMinY_ = minY;
+			}
 		}
 
 		// 床ポリゴンに当たったかどうかで処理を分岐
@@ -259,7 +256,7 @@ void Collision::FloorCollCheck(bool isJump)
 			if (!isJump)
 			{
 				// 接触したポリゴンで一番高いＹ座標をプレイヤーのＹ座標にする
-				moveAfterPos_.y = minY_;
+				moveAfterPos_.y = minY;
 			}
 		}
 		else
@@ -278,7 +275,7 @@ void Collision::FloorCollCheck(bool isJump)
 	}
 }
 
-VECTOR Collision::ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec)
+VECTOR Collision::ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara)
 {
 	Init();
 
@@ -286,7 +283,7 @@ VECTOR Collision::ColisionToField(int modelHandle, bool isMove, bool isJump, VEC
 
 	WallCollCheck(isMove, vec);
 	
-	FloorCollCheck(isJump);
+	FloorCollCheck(isJump, chara);
 
 	// 検出したプレイヤーの周囲のポリゴン情報を開放する
 	MV1CollResultPolyDimTerminate(hitDim_);
@@ -302,7 +299,7 @@ VECTOR Collision::ColisionToTower(int modelHandle, bool isMove, bool isJump, VEC
 
 	WallCollCheck(isMove, vec);
 
-	FloorCollCheck(isJump);
+//	FloorCollCheck(isJump);
 
 	// 検出したプレイヤーの周囲のポリゴン情報を開放する
 	MV1CollResultPolyDimTerminate(hitDim_);

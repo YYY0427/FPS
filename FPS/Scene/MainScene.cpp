@@ -12,7 +12,6 @@
 #include "../Object/Enemy.h"
 #include "../DrawFunctions.h"
 #include "../Object/SkyDoom.h"
-#include "../Object/FieldManager.h"
 #include "../Object/Tower.h"
 #include "../Collision.h"
 #include <cassert>
@@ -46,7 +45,7 @@ MainScene::MainScene(SceneManager& manager) :
 {
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
-	pFieldManager_ = std::make_shared<FieldManager>();
+	pField_ = std::make_shared<Field>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
 	pSkyDoom_ = std::make_shared<SkyDoom>();
 	pTower_ = std::make_shared<Tower>();
@@ -74,7 +73,7 @@ void MainScene::Init()
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
-	pCollision_->SetFieldManager(pFieldManager_);
+	pCollision_->SetFieldManager(pField_);
 	pCollision_->SetTower(pTower_);
 	pPlayer_->SetCollision(pCollision_);
 	pCamera_->SetTower(pTower_);
@@ -88,7 +87,7 @@ void MainScene::Init()
 		shot->SetCamera(pCamera_);
 		shot->Init(handle);
 	}
-	pFieldManager_->Init();
+	pField_->Init();
 	pPlayer_->Init();
 	pEnemyManager_->Init();
 	pCamera_->Init();
@@ -124,7 +123,7 @@ void MainScene::Draw()
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
-	pFieldManager_->Draw();
+	pField_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	pTower_->Draw();
@@ -137,7 +136,7 @@ void MainScene::Draw()
 
 	// シャドウマップを使用してモデルの描画
 	SetUseShadowMap(0, shadowMap_);
-	pFieldManager_->Draw();
+	pField_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	pTower_->Draw();
@@ -265,7 +264,7 @@ void MainScene::NormalUpdate(const InputState& input)
 
 	// 各クラスの更新処理
 	pSkyDoom_->Update();
-	pFieldManager_->Update();
+	pField_->Update();
 	pPlayer_->Update(input);
 	pEnemyManager_->Update();
 	pTower_->Update();

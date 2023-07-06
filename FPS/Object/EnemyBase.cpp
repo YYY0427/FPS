@@ -19,11 +19,14 @@ void EnemyBase::Init()
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 
-	// 敵をランダムに配置
-	pos_.x = static_cast<float>(GetRand(2000) - 1000);
-	pos_.y = 0.0f;
-	pos_.z = static_cast<float>(GetRand(2000) - 1000);
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
+
+	// 敵をランダムに配置
+	//pos_.x = static_cast<float>(GetRand(2000) - 1000);
+	//pos_.y = 0.0f;
+	//pos_.z = static_cast<float>(GetRand(2000) - 1000);
+
+	//pos_.z = 1700.0f;
 
 	pModel_->Update();
 }
@@ -33,7 +36,7 @@ void EnemyBase::Draw()
 	// ダメージ処理
 	if (damageFrame_ > 0)
 	{
-		if (damageFrame_ % 2) return;
+//		if (damageFrame_ % 2) return;
 	}
 
 	// モデルの描画
@@ -45,8 +48,8 @@ void EnemyBase::DrawUI()
 	int mouseX, mouseY;
 	GetMousePoint(&mouseX, &mouseY);
 
-	VECTOR startPos = ConvScreenPosToWorldPos(VGet(mouseX, mouseY, 0.0f));
-	VECTOR endPos = ConvScreenPosToWorldPos(VGet(mouseX, mouseY, 1.0f));
+	VECTOR startPos = ConvScreenPosToWorldPos(VGet(static_cast<float>(mouseX), static_cast<float>(mouseY), 0.0f));
+	VECTOR endPos = ConvScreenPosToWorldPos(VGet(static_cast<float>(mouseX), static_cast<float>(mouseY), 1.0f));
 
 	// モデルのハンドル取得
 	int handle = pModel_->GetModelHandle();

@@ -66,6 +66,8 @@ void SkyDoom::Update()
 
 void SkyDoom::Draw()
 {
+	MV1SetUseZBuffer(pSkydoom_->GetModelHandle(), false);
+
 	// ƒ‚ƒfƒ‹‚Ì•\Ž¦
 	pSkydoom_->Draw();
 	pCloud_->Draw();

@@ -9,7 +9,7 @@ class Player;
 class Shot;
 class EnemyManager;
 class SkyDoom;
-class FieldManager;
+class Field;
 class Tower;
 class Collision;
 
@@ -48,7 +48,7 @@ private:
 	// ƒ|ƒCƒ“ƒ^
 	std::shared_ptr<Camera> pCamera_ ;
 	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<FieldManager> pFieldManager_;
+	std::shared_ptr<Field> pField_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;

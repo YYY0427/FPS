@@ -21,7 +21,7 @@ namespace
 	constexpr VECTOR player_vec_left{ 1, 0, 0 };
 
 	// プレイヤーの速度
-	constexpr float player_speed = 20.0f;
+	constexpr float player_speed = 15.0f;
 
 	// ショットの発射位置
 	constexpr VECTOR shot_firing_init_pos{ -89.264f, 150.0f, -260.0f };
@@ -57,7 +57,7 @@ namespace
 	constexpr float col_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 5;
+	constexpr int max_hp = 100;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
@@ -66,7 +66,10 @@ namespace
 	constexpr int shot_wait_time = 5;
 
 	// リスポーン地点
-	constexpr VECTOR respawn_point{0, 0, 0};
+	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
+
+	// 初期位置
+	constexpr VECTOR init_pos{ 6000.0f, 0.0f, 2200.0f };
 
 	// 速度（1=1m、60fps固定として、時速10km）
 	// 10000m ÷ 時間 ÷ 分 ÷ 秒 ÷ フレーム
@@ -101,7 +104,12 @@ void Player::Init()
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
 
+	// アニメーション設定
 	pModel_->SetAnimation(animNo_, true, true);
+
+	// 初期位置
+	pos_ = init_pos;
+	pModel_->SetPos(pos_);
 }
 
 void Player::Update(const InputState& input)
@@ -330,6 +338,7 @@ void Player::UpdateIdle(const InputState& input)
 
 	// 当たり判定チェック
 	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
+//	pos_ = pCollision_->ColisionToTower(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更
 	if (pModel_->IsAnimEnd() && animNo_ == idle_shot_anim_no)

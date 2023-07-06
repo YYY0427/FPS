@@ -8,6 +8,9 @@
 
 namespace
 {
+	// 初期位置
+	constexpr VECTOR init_pos{ 5000.0f, 0.0f, 2200.0f };
+
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
@@ -66,7 +69,16 @@ Enemy::Enemy(const char* fileName)
 	deadDisappearTime_ = 120;
 	deadAnimNo_ = dead_anim_no;
 
-	Init();
+	// 3Dモデルの生成
+	pModel_ = std::make_shared<Model>(fileName_);
+	pModel_->SetAnimation(animNo_, true, true);
+	pModel_->SetUseCollision(true, true);
+
+	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
+
+	pos_ = init_pos;
+
+	pModel_->Update();
 }
 
 Enemy::~Enemy()

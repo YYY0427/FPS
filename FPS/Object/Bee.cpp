@@ -8,6 +8,9 @@
 
 namespace
 {
+	// 初期位置
+	constexpr VECTOR init_pos{ 5500.0f, 0.0f, 2200.0f };
+
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
@@ -43,6 +46,7 @@ namespace
 	// タワーに攻撃する距離
 	constexpr float tower_attack_distance = 190.0f;
 
+	// 目標を見失う距離
 	constexpr float lost_distance = 2000.0f;
 }
 
@@ -65,7 +69,14 @@ Bee::Bee(const char* fileName)
 	deadDisappearTime_ = 120;
 	deadAnimNo_ = dead_anim_no;
 
-	Init();
+	// 3Dモデルの生成
+	pModel_ = std::make_shared<Model>(fileName_);
+	pModel_->SetAnimation(animNo_, true, true);
+	pModel_->SetUseCollision(true, true);
+
+	pos_ = init_pos;
+
+	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }
 
 Bee::~Bee()

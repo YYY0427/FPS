@@ -3,6 +3,9 @@
 
 namespace
 {
+	// タワーのアドレス
+	const char* const adress = "Data/Model/tower.mv1";
+
 	// 最大HP
 	constexpr int max_hp = 100;
 
@@ -31,10 +34,12 @@ Tower::~Tower()
 
 void Tower::Init()
 {
-//	pModel_ = std::make_shared<Model>();
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
-	pos_ = VGet(100, 100, 500);
+	pos_ = VGet(100, 0, 500);
+	pModel_ = std::make_shared<Model>(adress);
+	pModel_->SetScale(VGet(0.8f, 0.8f, 0.8f));
+	pModel_->SetPos(pos_);
 }
 
 void Tower::Update()
@@ -46,7 +51,7 @@ void Tower::Update()
 
 void Tower::Draw()
 {
-//	pModel_->Draw();
+	pModel_->Draw();
 
 	// 最大HPに対する現在のHPの割合を計算する
 	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
@@ -63,7 +68,7 @@ void Tower::Draw()
 	// HPの枠
 	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos + hp_bar_width / 2, hp_bar_y_pos + hp_bar_height, 0x000000, false);
 
-	DrawSphere3D(pos_, colRadius_, 50.0f, 0xff0000, 0xff0000, true);
+//	DrawSphere3D(pos_, colRadius_, 50.0f, 0xff0000, 0xff0000, true);
 
 	DrawString(1250, 80, "TowerのHP", 0x000000);
 

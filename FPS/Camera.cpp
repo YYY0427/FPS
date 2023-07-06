@@ -8,8 +8,8 @@
 namespace
 {
 	// カメラの初期位置とカメラの初期注視点
-//	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
-	constexpr VECTOR tps_camera_pos{ 500, 300, -300 };
+	constexpr VECTOR tps_camera_pos{ 0, 500, 300 };
+//	constexpr VECTOR tps_camera_pos{ 500, 300, -300 };
 	constexpr VECTOR tps_camera_target{ 0, 0, 0 };
 //	constexpr VECTOR tps_camera_target{ 0, 400, -120 };
 

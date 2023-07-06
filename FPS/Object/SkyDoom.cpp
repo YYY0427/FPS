@@ -1,6 +1,7 @@
 #include "SkyDoom.h"
 #include "Player.h"
 #include "../Model.h"
+#include "../Game.h"
 #include <cassert>
 
 namespace
@@ -69,7 +70,9 @@ void SkyDoom::Draw()
 	MV1SetUseZBuffer(pSkydoom_->GetModelHandle(), false);
 
 	// ƒ‚ƒfƒ‹‚Ì•\Ž¦
-	pSkydoom_->Draw();
+//	pSkydoom_->Draw();
+	DrawBox(0, 0, Game::screen_width, Game::screen_height, 0x0EB9EC, true);
 	pCloud_->Draw();
 	pCloud2_->Draw();
+
 }

@@ -285,9 +285,12 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 	// 初期化
 	Init();
 
-	// タワーとの当たり判定チェック
-	CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
-
+	if (chara != tower)
+	{
+		// タワーとの当たり判定チェック
+		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
+	}
+	
 	// フィールドとの当たり判定チェック
 	CollCheck(modelHandle, pField_->GetModelHandle(), pos, vec);
 

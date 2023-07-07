@@ -31,4 +31,6 @@ private:
 	int damageFrame_;
 	float colRadius_;
 	bool isDead_;
+	float angle_;
+	bool isMove_;
 };

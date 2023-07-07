@@ -44,7 +44,7 @@ namespace
 	constexpr float player_attack_distance = 140.0f;
 
 	// ƒ^ƒ[‚ÉUŒ‚‚·‚é‹——£
-	constexpr float tower_attack_distance = 190.0f;
+	constexpr float tower_attack_distance = 250.0f;
 
 	// –Ú•W‚ğŒ©¸‚¤‹——£
 	constexpr float lost_distance = 2000.0f;

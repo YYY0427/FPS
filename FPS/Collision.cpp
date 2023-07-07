@@ -1,6 +1,8 @@
 #include "Collision.h"
 #include "Object/Field.h"
 #include "Object/Tower.h"
+#include "Object/EnemyManager.h"
+#include "Object/EnemyBase.h"
 
 Collision::Collision() :
 	moveAfterPos_(VGet(0, 0, 0)),
@@ -262,7 +264,7 @@ void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 		else
 		{
 			//// 当たっていない場合 ////
-			if (!isJump)
+			if (!isJump && chara != bee)
 			{
 				moveAfterPos_.y -= 20;
 			}
@@ -270,8 +272,11 @@ void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 	}
 	else
 	{
-		// 1枚もフィールドポリゴンと当たっていない場合落下
-		moveAfterPos_.y -= 20;
+		if (chara != bee)
+		{
+			// 1枚もフィールドポリゴンと当たっていない場合落下
+			moveAfterPos_.y -= 20;
+		}
 	}
 }
 
@@ -286,6 +291,17 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 	// フィールドとの当たり判定チェック
 	CollCheck(modelHandle, pField_->GetModelHandle(), pos, vec);
 
+	// 敵同士の当たり判定チェック
+	if (chara == enemy || chara == bee)
+	{
+		for (auto& enemy : pEnemyManager_->GetEnemies())
+		{
+			if (modelHandle == enemy->GetModelHandle())	continue;
+
+			CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec);
+		}
+	}
+	
 	// 壁ポリゴン処理
 	WallPolyColCheckProcess(isMove, vec);
 	

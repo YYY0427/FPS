@@ -19,7 +19,7 @@ namespace
 	constexpr int hp_bar_y_pos = 100;	// HPバーのy座標
 
 	// 初期位置
-	constexpr VECTOR init_pos{ 6000.0f, -200.0f, 2200.0f };
+	constexpr VECTOR init_pos{ 6000.0f, -250.0f, 3000.0f };
 }
 
 Tower::Tower() :
@@ -42,7 +42,7 @@ void Tower::Init()
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
 	pModel_ = std::make_shared<Model>(adress);
-	pModel_->SetScale(VGet(0.6f, 0.6f, 0.6f));
+	pModel_->SetScale(VGet(0.4f, 0.4f, 0.4f));
 	pModel_->SetPos(pos_);
 }
 

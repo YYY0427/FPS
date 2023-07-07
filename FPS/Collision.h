@@ -42,6 +42,7 @@ public:
 	{
 		player,
 		enemy,
+		bee,
 		tower
 	};
 

@@ -4,12 +4,13 @@
 #include "../Model.h"
 #include "../Collision.h"
 #include "Tower.h"
+#include <cmath>
 #include <cassert>
 
 namespace
 {
 	// 初期位置
-	constexpr VECTOR init_pos{ 5500.0f, 0.0f, 2200.0f };
+	constexpr VECTOR init_pos{ 5500.0f, 100.0f, 2200.0f };
 
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
@@ -44,7 +45,7 @@ namespace
 	constexpr float player_attack_distance = 140.0f;
 
 	// タワーに攻撃する距離
-	constexpr float tower_attack_distance = 190.0f;
+	constexpr float tower_attack_distance = 250.0f;
 
 	// 目標を見失う距離
 	constexpr float lost_distance = 2000.0f;
@@ -134,7 +135,16 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	VECTOR vec = VScale(toTarget_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::enemy);
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::bee);
+
+	// サインカーブの作成
+	if (cnt_++ % 2 == 0)
+	{
+		degree_ += 30.0f;
+	}
+	float rad = degree_ * DX_PI_F / 180.0f;
+	float sin = sinf(rad);
+	pos_.y += sin * 30.0f;
 
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
@@ -173,9 +183,9 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-
 	// アニメーション更新処理
 	pModel_->Update();
+
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
@@ -255,7 +265,7 @@ void Bee::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::enemy);
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::bee);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)

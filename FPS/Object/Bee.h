@@ -42,4 +42,8 @@ private:
 private:
 	// メンバー関数ポインタ
 	void(Bee::* updateFunc_)();
+
+	float degree_;
+
+	int cnt_;
 };

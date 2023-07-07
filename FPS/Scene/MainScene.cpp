@@ -75,6 +75,7 @@ void MainScene::Init()
 	pSkyDoom_->SetPlayer(pPlayer_);
 	pCollision_->SetFieldManager(pField_);
 	pCollision_->SetTower(pTower_);
+	pCollision_->SetEnemyManager(pEnemyManager_);
 	pPlayer_->SetCollision(pCollision_);
 	pCamera_->SetTower(pTower_);
 	pPlayer_->SetTower(pTower_);
@@ -317,7 +318,8 @@ void MainScene::NormalUpdate(const InputState& input)
 
 			// DxLibの関数を利用して当たり判定をとる
 			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-			result = MV1CollCheck_Sphere(enemies->GetModelHandle(), enemies->GetColFrameIndex(), pTower_->GetPos(), pTower_->GetColRadius());
+		//	result = MV1CollCheck_Sphere(enemies->GetModelHandle(), enemies->GetColFrameIndex(), pTower_->GetPos(), pTower_->GetColRadius());
+			result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetColRadius() + 30.0f);
 
 			if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 			{

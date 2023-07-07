@@ -17,6 +17,9 @@ namespace
 	constexpr int hp_bar_height = 50;	// HPバーの縦幅
 	constexpr int hp_bar_x_pos = 1500;	// HPバーのx座標
 	constexpr int hp_bar_y_pos = 100;	// HPバーのy座標
+
+	// 初期位置
+	constexpr VECTOR init_pos{ 6000.0f, -200.0f, 2200.0f };
 }
 
 Tower::Tower() :
@@ -24,7 +27,8 @@ Tower::Tower() :
 	hp_(0),
 	damageFrame_(0),
 	colRadius_(0.0f),
-	isDead_(false)
+	isDead_(false),
+	pCollision_(nullptr)
 {
 }
 
@@ -34,11 +38,11 @@ Tower::~Tower()
 
 void Tower::Init()
 {
+	pos_ = init_pos;
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
-	pos_ = VGet(100, 0, 500);
 	pModel_ = std::make_shared<Model>(adress);
-	pModel_->SetScale(VGet(0.8f, 0.8f, 0.8f));
+	pModel_->SetScale(VGet(0.6f, 0.6f, 0.6f));
 	pModel_->SetPos(pos_);
 }
 
@@ -47,6 +51,8 @@ void Tower::Update()
 	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
+
+	
 }
 
 void Tower::Draw()
@@ -57,7 +63,7 @@ void Tower::Draw()
 	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
 
 	// HPバーの長さを計算する
-	int barWidth = hp_bar_width * hpRate;
+	int barWidth = static_cast<int>(hp_bar_width * hpRate);
 
 	// HPバーの土台(赤)
 //	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos + hp_bar_width / 2, hp_bar_y_pos + hp_bar_height, 0xff0000, true);
@@ -67,8 +73,6 @@ void Tower::Draw()
 
 	// HPの枠
 	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos + hp_bar_width / 2, hp_bar_y_pos + hp_bar_height, 0x000000, false);
-
-//	DrawSphere3D(pos_, colRadius_, 50.0f, 0xff0000, 0xff0000, true);
 
 	DrawString(1250, 80, "TowerのHP", 0x000000);
 

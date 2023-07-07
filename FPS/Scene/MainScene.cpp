@@ -78,6 +78,7 @@ void MainScene::Init()
 	pPlayer_->SetCollision(pCollision_);
 	pCamera_->SetTower(pTower_);
 	pPlayer_->SetTower(pTower_);
+	pTower_->SetCollision(pCollision_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();

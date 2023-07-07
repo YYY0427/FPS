@@ -127,6 +127,8 @@ void Player::Draw()
 
 	DrawFormatString(20, 300, 0x000000, "%f", pCollision_->GetPlayerMinY());
 
+	DrawFormatString(20, 400, 0x000000, "%f, %f, %f", pos_.x, pos_.y, pos_.z);
+
 	// ダメージ処理
 	if (damageFrame_ > 0)
 	{
@@ -339,7 +341,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pCollision_->ColisionToField(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_, Collision::Chara::player);
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_, Collision::Chara::player);
 //	pos_ = pCollision_->ColisionToTower(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更

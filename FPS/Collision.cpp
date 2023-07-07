@@ -27,9 +27,9 @@ void Collision::Init()
 void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTOR pos, VECTOR vec)
 {
 	// 初期化
-	isHitFlag_ = false;
-	kabeNum_ = 0;
-	yukaNum_ = 0;
+//	isHitFlag_ = false;
+//	kabeNum_ = 0;
+//	yukaNum_ = 0;
 
 	// モデルの最大頂点座標と最小頂点座標の取得
 	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
@@ -82,7 +82,7 @@ void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTO
 	}
 }
 
-void Collision::WallCollCheck(bool isMove, VECTOR vec)
+void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 {
 	// 壁ポリゴンとの当たり判定処理
 	if (kabeNum_ != 0)
@@ -201,7 +201,7 @@ void Collision::WallCollCheck(bool isMove, VECTOR vec)
 	}
 }
 
-void Collision::FloorCollCheck(bool isJump, int chara)
+void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 {
 	// 床ポリゴンとの当たり判定
 	if (yukaNum_ != 0)
@@ -275,35 +275,25 @@ void Collision::FloorCollCheck(bool isJump, int chara)
 	}
 }
 
-VECTOR Collision::ColisionToField(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara)
+VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara)
 {
+	// 初期化
 	Init();
 
-	CollCheck(modelHandle, pField_->GetModelHandle(), pos, vec);
-
-	WallCollCheck(isMove, vec);
-	
-	FloorCollCheck(isJump, chara);
-
-	// 検出したプレイヤーの周囲のポリゴン情報を開放する
-	MV1CollResultPolyDimTerminate(hitDim_);
-
-	return moveAfterPos_;
-}
-
-VECTOR Collision::ColisionToTower(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec)
-{
-	Init();
-
+	// タワーとの当たり判定チェック
 	CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
 
-	WallCollCheck(isMove, vec);
+	// フィールドとの当たり判定チェック
+	CollCheck(modelHandle, pField_->GetModelHandle(), pos, vec);
 
-//	FloorCollCheck(isJump);
+	// 壁ポリゴン処理
+	WallPolyColCheckProcess(isMove, vec);
+	
+	// 床ポリゴン処理
+	FloorPolyColCheckProcess(isJump, chara);
 
 	// 検出したプレイヤーの周囲のポリゴン情報を開放する
 	MV1CollResultPolyDimTerminate(hitDim_);
 
 	return moveAfterPos_;
 }
-

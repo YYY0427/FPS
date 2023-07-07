@@ -80,6 +80,7 @@ void MainScene::Init()
 	pCamera_->SetTower(pTower_);
 	pPlayer_->SetTower(pTower_);
 	pTower_->SetCollision(pCollision_);
+	pTower_->SetEnemyManager(pEnemyManager_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	int handle = pShot_[0]->LoadModel();
@@ -173,7 +174,12 @@ void MainScene::Draw()
 		DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
 		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 	}
-
+	if (pTower_->GetIsGoal())
+	{
+		int handle = LoadGraph("Data/Texture/GameClear.png");
+		assert(handle != -1);
+		DrawGraph(0, 0, handle, true);
+	}
 #ifdef _DEBUG
 	int cnt = 0;
 	for (auto& shot : pShot_)
@@ -341,7 +347,6 @@ void MainScene::NormalUpdate(const InputState& input)
 			gameOverFadeTimer_ = 100;
 		}	 
 	}
-
 #ifdef _DEBUG
 	// シーン切り替え
 	if (input.IsTriggered(InputType::next))

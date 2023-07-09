@@ -76,7 +76,7 @@ void Tower::Update()
 	CheckPointSet();
 	HeadToDestination(checkPointNow_);
 
-	if (checkPoint_ == 5)
+	if (checkPoint_ == k_check_point5 + 1)
 	{
 		isGoal_ = true;
 	}
@@ -108,6 +108,7 @@ void Tower::Draw()
 	DrawFormatString(1100, 80, 0x000000, "%d", hp_);
 
 	DrawFormatString(20, 400, 0x000000, "%f, %f, %f", pos_.x, pos_.y, pos_.z);
+	DrawFormatString(20, 500, 0x000000, "%d", checkPoint_);
 }
 
 void Tower::OnDamage(int damage)
@@ -154,7 +155,7 @@ void Tower::HeadToDestination(VECTOR checkPoint)
 	float dist = VSize(VSub(pos_, checkPoint));
 	if (dist < (colRadius_ + 50.0f))
 	{
-		if (!IsEnemyExists() && checkPoint_ < 5)
+		if (!IsEnemyExists() && checkPoint_ <= k_check_point5)
 		{
 			isMove_ = true;
 			checkPoint_++;

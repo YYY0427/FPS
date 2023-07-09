@@ -41,7 +41,8 @@ MainScene::MainScene(SceneManager& manager) :
 	shadowMap_(-1),
 	youdeadUIhandle_(-1),
 	gameOverUIhandle_(-1),
-	gameOverFadeTimer_(0)
+	gameOverFadeTimer_(0),
+	gameClearUIhandle_(-1)
 {
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
@@ -107,6 +108,7 @@ void MainScene::Init()
 	// 画像のロード
 	youdeadUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
 	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/gameOver.png");
+	gameClearUIhandle_ = my::MyLoadGraph("Data/Texture/GameClear.png");
 
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
@@ -176,9 +178,7 @@ void MainScene::Draw()
 	}
 	if (pTower_->GetIsGoal())
 	{
-		int handle = LoadGraph("Data/Texture/GameClear.png");
-		assert(handle != -1);
-		DrawGraph(0, 0, handle, true);
+		DrawGraph(0, 0, gameClearUIhandle_, true);
 	}
 #ifdef _DEBUG
 	int cnt = 0;

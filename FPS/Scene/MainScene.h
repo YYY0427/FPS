@@ -55,15 +55,16 @@ private:
 	std::shared_ptr<Tower> pTower_;
 	Collision* pCollision_;
 
-	// ゲームオーバー時のUI用ハンドル
+	// 画像ハンドル
 	int youdeadUIhandle_;
 	int gameOverUIhandle_;
-	int gameOverFadeTimer_;
+	int gameClearUIhandle_;
 
 	// フェイド
 	int fadeTimer_;
 	int fadeValue_;
 	int gameOverUIfadeValue_;
+	int gameOverFadeTimer_;
 
 	// シャドウマップ
 	int shadowMap_;

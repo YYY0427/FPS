@@ -12,7 +12,7 @@ enum class LayerType
 using MapData_t = std::vector<std::vector<unsigned char>>;
 
 // ステージ情報を管理するクラス
-class Stage
+class PlatinumDataLoader
 {
 	MapData_t mapData_;
 	int mapWidth_;

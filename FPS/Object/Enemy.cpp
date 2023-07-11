@@ -8,8 +8,11 @@
 
 namespace
 {
+	// ファイルパス
+	const char* const enemy_adress = "Data/Model/enemyCol.mv1";
+
 	// 初期位置
-	constexpr VECTOR init_pos{ 5000.0f, 0.0f, 2200.0f };
+	constexpr VECTOR init_pos_1{ 5000.0f, 0.0f, 2200.0f };
 
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
@@ -50,7 +53,7 @@ namespace
 	constexpr float lost_distance = 2000.0f;
 }
 
-Enemy::Enemy(const char* fileName)
+Enemy::Enemy()
 {
 	updateFunc_ = &Enemy::UpdateToTower;
 	animNo_ = walk_anim_no;
@@ -59,7 +62,6 @@ Enemy::Enemy(const char* fileName)
 	hp_ = max_hp;
 	damageFrame_ = 0;
 	isDead_ = false;
-	fileName_ = fileName;
 	colRadius_ = col_radius;
 	hpBarHeight_ = hp_bar_height;
 	hpBarWidth_ = hp_bar_width;
@@ -70,13 +72,13 @@ Enemy::Enemy(const char* fileName)
 	deadAnimNo_ = dead_anim_no;
 
 	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(fileName_);
+	pModel_ = std::make_shared<Model>(enemy_adress);
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 
-	pos_ = init_pos;
+	pos_ = init_pos_1;
 
 	pModel_->Update();
 }

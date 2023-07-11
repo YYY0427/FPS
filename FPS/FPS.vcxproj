@@ -159,7 +159,7 @@
     <ClCompile Include="Object\EnemyBase.cpp" />
     <ClCompile Include="Object\EnemyManager.cpp" />
     <ClCompile Include="Object\Enemy.cpp" />
-    <ClCompile Include="Object\Field.cpp" />
+    <ClCompile Include="Object\Stage1.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InputState.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -175,8 +175,11 @@
     <ClCompile Include="Object\SkyDoom.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Scene\SoundSettingScene.cpp" />
-    <ClCompile Include="Stage.cpp" />
+    <ClCompile Include="PlatinumDataLoader.cpp" />
     <ClCompile Include="Object\Tower.cpp" />
+    <ClCompile Include="Scene\StageSelectScene.cpp" />
+    <ClCompile Include="StageBase.cpp" />
+    <ClCompile Include="StageManager.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,7 +190,7 @@
     <ClInclude Include="Object\EnemyBase.h" />
     <ClInclude Include="Object\EnemyManager.h" />
     <ClInclude Include="Object\Enemy.h" />
-    <ClInclude Include="Object\Field.h" />
+    <ClInclude Include="Object\Stage1.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="InputState.h" />
@@ -203,8 +206,11 @@
     <ClInclude Include="Object\SkyDoom.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Scene\SoundSettingScene.h" />
-    <ClInclude Include="Stage.h" />
+    <ClInclude Include="PlatinumDataLoader.h" />
     <ClInclude Include="Object\Tower.h" />
+    <ClInclude Include="Scene\StageSelectScene.h" />
+    <ClInclude Include="StageBase.h" />
+    <ClInclude Include="StageManager.h" />
     <ClInclude Include="Vec2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

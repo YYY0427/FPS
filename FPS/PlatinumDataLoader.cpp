@@ -1,9 +1,9 @@
-#include "Stage.h"
+#include "PlatinumDataLoader.h"
 #include <DxLib.h>
 #include <string>
 #include <cassert>
 
-void Stage::Load(const char* filePath)
+void PlatinumDataLoader::Load(const char* filePath)
 {
 	// FMFヘッダー(Platinumのドキュメントに書いてある)
 	struct Header
@@ -58,12 +58,12 @@ void Stage::Load(const char* filePath)
 	}
 }
 
-const MapData_t& Stage::GetMapData() const
+const MapData_t& PlatinumDataLoader::GetMapData() const
 {
 	return mapData_;
 }
 
-const int Stage::GetChipId(int layerId, int chipX, int chipY) const
+const int PlatinumDataLoader::GetChipId(int layerId, int chipX, int chipY) const
 {
 	assert(chipX < mapWidth_);
 	assert(chipY < mapHeight_);
@@ -71,13 +71,13 @@ const int Stage::GetChipId(int layerId, int chipX, int chipY) const
 	return mapData_[layerId][index];
 }
 
-void Stage::GetMapSize(int& width, int& height)
+void PlatinumDataLoader::GetMapSize(int& width, int& height)
 {
 	width = mapWidth_;
 	height = mapHeight_;
 }
 
-void Stage::TransposeMapData(int layerId)
+void PlatinumDataLoader::TransposeMapData(int layerId)
 {
 	// いったんコピーしておく
 	// 理由としてはコピーせずに転置しょうとすると元のデータが消える

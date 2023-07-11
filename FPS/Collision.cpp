@@ -1,5 +1,6 @@
 #include "Collision.h"
-#include "Object/Field.h"
+#include "StageManager.h"
+#include "StageBase.h"
 #include "Object/Tower.h"
 #include "Object/EnemyManager.h"
 #include "Object/EnemyBase.h"
@@ -292,7 +293,7 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 	}
 	
 	// フィールドとの当たり判定チェック
-	CollCheck(modelHandle, pField_->GetModelHandle(), pos, vec);
+	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec);
 
 	// 敵同士の当たり判定チェック
 	if (chara == enemy || chara == bee)
@@ -304,7 +305,7 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 			CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec);
 		}
 	}
-	
+
 	// 壁ポリゴン処理
 	WallPolyColCheckProcess(isMove, vec);
 	

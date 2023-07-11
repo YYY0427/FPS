@@ -2,7 +2,7 @@
 #include <DxLib.h>
 #include <memory>
 
-class Field;
+class StageManager;
 class EnemyManager; 
 class Player;
 class Tower;
@@ -32,7 +32,7 @@ public:
 	float GetPlayerMinY() const { return playerMinY_; }
 
 	// セッター
-	void SetFieldManager(std::shared_ptr<Field> pField) { pField_ = pField; }
+	void SetStageManager(StageManager* pStages) { pStages_ = pStages; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
@@ -47,7 +47,7 @@ public:
 	};
 
 private:
-	std::shared_ptr<Field> pField_;
+	StageManager* pStages_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Tower> pTower_;

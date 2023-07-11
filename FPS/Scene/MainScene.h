@@ -9,9 +9,9 @@ class Player;
 class Shot;
 class EnemyManager;
 class SkyDoom;
-class Field;
 class Tower;
 class Collision;
+class StageManager;
 
 /// <summary>
 /// メインシーン
@@ -19,7 +19,7 @@ class Collision;
 class MainScene : public Scene
 {
 public:
-	MainScene(SceneManager& manager);
+	MainScene(SceneManager& manager, StageManager* pStageManager);
 	virtual ~MainScene();
 
 	void Init();
@@ -48,7 +48,7 @@ private:
 	// ポインタ
 	std::shared_ptr<Camera> pCamera_ ;
 	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<Field> pField_;
+	StageManager* pStageManager_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;

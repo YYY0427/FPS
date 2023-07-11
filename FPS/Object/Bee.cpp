@@ -9,8 +9,11 @@
 
 namespace
 {
+	// ファイルパス
+	const char* const bee_adress = "Data/Model/beeCol.mv1";
+
 	// 初期位置
-	constexpr VECTOR init_pos{ 5500.0f, 100.0f, 2200.0f };
+	constexpr VECTOR init_pos_1{ 5500.0f, 100.0f, 2200.0f };
 
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
@@ -51,7 +54,7 @@ namespace
 	constexpr float lost_distance = 2000.0f;
 }
 
-Bee::Bee(const char* fileName)
+Bee::Bee()
 {
 	updateFunc_ = &Bee::UpdateToTower;
 	animNo_ = walk_anim_no;
@@ -60,7 +63,6 @@ Bee::Bee(const char* fileName)
 	hp_ = max_hp;
 	damageFrame_ = 0;
 	isDead_ = false;
-	fileName_ = fileName;
 	colRadius_ = col_radius;
 	hpBarHeight_ = hp_bar_height;
 	hpBarWidth_ = hp_bar_width;
@@ -71,11 +73,11 @@ Bee::Bee(const char* fileName)
 	deadAnimNo_ = dead_anim_no;
 
 	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(fileName_);
+	pModel_ = std::make_shared<Model>(bee_adress);
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 
-	pos_ = init_pos;
+	pos_ = init_pos_1;
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }

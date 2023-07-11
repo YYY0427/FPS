@@ -2,12 +2,12 @@
 #include "TitleScene.h"
 #include "PauseScene.h"
 #include "SceneManager.h"
+#include "../StageManager.h"
 #include "../Object/EnemyManager.h"
 #include "../Game.h"
 #include "../InputState.h"
 #include "../Camera.h"
 #include "../Object/Player.h"
-#include "../Object/Field.h"
 #include "../Object/Shot.h"
 #include "../Object/Enemy.h"
 #include "../DrawFunctions.h"
@@ -33,8 +33,9 @@ namespace
 	constexpr int game_over_fade_interval = 60;
 }
 
-MainScene::MainScene(SceneManager& manager) :
+MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	Scene(manager),
+	pStageManager_(pStageManager),
 	updateFunc_(&MainScene::NormalUpdate),
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
@@ -46,7 +47,6 @@ MainScene::MainScene(SceneManager& manager) :
 {
 	pCamera_ = std::make_shared<Camera>();
 	pPlayer_ = std::make_shared<Player>();
-	pField_ = std::make_shared<Field>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
 	pSkyDoom_ = std::make_shared<SkyDoom>();
 	pTower_ = std::make_shared<Tower>();
@@ -74,7 +74,8 @@ void MainScene::Init()
 	pCamera_->SetPlayer(pPlayer_);
 	pPlayer_->SetCamera(pCamera_);
 	pSkyDoom_->SetPlayer(pPlayer_);
-	pCollision_->SetFieldManager(pField_);
+	pCollision_->SetStageManager(pStageManager_);
+	pTower_->SetStageManager(pStageManager_);
 	pCollision_->SetTower(pTower_);
 	pCollision_->SetEnemyManager(pEnemyManager_);
 	pPlayer_->SetCollision(pCollision_);
@@ -91,7 +92,7 @@ void MainScene::Init()
 		shot->SetCamera(pCamera_);
 		shot->Init(handle);
 	}
-	pField_->Init();
+	pStageManager_->Init();
 	pPlayer_->Init();
 	pEnemyManager_->Init();
 	pCamera_->Init();
@@ -128,7 +129,7 @@ void MainScene::Draw()
 
 	// シャドウマップへの書き込み
 	ShadowMap_DrawSetup(shadowMap_);
-	pField_->Draw();
+	pStageManager_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	pTower_->Draw();
@@ -141,7 +142,7 @@ void MainScene::Draw()
 
 	// シャドウマップを使用してモデルの描画
 	SetUseShadowMap(0, shadowMap_);
-	pField_->Draw();
+	pStageManager_->Draw();
 	pPlayer_->Draw();
 	pEnemyManager_->Draw();
 	pTower_->Draw();
@@ -272,7 +273,7 @@ void MainScene::NormalUpdate(const InputState& input)
 
 	// 各クラスの更新処理
 	pSkyDoom_->Update();
-	pField_->Update();
+	pStageManager_->Update();
 	pPlayer_->Update(input);
 	pEnemyManager_->Update();
 	pTower_->Update();

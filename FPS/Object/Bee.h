@@ -4,7 +4,7 @@
 class Bee : public EnemyBase
 {
 public:
-	Bee(const char* fileName);
+	Bee();
 	virtual ~Bee();
 
 	void Update();

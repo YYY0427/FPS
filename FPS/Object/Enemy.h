@@ -4,7 +4,7 @@
 class Enemy : public EnemyBase
 {
 public:
-	Enemy(const char* fileName);
+	Enemy();
 	virtual ~Enemy();
 
 	void Update();

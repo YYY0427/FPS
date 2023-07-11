@@ -3,6 +3,7 @@
 #include "../Collision.h"
 #include "../Object/EnemyManager.h"
 #include "../Object/EnemyBase.h"
+#include "../StageManager.h"
 
 namespace
 {
@@ -24,10 +25,15 @@ namespace
 	// 移動速度
 	constexpr float to_goal_speed = 5.0f;
 
+	// タワーの拡大率
+	constexpr float tower_scale = 0.4f;
+
 	// 初期位置
-	constexpr VECTOR init_pos{ 6000.0f, -250.0f, 3000.0f };
+	constexpr VECTOR init_pos_1{ 6000.0f, -250.0f, 3000.0f };
 
 	// チェックポイント
+
+	// ステージ１
 	constexpr VECTOR check_pos_1{ 4316.818359f, -68.738754f, 3061.866211f};
 	constexpr VECTOR check_pos_2{ 2353.516846f, -185.86734f, 14.413342f };
 	constexpr VECTOR check_pos_3{ 1389.046021f, -37.761520f, -3957.060059f};
@@ -44,7 +50,7 @@ Tower::Tower() :
 	pCollision_(nullptr),
 	angle_(0.0f),
 	isMove_(true),
-	checkPointNow_(VGet(0, 0, 0)),
+	checkPointPos_(VGet(0, 0, 0)),
 	checkPoint_(0),
 	vec_(VGet(0, 0, 0)),
 	isGoal_(false)
@@ -57,13 +63,22 @@ Tower::~Tower()
 
 void Tower::Init()
 {
-	pos_ = init_pos;
+	switch (pStageManager_->GetAnyStage())
+	{
+	case 0:
+		pos_ = init_pos_1;
+		checkPointPos1_ = check_pos_1;
+		checkPointPos2_ = check_pos_2;
+		checkPointPos3_ = check_pos_3;
+		checkPointPos4_ = check_pos_4;
+		checkPointPos5_ = check_pos_5;
+	}
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
 	checkPoint_ = k_check_point1;
 	pModel_ = std::make_shared<Model>(adress);
 	pModel_->SetUseCollision(true, true);
-	pModel_->SetScale(VGet(0.4f, 0.4f, 0.4f));
+	pModel_->SetScale(VGet(tower_scale, tower_scale, tower_scale));
 	pModel_->SetPos(pos_);
 }
 
@@ -74,7 +89,7 @@ void Tower::Update()
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	CheckPointSet();
-	HeadToDestination(checkPointNow_);
+	HeadToDestination(checkPointPos_);
 
 	if (checkPoint_ == k_check_point5 + 1)
 	{
@@ -185,19 +200,19 @@ void Tower::CheckPointSet()
 	switch (checkPoint_)
 	{
 	case k_check_point1:
-		checkPointNow_ = check_pos_1;
+		checkPointPos_ = checkPointPos1_;
 		break;
 	case k_check_point2:
-		checkPointNow_ = check_pos_2;
+		checkPointPos_ = checkPointPos2_;
 		break;
 	case k_check_point3:
-		checkPointNow_ = check_pos_3;
+		checkPointPos_ = checkPointPos3_;
 		break;
 	case k_check_point4:
-		checkPointNow_ = check_pos_4;
+		checkPointPos_ = checkPointPos4_;
 		break;
 	case k_check_point5:
-		checkPointNow_ = check_pos_5;
+		checkPointPos_ = checkPointPos5_;
 		break;
 	}
 }

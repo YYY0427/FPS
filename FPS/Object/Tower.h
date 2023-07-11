@@ -6,6 +6,7 @@
 class Model;
 class Collision;
 class EnemyManager;
+class StageManager;
 
 class Tower
 {
@@ -31,6 +32,7 @@ public:
 	// セッター
 	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
+	void SetStageManager(StageManager* pStageManager) { pStageManager_ = pStageManager; }
 
 	// ゲッター
 	int GetModelHandle() const { return pModel_->GetModelHandle(); }
@@ -57,6 +59,7 @@ private:
 	std::shared_ptr<Model> pModel_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	Collision* pCollision_;
+	StageManager* pStageManager_;
 
 	// 位置
 	VECTOR pos_;
@@ -64,10 +67,17 @@ private:
 	// 移動ベクトル
 	VECTOR vec_;
 
-	// 現在目指しているチェックポイント
-	VECTOR checkPointNow_;
+	// それぞれのチェックポイントの位置
+	VECTOR checkPointPos1_;
+	VECTOR checkPointPos2_;
+	VECTOR checkPointPos3_;
+	VECTOR checkPointPos4_;
+	VECTOR checkPointPos5_;
 
-	// 
+	// 現在目指しているチェックポイントの位置
+	VECTOR checkPointPos_;
+	
+	// 現在目指しているチェックポイントをint型にしたもの
 	int checkPoint_;
 
 	// ゴールしたか

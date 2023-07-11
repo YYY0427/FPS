@@ -6,6 +6,7 @@
 #include "../SoundManager.h"
 #include "../DrawFunctions.h"
 #include "../Game.h"
+#include "StageSelectScene.h"
 
 namespace
 {
@@ -37,7 +38,7 @@ void TitleScene::FadeOutUpdate(const InputState& input)
 	fadeValue_ = static_cast<int>(255 * (static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval)));
 	if (++fadeTimer_ == fade_interval)
 	{
-		manager_.ChangeScene(new MainScene(manager_));
+		manager_.ChangeScene(new StageSelectScene(manager_));
 		return;
 	}
 }

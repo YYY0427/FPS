@@ -77,6 +77,8 @@ Bee::Bee()
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 
+
+
 	pos_ = init_pos_1;
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);

@@ -24,7 +24,7 @@ namespace
 	constexpr float far_distance = 18400.0f;
 
 	// 倒れるアニメーションに何フレーム使うのか
-	constexpr int anim_frame_num = 180;
+	constexpr int anim_frame_num = 60;
 
 	// 旋回速度
 	constexpr float rot_speed = 0.01f;

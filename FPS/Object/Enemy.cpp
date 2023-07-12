@@ -55,7 +55,7 @@ namespace
 
 Enemy::Enemy()
 {
-	updateFunc_ = &Enemy::UpdateToTower;
+	updateFunc_ = &Enemy::UpdateTrackingToTower;
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
@@ -165,7 +165,7 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	}
 	if (target == player && distans > lost_distance)
 	{
-		updateFunc_ = &Enemy::UpdateToTower;
+		updateFunc_ = &Enemy::UpdateTrackingToTower;
 	}
 
 	// プレイヤーが死んでいる場合を追わない
@@ -207,10 +207,10 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 		switch (target)
 		{
 		case player:
-			updateFunc_ = &Enemy::UpdateToPlayer;
+			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			break;
 		case tower:
-			updateFunc_ = &Enemy::UpdateToTower;
+			updateFunc_ = &Enemy::UpdateTrackingToTower;
 		}
 		frameCount_ = 0;
 	}
@@ -225,12 +225,12 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Enemy::UpdateToPlayer()
+void Enemy::UpdateTrackingToPlayer()
 {
 	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
-void Enemy::UpdateToTower()
+void Enemy::UpdateTrackingToTower()
 {
 	Tracking(pTower_->GetPos(), tower, tower_attack_distance);
 }
@@ -258,9 +258,9 @@ void Enemy::UpdateToFront()
 	{
 		// プレイヤーを見つけたらプレイヤーを追いかける
 		// 見つからなかったら回転する
-		if (IsPlayerFront() && !pPlayer_->GetIsDead())
+		if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Enemy::UpdateToPlayer;
+			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			frameCount_ = 0;
 		}
 		else
@@ -308,9 +308,9 @@ void Enemy::UpdateTurn()
 	frameCount_++;
 	if (frameCount_ >= 30)
 	{
-		if (IsPlayerFront() && !pPlayer_->GetIsDead())
+		if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Enemy::UpdateToPlayer;
+			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			frameCount_ = 0;
 		}
 		else
@@ -349,6 +349,6 @@ void Enemy::UpdateHitDamage()
 		pModel_->ChangeAnimation(walk_anim_no, true, false, 4);
 
 		// Updateを待機に
-		updateFunc_ = &Enemy::UpdateToPlayer;
+		updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 	}
 }

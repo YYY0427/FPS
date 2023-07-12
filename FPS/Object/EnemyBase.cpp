@@ -107,26 +107,25 @@ int EnemyBase::GetColFrameIndex() const
 	return pModel_->GetColFrameIndex();
 }
 
-bool EnemyBase::IsPlayerFront() const
+bool EnemyBase::IsPlayerFront(VECTOR targetPos) const
 {
 	// 現在敵が向いている方向のベクトルを生成する
 	MATRIX enemyRotMtx = MGetRotY(angle_);
 	VECTOR dir = VTransform(dir_, enemyRotMtx);
 
-	// 敵からプレイヤーへのベクトル
-	VECTOR toPlayer = VSub(pPlayer_->GetPos(), pos_);
-	VECTOR toPlayerNorm = VNorm(toPlayer);
+	// 敵からターゲットへのベクトル
+	VECTOR toTarget = VSub(targetPos, pos_);
+	VECTOR toTargetNorm = VNorm(toTarget);
 
 	// 内積から角度を求める
-	float dot = VDot(dir, toPlayerNorm);
+	float dot = VDot(dir, toTargetNorm);
 	float angle = acosf(dot);
 
-	// 敵からプレイヤーへのベクトル
-	float distans = VSize(toPlayer);
+	// 敵からターゲットへのベクトル
+//	float distans = VSize(toTarget);
 
-	// 視野の中にプレイヤーがいてプレイヤーまでの距離が指定の距離以内の場合
-	// プレイヤーを追いかける
-	if (angle < viewAngle_ && distans < 1000.0f)
+	// 視野の中にターゲットがいる場合
+	if (angle < viewAngle_)
 	{
 		return true;
 	}

@@ -46,11 +46,11 @@ public:
 	float GetColRadius() const { return colRadius_; };
 
 protected:
-	// プレイヤーが正面にいるかどうか
-	bool IsPlayerFront() const;
+	// ターゲットが正面にいるかどうか
+	bool IsPlayerFront(VECTOR targetPos) const;
 
 	// プレイヤーに向かう
-	virtual void UpdateToPlayer() = 0;
+	virtual void UpdateTrackingToPlayer() = 0;
 
 	// 前に移動する(プレイヤーが見えていない)
 	virtual void UpdateToFront() = 0;

@@ -23,7 +23,7 @@ namespace
 	constexpr float to_player_speed = 4.0f;
 
 	// 敵キャラクターの視野角
-	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
+	constexpr float view_angle = 90.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
 	constexpr int walk_anim_no = 1;
@@ -45,18 +45,18 @@ namespace
 	constexpr int invincible_time = 10;
 
 	// プレイヤーに攻撃する距離
-	constexpr float player_attack_distance = 140.0f;
+	constexpr float player_attack_distance = 2000.0f;
 
 	// タワーに攻撃する距離
-	constexpr float tower_attack_distance = 250.0f;
+	constexpr float tower_attack_distance = 2000.0f;
 
 	// 目標を見失う距離
-	constexpr float lost_distance = 2000.0f;
+	constexpr float lost_distance = 4000.0f;
 }
 
 Bee::Bee()
 {
-	updateFunc_ = &Bee::UpdateToTower;
+	updateFunc_ = &Bee::UpdateToFront;
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
@@ -76,8 +76,6 @@ Bee::Bee()
 	pModel_ = std::make_shared<Model>(bee_adress);
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
-
-
 
 	pos_ = init_pos_1;
 
@@ -129,6 +127,9 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	// 敵から目標へのベクトルを求める
 	toTarget_ = VSub(pos, pos_);
 
+	// Y軸は追いかけない
+	toTarget_ = VGet(toTarget_.x, 0.0f, toTarget_.z);
+
 	// 角度の取得
 	angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
 
@@ -140,15 +141,6 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::bee);
-
-	// サインカーブの作成
-	if (cnt_++ % 2 == 0)
-	{
-		degree_ += 30.0f;
-	}
-	float rad = degree_ * DX_PI_F / 180.0f;
-	float sin = sinf(rad);
-	pos_.y += sin * 30.0f;
 
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
@@ -174,7 +166,7 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	}
 	if (target == player && distans > lost_distance)
 	{
-		updateFunc_ = &Bee::UpdateToTower;
+		updateFunc_ = &Bee::UpdateTrackingToTower;
 	}
 
 	// プレイヤーが死んでいる場合を追わない
@@ -216,10 +208,10 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 		switch (target)
 		{
 		case player:
-			updateFunc_ = &Bee::UpdateToPlayer;
+			updateFunc_ = &Bee::UpdateTrackingToPlayer;
 			break;
 		case tower:
-			updateFunc_ = &Bee::UpdateToTower;
+			updateFunc_ = &Bee::UpdateTrackingToTower;
 		}
 		frameCount_ = 0;
 	}
@@ -229,16 +221,17 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 
 	// アニメーション更新処理
 	pModel_->Update();
+
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
-void Bee::UpdateToPlayer()
+void Bee::UpdateTrackingToPlayer()
 {
 	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
-void Bee::UpdateToTower()
+void Bee::UpdateTrackingToTower()
 {
 	Tracking(pTower_->GetPos(), tower, tower_attack_distance);
 }
@@ -274,13 +267,19 @@ void Bee::UpdateToFront()
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)
 	{
-		// プレイヤーを見つけたらプレイヤーを追いかける
-		// 見つからなかったら回転する
-		if (IsPlayerFront() && !pPlayer_->GetIsDead())
+		// タワーを見つけたらプレイヤーを追いかける
+		if (IsPlayerFront(pTower_->GetPos()) && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Bee::UpdateToPlayer;
+			updateFunc_ = &Bee::UpdateTrackingToTower;
 			frameCount_ = 0;
 		}
+		// プレイヤーを見つけたらプレイヤーを追いかける
+		else if(IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
+		{
+			updateFunc_ = &Bee::UpdateTrackingToPlayer;
+			frameCount_ = 0;
+		}
+		// 見つからなかったら回転する
 		else
 		{
 			// 回転する角度をランダムで計算
@@ -316,9 +315,16 @@ void Bee::UpdateTurn()
 	frameCount_++;
 	if (frameCount_ >= 30)
 	{
-		if (IsPlayerFront() && !pPlayer_->GetIsDead())
+		// タワーを見つけたらプレイヤーを追いかける
+		if (IsPlayerFront(pTower_->GetPos()) && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Bee::UpdateToPlayer;
+			updateFunc_ = &Bee::UpdateTrackingToTower;
+			frameCount_ = 0;
+		}
+		// プレイヤーを見つけたらプレイヤーを追いかける
+		else if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
+		{
+			updateFunc_ = &Bee::UpdateTrackingToPlayer;
 			frameCount_ = 0;
 		}
 		else
@@ -331,10 +337,8 @@ void Bee::UpdateTurn()
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-
 	// アニメーション更新処理
 	pModel_->Update();
-
 	
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
@@ -359,6 +363,6 @@ void Bee::UpdateHitDamage()
 		pModel_->ChangeAnimation(walk_anim_no, true, false, 4);
 
 		// Updateを待機に
-		updateFunc_ = &Bee::UpdateToPlayer;
+		updateFunc_ = &Bee::UpdateTrackingToPlayer;
 	}
 }

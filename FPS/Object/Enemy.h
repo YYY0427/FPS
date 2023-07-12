@@ -20,10 +20,10 @@ private:
 	void Attacking(VECTOR pos, int target, float attacDistance);
 
 	// プレイヤーを追跡
-	void UpdateToPlayer();
+	void UpdateTrackingToPlayer();
 
 	// タワーを追跡
-	void UpdateToTower();
+	void UpdateTrackingToTower();
 
 	// プレイヤーに攻撃する
 	void UpdateAttackToPlayer();

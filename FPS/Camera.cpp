@@ -2,7 +2,7 @@
 #include "Object/Player.h"
 #include "InputState.h"
 #include "Game.h"
-#include "Object/Tower.h"
+#include "Scene/MainScene.h"
 #include <DxLib.h>
 
 namespace
@@ -30,7 +30,9 @@ namespace
 	constexpr float rot_speed = 0.01f;
 }
 
-Camera::Camera() :
+Camera::Camera(std::shared_ptr<Player> pPlayer, MainScene* pMainScene) :
+	pPlayer_(pPlayer),
+	pMainScene_(pMainScene),
 	cameraPos_(VGet(0, 0, 0)),
 	cameraInitPos_(VGet(0, 0, 0)),
 	cameraTarget_(VGet(0, 0, 0)),
@@ -49,14 +51,6 @@ Camera::Camera() :
 	size_(0.0f),
 	quakeTimer_(0),
 	quake_(VGet(0, 0, 0))
-{
-}
-
-Camera::~Camera()
-{
-}
-
-void Camera::Init()
 {
 #ifdef _DEBUG
 	SetMouseDispFlag(true);
@@ -88,10 +82,14 @@ void Camera::Init()
 	SetupCamera_Perspective(perspective * DX_PI_F / 180.0f);
 }
 
+Camera::~Camera()
+{
+}
+
 void Camera::Update(const InputState& input)
 {
 	// プレイヤーが生きている場合のみマウスの座標の取得
-	if (!pPlayer_->GetIsDead() && !pTower_->GetIsDead())
+	if (!pPlayer_->GetIsDead())
 	{
 		GetMousePoint(&mousePosX_, &mousePosY_);
 	}

@@ -4,7 +4,7 @@
 class Bee : public EnemyBase
 {
 public:
-	Bee();
+	Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
 	virtual ~Bee();
 
 	void Update();

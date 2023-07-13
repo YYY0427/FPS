@@ -12,6 +12,7 @@ class SkyDoom;
 class Tower;
 class Collision;
 class StageManager;
+class EnemyShotFactory;
 
 /// <summary>
 /// メインシーン
@@ -22,22 +23,26 @@ public:
 	MainScene(SceneManager& manager, StageManager* pStageManager);
 	virtual ~MainScene();
 
-	void Init();
 	void Update(const InputState& input);
 	void Draw();
 
 	// ショットを撃つ
-	void StartShot(VECTOR pos, VECTOR vec);
+	void StartPlayerShot(VECTOR pos, VECTOR vec);
 
 	// レティクルの位置の取得
 	float GetReticlePosX() const;
 	float GetReticlePosY() const;
 
+	// プレイヤーがステージから落ちたときのフェード
 	void PlayerFallFade();
+private:
+	// フェードアウト
 	void FadeOutUpdate(const InputState& input);
+
+	// フェードイン
 	void FadeInUpdate();
 
-private:
+	// 通常のアップデート
 	void NormalUpdate(const InputState& input);
 
 private:
@@ -48,15 +53,15 @@ private:
 	// ポインタ
 	std::shared_ptr<Camera> pCamera_ ;
 	std::shared_ptr<Player> pPlayer_;
-	StageManager* pStageManager_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;
 	std::shared_ptr<Tower> pTower_;
-	Collision* pCollision_;
+	std::shared_ptr<Collision> pCollision_;
+	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
+	StageManager* pStageManager_;	 // シーンがなくなっても消えてほしくないのでshard_ptrを使わない
 
 	// 画像ハンドル
-	int youdeadUIhandle_;
 	int gameOverUIhandle_;
 	int gameClearUIhandle_;
 
@@ -64,8 +69,10 @@ private:
 	int fadeTimer_;
 	int fadeValue_;
 	int gameOverUIfadeValue_;
-	int gameOverFadeTimer_;
+	int gameOverUIFadeTimer_;
 
 	// シャドウマップ
 	int shadowMap_;
+
+	bool isGameOver_;
 };

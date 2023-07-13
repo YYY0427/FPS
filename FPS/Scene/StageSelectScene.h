@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
 #include "Scene.h"
-//#include "../StageManager.h"
 
 class StageManager;
 
+/// <summary>
+/// ステージを選択するシーン
+/// </summary>
 class StageSelectScene : public Scene
 {
 public:

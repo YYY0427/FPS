@@ -21,29 +21,39 @@ namespace
 
 Shot::Shot() :
 	handle_(-1),
-	isExsit_(false),
+	isEnabled_(false),
 	pos_(VGet(0, 0, 0)),
 	lastPos_(VGet(0, 0, 0)),
 	vec_(VGet(0, 0, 0))
 {
+	// モデルを複製せずにモデル本体をインスタンス化
+	pModel_ = std::make_shared<Model>(bullet_file_name);
+
+	// モデルの拡大率の設定
+	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
 }
 
-Shot::~Shot()
+Shot::Shot(int handle) :
+	handle_(-1),
+	isEnabled_(false),
+	pos_(VGet(0, 0, 0)),
+	lastPos_(VGet(0, 0, 0)),
+	vec_(VGet(0, 0, 0))
 {
-}
-
-void Shot::Init(int handle)
-{
-	// インスタンス化
+	// モデル本体を複製してインスタンス化
 	pModel_ = std::make_shared<Model>(handle);
 
 	// モデルの拡大率の設定
 	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
 }
 
+Shot::~Shot()
+{
+}
+
 void Shot::Update()
 {
-	if (!isExsit_)	return;
+	if (!isEnabled_)	return;
 
 	// 前フレームの位置の取得
 	lastPos_ = pos_;
@@ -60,7 +70,7 @@ void Shot::Update()
 	// プレイヤーから一定以上離れたら消す
 	if (VSize(toPlayer) > erase_distance)
 	{
-		isExsit_ = false;
+		isEnabled_ = false;
 	}
 
 	// モデルのポジションの設定
@@ -73,7 +83,7 @@ void Shot::Update()
 
 void Shot::Draw()
 {
-	if (!isExsit_)	return;
+	if (!isEnabled_)	return;
 	pModel_->Draw();
 
 #ifdef _DEBUG
@@ -88,13 +98,16 @@ int Shot::LoadModel() const
 	return MV1LoadModel(bullet_file_name);
 }
 
-void Shot::Start(VECTOR pos, VECTOR vec)
+void Shot::Start(VECTOR pos, VECTOR vec, std::shared_ptr<Player> pPlayer, std::shared_ptr<Camera> pCamera)
 {
 	// ショット開始
-	isExsit_ = true;
+	isEnabled_ = true;
 	pos_ = pos;
 	lastPos_ = pos;
 	vec_ = vec;
+
+	pPlayer_ = pPlayer;
+	pCamera_ = pCamera;
 
 	// モデルの方向をプレイヤーが向いている方向に設定
 	pModel_->SetRot(VGet(pCamera_->GetCameraPitch(), pCamera_->GetCameraYaw(), 0.0f));

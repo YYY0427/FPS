@@ -33,12 +33,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		return -1;
 	}
 
-	auto& soundManager = SoundManager::GetInstance();
-
 	// ダブルバッファモード
 	// 裏画面に描画
 	SetDrawScreen(DX_SCREEN_BACK);
 
+	auto& soundManager = SoundManager::GetInstance();
 	InputState input;
 	SceneManager sceneManager;
 	sceneManager.ChangeScene(new TitleScene(sceneManager));

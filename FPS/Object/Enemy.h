@@ -4,7 +4,7 @@
 class Enemy : public EnemyBase
 {
 public:
-	Enemy();
+	Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
 	virtual ~Enemy();
 
 	void Update();

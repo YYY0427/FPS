@@ -14,6 +14,7 @@
 #include "../Object/SkyDoom.h"
 #include "../Object/Tower.h"
 #include "../Collision.h"
+#include "../EnemyShotFactory.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -40,80 +41,50 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
 	shadowMap_(-1),
-	youdeadUIhandle_(-1),
 	gameOverUIhandle_(-1),
-	gameOverFadeTimer_(0),
+	gameOverUIFadeTimer_(0),
 	gameClearUIhandle_(-1)
 {
-	pCamera_ = std::make_shared<Camera>();
-	pPlayer_ = std::make_shared<Player>();
-	pEnemyManager_ = std::make_shared<EnemyManager>();
-	pSkyDoom_ = std::make_shared<SkyDoom>();
-	pTower_ = std::make_shared<Tower>();
-	pCollision_ = new Collision();
-	for (int i = 0; i < shot_max; i++)
+	pPlayer_ = std::make_shared<Player>(this);
+	pTower_ = std::make_shared<Tower>(pStageManager);
+	pCamera_ = std::make_shared<Camera>(pPlayer_, this);
+	pSkyDoom_ = std::make_shared<SkyDoom>(pPlayer_);
+	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_);
+	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_);
+	pEnemyManager_ = std::make_shared<EnemyManager>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
+
+	// 1回だけモデルをロードしてそれを使ってモデルの複製
+	pShot_.push_back(std::make_shared<Shot>());
+	int handle = pShot_[0]->LoadModel();
+	for (int i = 0; i < shot_max - 1; i++)
 	{
-		pShot_.push_back(std::make_shared<Shot>());
+		pShot_.push_back(std::make_shared<Shot>(handle));
 	}
 
-	Init();
+	// 初期化とポインタを渡す
+	pPlayer_->SetCamera(pCamera_);
+	pPlayer_->SetCollision(pCollision_);
+	pPlayer_->SetTower(pTower_);
+	pTower_->SetEnemyManager(pEnemyManager_);
+	pTower_->SetCollision(pCollision_);
+	pCollision_->SetEnemyManager(pEnemyManager_);
+
+	pStageManager_->Init();
+	pEnemyManager_->Create();
+
+	// 画像のロード
+	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");
+	gameClearUIhandle_ = my::MyLoadGraph("Data/UI/GameClear.png");
+
+	// シャドウマップの生成
+	shadowMap_ = MakeShadowMap(1024, 1024);
+	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
 }
 
 MainScene::~MainScene()
 {
 	// シャドウマップの削除
 	DeleteShadowMap(shadowMap_);
-
-	delete pCollision_;
-}
-
-void MainScene::Init()
-{
-	// 初期化とポインタを渡す
-	pPlayer_->SetMainScene(this);
-	pCamera_->SetPlayer(pPlayer_);
-	pPlayer_->SetCamera(pCamera_);
-	pSkyDoom_->SetPlayer(pPlayer_);
-	pCollision_->SetStageManager(pStageManager_);
-	pTower_->SetStageManager(pStageManager_);
-	pCollision_->SetTower(pTower_);
-	pCollision_->SetEnemyManager(pEnemyManager_);
-	pPlayer_->SetCollision(pCollision_);
-	pCamera_->SetTower(pTower_);
-	pPlayer_->SetTower(pTower_);
-	pTower_->SetCollision(pCollision_);
-	pTower_->SetEnemyManager(pEnemyManager_);
-
-	// 1回だけモデルをロードしてそれを使ってモデルの複製
-	int handle = pShot_[0]->LoadModel();
-	for (auto& shot : pShot_)
-	{
-		shot->SetPlayer(pPlayer_);
-		shot->SetCamera(pCamera_);
-		shot->Init(handle);
-	}
-	pStageManager_->Init();
-	pPlayer_->Init();
-	pEnemyManager_->Init();
-	pCamera_->Init();
-	pSkyDoom_->Init();
-	pTower_->Init();
-
-	for (auto& enemies : pEnemyManager_->GetEnemies())
-	{
-		enemies->SetPlayer(pPlayer_);
-		enemies->SetTower(pTower_);
-		enemies->SetCollision(pCollision_);
-	}
-
-	// 画像のロード
-	youdeadUIhandle_ = my::MyLoadGraph("Data/Texture/youdead.png");
-	gameOverUIhandle_ = my::MyLoadGraph("Data/Texture/gameOver.png");
-	gameClearUIhandle_ = my::MyLoadGraph("Data/Texture/GameClear.png");
-
-	// シャドウマップの生成
-	shadowMap_ = MakeShadowMap(1024, 1024);
-	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
 }
 
 void MainScene::Update(const InputState& input)
@@ -128,27 +99,32 @@ void MainScene::Draw()
 	pSkyDoom_->Draw();
 
 	// シャドウマップへの書き込み
-	ShadowMap_DrawSetup(shadowMap_);
-	pStageManager_->Draw();
-	pPlayer_->Draw();
-	pEnemyManager_->Draw();
-	pTower_->Draw();
-	for (auto& shot : pShot_)
 	{
-		shot->Draw();
+		ShadowMap_DrawSetup(shadowMap_);
+		pStageManager_->Draw();
+		pPlayer_->Draw();
+		pEnemyManager_->Draw();
+		pTower_->Draw();
+		for (auto& shot : pShot_)
+		{
+			shot->Draw();
+		}
 	}
 	// 書き込み終了
 	ShadowMap_DrawEnd();
 
 	// シャドウマップを使用してモデルの描画
-	SetUseShadowMap(0, shadowMap_);
-	pStageManager_->Draw();
-	pPlayer_->Draw();
-	pEnemyManager_->Draw();
-	pTower_->Draw();
-	for (auto& shot : pShot_)
 	{
-		shot->Draw();
+		SetUseShadowMap(0, shadowMap_);
+		pStageManager_->Draw();
+		pPlayer_->Draw();
+		pEnemyManager_->Draw();
+		pTower_->Draw();
+		pEnemyShotFactory_->Draw();
+		for (auto& shot : pShot_)
+		{
+			shot->Draw();
+		}
 	}
 	// 描画終了
 	SetUseShadowMap(0, -1);
@@ -156,31 +132,26 @@ void MainScene::Draw()
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
 
-	// タワーが死んだら表示開始
-	if (pTower_->GetIsDead() && !pPlayer_->GetIsDead())
+	// ゲームオーバー時に表示開始
+	if (isGameOver_)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
 		DrawGraph(0, 0, gameOverUIhandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
-	// プレイヤーが死んだら表示開始
-	if (pPlayer_->GetIsDead() && !pTower_->GetIsDead())
-	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (gameOverUIfadeValue_ * 100) / 255);
-		DrawGraph(0,  0, youdeadUIhandle_, true);
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	}
-	// プレイヤーが生きているときのみクロスヘアを表示
 	else
 	{
 		// クロスヘア
 		DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
 		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
 	}
-	if (pTower_->GetIsGoal())
+
+	// ゲームクリア時に表示
+	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
 		DrawGraph(0, 0, gameClearUIhandle_, true);
 	}
+
 #ifdef _DEBUG
 	int cnt = 0;
 	for (auto& shot : pShot_)
@@ -191,7 +162,6 @@ void MainScene::Draw()
 		}
 		cnt++;
 	}
-
 	// デバック表示
 	DrawFormatString(10, 90, 0x000000, "playerX = %f", pPlayer_->GetPos().x);
 	DrawFormatString(10, 120, 0x000000, "playerY = %f", pPlayer_->GetPos().y);
@@ -206,7 +176,7 @@ void MainScene::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
-void MainScene::StartShot(VECTOR pos, VECTOR vec)
+void MainScene::StartPlayerShot(VECTOR pos, VECTOR vec)
 {
 	for (auto& shot : pShot_)
 	{
@@ -220,7 +190,7 @@ void MainScene::StartShot(VECTOR pos, VECTOR vec)
 		pCamera_->SetQuake(10, VGet(0, 2, 0));
 
 		// ショットスタート
-		shot->Start(pos, vec);
+		shot->Start(pos, vec, pPlayer_, pCamera_);
 		break;
 	}
 }
@@ -272,17 +242,20 @@ void MainScene::NormalUpdate(const InputState& input)
 	}
 
 	// 各クラスの更新処理
-	pSkyDoom_->Update();
-	pStageManager_->Update();
-	pPlayer_->Update(input);
-	pEnemyManager_->Update();
-	pTower_->Update();
-	for (auto& shot : pShot_)
 	{
-		shot->Update();
+		pSkyDoom_->Update();
+		pStageManager_->Update();
+		pPlayer_->Update(input);
+		pEnemyManager_->Update();
+		pTower_->Update();
+		pEnemyShotFactory_->Update();
+		for (auto& shot : pShot_)
+		{
+			shot->Update();
+		}
+		pCamera_->Update(input);
 	}
-	pCamera_->Update(input);
-
+	
 	// TODO:Collisionクラスに移す
 	{
 		// 弾と敵の当たり判定
@@ -338,15 +311,16 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 	}
 
-	// プレイヤーが死んだらゲームオーバー演出開始
+	// ゲームオーバー演出開始
 	if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
 	{
-		gameOverFadeTimer_++;
-		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(gameOverFadeTimer_)) / static_cast<float>(game_over_fade_interval));
-		if (gameOverFadeTimer_ >= 100)
+		gameOverUIFadeTimer_++;
+		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(gameOverUIFadeTimer_)) / static_cast<float>(game_over_fade_interval));
+		if (gameOverUIFadeTimer_ >= 100)
 		{
-			gameOverFadeTimer_ = 100;
-		}	 
+			gameOverUIFadeTimer_ = 100;
+		}
+		isGameOver_ = true;
 	}
 #ifdef _DEBUG
 	// シーン切り替え

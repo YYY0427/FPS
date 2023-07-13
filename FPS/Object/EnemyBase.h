@@ -6,6 +6,7 @@ class Player;
 class Model;
 class Tower;
 class Collision;
+class EnemyShotFactory;
 
 class EnemyBase
 {
@@ -13,7 +14,6 @@ public:
 	EnemyBase();
 	virtual ~EnemyBase();
 
-	void Init();
 	virtual void Update() = 0;
 	void Draw();
 
@@ -34,13 +34,6 @@ public:
 
 	// 死亡情報のゲッター
 	bool GetDead() const { return isDead_; }
-
-	// プレイヤーのセッター
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
-
-	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
-
-	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
 
 	// 当たり判定の半径のゲッター
 	float GetColRadius() const { return colRadius_; };
@@ -69,7 +62,8 @@ protected:
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Model> pModel_;
 	std::shared_ptr<Tower> pTower_;
-	Collision* pCollision_ = nullptr;
+	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
+	std::shared_ptr<Collision> pCollision_;
 
 	enum Target
 	{
@@ -90,7 +84,7 @@ protected:
 	VECTOR pos_ = VGet(0, 0, 0);
 
 	// プレイヤーからの距離
-	VECTOR toTarget_ = VGet(0, 0, 0);
+	VECTOR toTargetVec_ = VGet(0, 0, 0);
 
 	// 向いている方向
 	float angle_ = 0.0f;

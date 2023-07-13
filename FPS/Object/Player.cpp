@@ -76,7 +76,8 @@ namespace
 //	constexpr float player_speed = 10000.0f / 60.0f / 60.0f / 60.0f;
 }
 
-Player::Player() :
+Player::Player(MainScene* pMainScene) :
+	pMainScene_(pMainScene),
 	updateFunc_(&Player::UpdateIdle),
 	animNo_(idle_anim_no),
 	frameCount_(0),
@@ -89,17 +90,8 @@ Player::Player() :
 	moveVec_(VGet(0, 0, 0)),
 	shotFrameCount_(0),
 	isJump_(false),
-	pMainScene_(nullptr),
 	pCollision_(nullptr),
 	isFall_(false)
-{
-}
-
-Player::~Player()
-{
-}
-
-void Player::Init()
 {
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
@@ -110,6 +102,11 @@ void Player::Init()
 	// 初期位置
 	pos_ = init_pos_1;
 	pModel_->SetPos(pos_);
+}
+
+Player::~Player()
+{
+	
 }
 
 void Player::Update(const InputState& input)
@@ -263,7 +260,7 @@ void Player::UpdateIdle(const InputState& input)
 		shotVec = VScale(shotVec, shot_speed);
 
 		// ショット開始
-		pMainScene_->StartShot(shootStartPos, shotVec);
+		pMainScene_->StartPlayerShot(shootStartPos, shotVec);
 
 		// ショットアニメに変更する
 		animNo_ = idle_shot_anim_no;

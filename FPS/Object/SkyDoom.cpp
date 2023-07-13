@@ -16,17 +16,10 @@ namespace
 	constexpr float model_magnification2 = 13.0f;
 }
 
-SkyDoom::SkyDoom(): 
+SkyDoom::SkyDoom(std::shared_ptr<Player> pPlayer): 
 	playerPos_(VGet(0, 0, 0)),
-	rot_(0.0f)
-{
-}
-
-SkyDoom::~SkyDoom()
-{
-}
-
-void SkyDoom::Init()
+	rot_(0.0f),
+	pPlayer_(pPlayer)
 {
 	// インスタンス化
 	pSkydoom_ = std::make_shared<Model>(skydoom_file_name);
@@ -45,6 +38,10 @@ void SkyDoom::Init()
 	pSkydoom_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
 	pCloud_->SetScale(VGet(model_magnification2, model_magnification2, model_magnification2));
 	pCloud2_->SetScale(VGet(model_magnification2, model_magnification2, model_magnification2));
+}
+
+SkyDoom::~SkyDoom()
+{
 }
 
 void SkyDoom::Update()

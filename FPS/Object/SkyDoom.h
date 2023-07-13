@@ -8,15 +8,11 @@ class Model;
 class SkyDoom
 {
 public:
-	SkyDoom();
+	SkyDoom(std::shared_ptr<Player> pPlayer);
 	virtual ~SkyDoom();
 
-	void Init();
 	void Update();
 	void Draw();
-
-	// プレイヤーポインタのセッター
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
 
 private:
 	// ポインタ

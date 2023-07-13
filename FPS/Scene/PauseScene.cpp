@@ -18,7 +18,10 @@ namespace
 }
 
 PauseScene::PauseScene(SceneManager& manager) :
-	Scene(manager)
+	Scene(manager),
+	currentInputIndex_(0),
+	keyConfigCategoryColor_(0x000000),
+	soundSettingCategoryColor_(0x000000)
 {
 }
 
@@ -28,7 +31,7 @@ PauseScene::~PauseScene()
 
 void PauseScene::Update(const InputState& input)
 {
-	//上下で回る処理
+	//数字を回す処理
 	if (input.IsTriggered(InputType::up))
 	{
 		//	SoundManager::GetInstance().Play("cursor");
@@ -39,6 +42,8 @@ void PauseScene::Update(const InputState& input)
 		//	SoundManager::GetInstance().Play("cursor");
 		currentInputIndex_ = (currentInputIndex_ + 1) % name_count;
 	}
+
+	// 現在選択しているカテゴリーによって項目名の色の変更
 	if (currentInputIndex_ == 0)
 	{
 		keyConfigCategoryColor_ = 0xff0000;
@@ -50,6 +55,7 @@ void PauseScene::Update(const InputState& input)
 		soundSettingCategoryColor_ = 0xff0000;
 	}
 
+	// 選択された項目によってシーン遷移
 	if (input.IsTriggered(InputType::next) && currentInputIndex_ == 0)
 	{
 		manager_.PushScene(new KeyConfigScene(manager_, input));

@@ -41,7 +41,8 @@ namespace
 	constexpr VECTOR check_pos_5{ -4665.145996, -293.110107, -6190.505859 };
 }
 
-Tower::Tower() :
+Tower::Tower(StageManager* pStageManager) :
+	pStageManager_(pStageManager),
 	pos_(VGet(0, 0, 0)),
 	hp_(0),
 	damageFrame_(0),
@@ -54,14 +55,6 @@ Tower::Tower() :
 	checkPoint_(0),
 	vec_(VGet(0, 0, 0)),
 	isGoal_(false)
-{
-}
-
-Tower::~Tower()
-{
-}
-
-void Tower::Init()
 {
 	switch (pStageManager_->GetAnyStage())
 	{
@@ -80,6 +73,10 @@ void Tower::Init()
 	pModel_->SetUseCollision(true, true);
 	pModel_->SetScale(VGet(tower_scale, tower_scale, tower_scale));
 	pModel_->SetPos(pos_);
+}
+
+Tower::~Tower()
+{
 }
 
 void Tower::Update()
@@ -170,7 +167,7 @@ void Tower::HeadToDestination(VECTOR checkPoint)
 	float dist = VSize(VSub(pos_, checkPoint));
 	if (dist < (colRadius_ + 50.0f))
 	{
-		if (!IsEnemyExists() && checkPoint_ <= k_check_point5)
+		if (!IsEnemyEnabled() && checkPoint_ <= k_check_point5)
 		{
 			isMove_ = true;
 			checkPoint_++;
@@ -182,7 +179,7 @@ void Tower::HeadToDestination(VECTOR checkPoint)
 	}
 }
 
-bool Tower::IsEnemyExists()
+bool Tower::IsEnemyEnabled()
 {
 	int cnt = 0;
 	for (auto& enemy : pEnemyManager_->GetEnemies())

@@ -14,23 +14,19 @@ class Tower;
 class Player
 {
 public:
-	Player();
+	Player(MainScene* pMainScene);
 	virtual ~Player();
 
-	void Init();
 	void Update(const InputState& input);
 	void Draw();
 
 	void SetRespawn();
 
-	// MainSceneのポインタのセッター
-	void SetMainScene(MainScene* pMainScene) { pMainScene_ = pMainScene; }
-
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
 	// 当たり判定ポインタのセッター
-	void SetCollision(Collision* pCollision) { pCollision_ = pCollision; }
+	void SetCollision(std::shared_ptr<Collision> pCollision) { pCollision_ = pCollision; }
 
 	// タワーのセッター
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
@@ -79,7 +75,7 @@ private:
 	// メインシーン
 	MainScene* pMainScene_;
 
-	Collision* pCollision_;
+	std::shared_ptr<Collision> pCollision_;
 
 	// プレイヤーのモデル
 	std::shared_ptr<Model> pModel_;

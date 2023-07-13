@@ -10,6 +10,7 @@
 
 namespace
 {
+	// フェードの速度
 	constexpr int fade_interval = 30;
 }
 

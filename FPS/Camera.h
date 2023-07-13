@@ -4,22 +4,16 @@
 
 class Player;
 class InputState;
-class Tower;
+class MainScene;
 
 class Camera
 {
 public:
-	Camera();
+	Camera(std::shared_ptr<Player> pPlayer, MainScene* pMainScene);
 	virtual ~Camera();
 
-	void Init();
 	void Update(const InputState& input);
 	void Draw();
-
-	// プレイヤーのポインタの取得
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
-
-	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
 	// カメラのアングルの取得
 	float GetCameraYaw() const;
@@ -43,7 +37,7 @@ public:
 private:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<Tower> pTower_;
+	std::shared_ptr<MainScene> pMainScene_;
 
 	// カメラ
 	VECTOR cameraPos_;

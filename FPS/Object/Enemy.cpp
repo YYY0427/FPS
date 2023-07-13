@@ -53,8 +53,13 @@ namespace
 	constexpr float lost_distance = 2000.0f;
 }
 
-Enemy::Enemy()
+Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory)
 {
+	pPlayer_ = pPlayer;
+	pTower_ = pTower;
+	pCollision_ = pCollision;
+	pEnemyShotFactory_ = pEnemyShotFactory;
+
 	updateFunc_ = &Enemy::UpdateTrackingToTower;
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
@@ -127,16 +132,16 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// 敵から目標へのベクトルを求める
-	toTarget_ = VSub(pos, pos_);
+	toTargetVec_ = VSub(pos, pos_);
 
 	// 角度の取得
-	angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
 	// 正規化
-	toTarget_ = VNorm(toTarget_);
+	toTargetVec_ = VNorm(toTargetVec_);
 
 	// 移動速度の反映
-	VECTOR vec = VScale(toTarget_, to_player_speed);
+	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
 	// 当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::enemy);
@@ -193,10 +198,16 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// プレイヤーまでの距離
-	float distans = VSize(VSub(pos, pos_));
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
 
-	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
+	// ターゲットまでの距離
+	float distans = VSize(toTargetVec_);
+
+	// ターゲットから特定の距離離れていたらプレイヤーを追いかける
 	if (attacDistance < distans)
 	{
 		// アニメーション設定

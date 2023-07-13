@@ -10,9 +10,9 @@ class Shot
 {
 public:
 	Shot();
+	Shot(int handle);
 	virtual ~Shot();
 
-	void Init(int handle);
 	void Update();
 	void Draw();
 
@@ -20,10 +20,10 @@ public:
 	int LoadModel() const;
 
 	// 弾が存在しているかのゲッター
-	bool isExist() const { return isExsit_; }
+	bool isExist() const { return isEnabled_; }
 
 	// 発射
-	void Start(VECTOR pos, VECTOR vec);
+	void Start(VECTOR pos, VECTOR vec, std::shared_ptr<Player> pPlayer, std::shared_ptr<Camera> pCamera);
 
 	// ショットの中心位置のゲッター
 	VECTOR GetPos() const { return pos_; };
@@ -35,13 +35,8 @@ public:
 	float GetColRadius() const;
 
 	// 弾を消すセッター
-	void SetExsit(bool isExsit) { isExsit_ = isExsit; }
+	void SetExsit(bool isExsit) { isEnabled_ = isExsit; }
 
-	// プレイヤーのポインタのセッター
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
-
-	// カメラのポインタのセッター
-	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 private:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;
@@ -49,7 +44,7 @@ private:
 	std::shared_ptr<Model> pModel_;
 
 	// 存在する
-	bool isExsit_;
+	bool isEnabled_;
 
 	// モデルのハンドル
 	int handle_;
@@ -62,5 +57,4 @@ private:
 
 	// 移動方向
 	VECTOR vec_;
-
 };

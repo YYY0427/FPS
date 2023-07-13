@@ -14,9 +14,9 @@ namespace
 	constexpr int volume_divide_num = 10;
 	
 	// 音量設定ウィンドウ
-	constexpr int window_width = 700;												// オプション枠の幅
-	constexpr int window_height = 500;												// オプション枠の高さ
-	constexpr int window_start_x = (Game::screen_width / 2) - (window_width / 2) + 50;	// オプション枠の左
+	constexpr int window_width = 700;														// オプション枠の幅
+	constexpr int window_height = 500;														// オプション枠の高さ
+	constexpr int window_start_x = (Game::screen_width / 2) - (window_width / 2) + 50;		// オプション枠の左
 	constexpr int window_start_y = (Game::screen_height / 2) - (window_height / 2) + 50;	// オプション枠上
 
 	// 選択肢の数
@@ -24,10 +24,16 @@ namespace
 
 	// いくつの値音量を変化させるか
 	constexpr int volume_setting_num = 25;
+
+	// 音量バーのUIの幅
+	constexpr int volume_ui_width = 40;
 }
 
 SoundSettingScene::SoundSettingScene(SceneManager& manager) :
-	Scene(manager)
+	Scene(manager),
+	currentInputIndex_(0),
+	bgmCategoryColor_(0x000000),
+	seCategoryColor_(0x000000)
 {
 }
 
@@ -37,7 +43,7 @@ SoundSettingScene::~SoundSettingScene()
 
 void SoundSettingScene::Update(const InputState& input)
 {
-	//上下で回る処理
+	//数字を回す処理
 	if (input.IsTriggered(InputType::up))
 	{
 	//	SoundManager::GetInstance().Play("cursor");
@@ -50,13 +56,13 @@ void SoundSettingScene::Update(const InputState& input)
 	}
 	if (currentInputIndex_ == 0)
 	{
-		bgmCategoryColor = 0xff0000;
-		seCategoryColor = 0x000000;
+		bgmCategoryColor_ = 0xff0000;
+		seCategoryColor_ = 0x000000;
 	}
 	else 
 	{
-		bgmCategoryColor = 0x000000;
-		seCategoryColor = 0xff0000;
+		bgmCategoryColor_ = 0x000000;
+		seCategoryColor_ = 0xff0000;
 	}
 
 	auto& soundMgr = SoundManager::GetInstance();
@@ -103,12 +109,12 @@ void SoundSettingScene::Draw()
 	DrawString(((window_width + window_start_x) / 2) - (width / 2), window_start_y + 50, window_title, 0x000000, false);
 
 	// 項目名の表示
-	DrawString(window_start_x + window_width / 2 - 250, 320, "BGM", bgmCategoryColor, false);
-	DrawString(window_start_x + window_width / 2 - 250, 450, "SE", seCategoryColor, false);
+	DrawString(window_start_x + window_width / 2 - 250, 320, "BGM", bgmCategoryColor_, false);
+	DrawString(window_start_x + window_width / 2 - 250, 450, "SE", seCategoryColor_, false);
 
 	for (int i = 0; i < volume_divide_num; i++)
 	{
-		int width = i * 40;
+		int width = i * volume_ui_width;
 
 		// 枠組み
 		DrawRoundRect(window_start_x + window_width / 2 - 150 + width, 320, window_start_x + window_width / 2 - 150 + 30 + width, 320 + 80, 5, 5, GetColor(255, 165, 0), false);
@@ -118,13 +124,13 @@ void SoundSettingScene::Draw()
 	// BGM
 	for (int i = 0; i < bgmNum; i++)
 	{
-		int width = i * 40;
+		int width = i * volume_ui_width;
 		DrawRoundRect(window_start_x + window_width / 2 - 150 + width, 320, window_start_x + window_width / 2 - 150 + 30 + width, 320 + 80, 5, 5, GetColor(255, 165, 0), true);
 	}
 	// SE
 	for (int i = 0; i < seNum; i++)
 	{
-		int width = i * 40;
+		int width = i * volume_ui_width;
 		DrawRoundRect(window_start_x + window_width / 2 - 150 + width, 450, window_start_x + window_width / 2 - 150 + 30 + width, 450 + 80, 5, 5, GetColor(255, 165, 0), true);
 	}
 }

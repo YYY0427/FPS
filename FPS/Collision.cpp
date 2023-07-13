@@ -5,12 +5,14 @@
 #include "Object/EnemyManager.h"
 #include "Object/EnemyBase.h"
 
-Collision::Collision() :
+Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower) :
 	moveAfterPos_(VGet(0, 0, 0)),
 	oldPos_(VGet(0, 0, 0)),
 	yukaNum_(0),
 	kabeNum_(0),
-	isHitFlag_(false)
+	isHitFlag_(false),
+	pStages_(pStages),
+	pTower_(pTower)
 {
 }
 
@@ -105,7 +107,7 @@ void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 				poly_ = kabe_[i];
 
 				// ポリゴンとプレイヤーが当たっていなかったら次のカウントへ
-				if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == false) continue;
+				if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == FALSE) continue;
 
 				// ここにきたらポリゴンとプレイヤーが当たっているということなので、ポリゴンに当たったフラグを立てる
 				isHitFlag_ = true;
@@ -133,7 +135,7 @@ void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 					poly_ = kabe_[j];
 
 					// 当たっていたらループから抜ける
-					if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == true) break;
+					if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == TRUE) break;
 				}
 
 				// j が KabeNum だった場合はどのポリゴンとも当たらなかったということなので
@@ -179,7 +181,7 @@ void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 					poly_ = kabe_[i];
 
 					// プレイヤーと当たっているかを判定
-					if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == false) continue;
+					if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == FALSE) continue;
 
 					// 当たっていたら規定距離分プレイヤーを壁の法線方向に移動させる
 				//	moveAfterPos_ = VAdd(moveAfterPos_, VScale(poly_->Normal, 5.0f));
@@ -190,7 +192,7 @@ void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 					{
 						// 当たっていたらループを抜ける
 						poly_ = kabe_[j];
-						if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == true) break;
+						if (HitCheck_Capsule_Triangle(moveAfterPos_, VAdd(moveAfterPos_, VGet(0.0f, refPoly_.MaxPosition.y, 0.0f)), refPoly_.MaxPosition.x, poly_->Position[0], poly_->Position[1], poly_->Position[2]) == TRUE) break;
 					}
 
 					// 全てのポリゴンと当たっていなかったらここでループ終了

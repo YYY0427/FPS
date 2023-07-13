@@ -17,9 +17,9 @@ public:
 	void Draw();
 
 private:
-	unsigned int keyConfigCategoryColor_ = 0x000000;
-	unsigned int soundSettingCategoryColor_ = 0x000000;
+	unsigned int keyConfigCategoryColor_;
+	unsigned int soundSettingCategoryColor_;
 
-	int currentInputIndex_ = 0;
+	int currentInputIndex_;
 };
 

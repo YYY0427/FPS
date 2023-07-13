@@ -153,6 +153,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="EnemyShot.cpp" />
+    <ClCompile Include="EnemyShotFactory.cpp" />
     <ClCompile Include="Object\Bee.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DrawFunctions.cpp" />
@@ -184,6 +186,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="EnemyShot.h" />
+    <ClInclude Include="EnemyShotFactory.h" />
     <ClInclude Include="Object\Bee.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawFunctions.h" />

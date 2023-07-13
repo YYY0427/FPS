@@ -12,25 +12,6 @@ EnemyBase::~EnemyBase()
 
 }
 
-void EnemyBase::Init()
-{
-	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(fileName_);
-	pModel_->SetAnimation(animNo_, true, true);
-	pModel_->SetUseCollision(true, true);
-
-	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
-
-	// 敵をランダムに配置
-	//pos_.x = static_cast<float>(GetRand(2000) - 1000);
-	//pos_.y = 0.0f;
-	//pos_.z = static_cast<float>(GetRand(2000) - 1000);
-
-	//pos_.z = 1700.0f;
-
-	pModel_->Update();
-}
-
 void EnemyBase::Draw()
 {
 	// ダメージ処理

@@ -30,7 +30,7 @@ void StageSelectScene::Init()
 
 void StageSelectScene::Update(const InputState& input)
 {
-	//ã‰º‚Å‰ñ‚éˆ—
+	//”Žš‚ð‰ñ‚·ˆ—
 	if (input.IsTriggered(InputType::up))
 	{
 		currentInputIndex_ = ((currentInputIndex_ - 1) + option_num) % option_num;
@@ -40,18 +40,10 @@ void StageSelectScene::Update(const InputState& input)
 		currentInputIndex_ = (currentInputIndex_ + 1) % option_num;
 	}
 
-	// Œˆ’è‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
+	// Œˆ’è‚ª‰Ÿ‚³‚ê‚½‚Æ‚«ƒV[ƒ“‘JˆÚ
 	if (input.IsTriggered(InputType::next))
 	{
-		switch (currentInputIndex_)
-		{
-		case 0:
-			pStageManager_->StageSelect(currentInputIndex_);
-			break;
-		case 1:
-
-			break;
-		}
+		pStageManager_->StageSelect(currentInputIndex_);
 		manager_.ChangeScene(new MainScene(manager_, pStageManager_));
 		return;
 	}

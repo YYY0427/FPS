@@ -10,7 +10,7 @@ class Tower;
 class Collision
 {
 public:
-	Collision();
+	Collision(StageManager* pStages, std::shared_ptr<Tower> pTower);
 	virtual ~Collision();
 
 	// 初期化
@@ -32,10 +32,8 @@ public:
 	float GetPlayerMinY() const { return playerMinY_; }
 
 	// セッター
-	void SetStageManager(StageManager* pStages) { pStages_ = pStages; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
 	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
-	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
 
 public:
 	enum Chara

@@ -4,6 +4,7 @@
 #include "../Model.h"
 #include "../Collision.h"
 #include "Tower.h"
+#include "../EnemyShotFactory.h"
 #include <cmath>
 #include <cassert>
 
@@ -54,8 +55,12 @@ namespace
 	constexpr float lost_distance = 4000.0f;
 }
 
-Bee::Bee()
+Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory)
 {
+	pPlayer_ = pPlayer;
+	pTower_ = pTower;
+	pCollision_ = pCollision;
+	pEnemyShotFactory_ = pEnemyShotFactory;
 	updateFunc_ = &Bee::UpdateToFront;
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
@@ -125,19 +130,19 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// 敵から目標へのベクトルを求める
-	toTarget_ = VSub(pos, pos_);
+	toTargetVec_ = VSub(pos, pos_);
 
 	// Y軸は追いかけない
-	toTarget_ = VGet(toTarget_.x, 0.0f, toTarget_.z);
+	toTargetVec_ = VGet(toTargetVec_.x, 0.0f, toTargetVec_.z);
 
 	// 角度の取得
-	angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
 	// 正規化
-	toTarget_ = VNorm(toTarget_);
+	toTargetVec_ = VNorm(toTargetVec_);
 
 	// 移動速度の反映
-	VECTOR vec = VScale(toTarget_, to_player_speed);
+	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, pos_, vec, Collision::Chara::bee);
@@ -194,8 +199,24 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
 	// プレイヤーまでの距離
-	float distans = VSize(VSub(pos, pos_));
+	float distans = VSize(toTargetVec_);
+
+	toTargetVec_ = VNorm(toTargetVec_);
+
+	toTargetVec_ = VScale(toTargetVec_, 20.0f);
+
+	if (cnt_++ % 10 == 0)
+	{
+		pEnemyShotFactory_->ShootStart(pos_, toTargetVec_);
+
+	}
 
 	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
 	if (attackDistance < distans)

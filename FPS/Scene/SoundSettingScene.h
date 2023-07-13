@@ -14,7 +14,7 @@ public:
 	void Draw();
 
 private:
-	int currentInputIndex_ = 0;
-	unsigned int bgmCategoryColor = 0x000000;
-	unsigned int seCategoryColor = 0x000000;
+	int currentInputIndex_;
+	unsigned int bgmCategoryColor_;
+	unsigned int seCategoryColor_;
 };

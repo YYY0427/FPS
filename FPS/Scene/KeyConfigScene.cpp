@@ -6,7 +6,9 @@
 
 KeyConfigScene::KeyConfigScene(SceneManager& manager, const InputState& input) :
 	Scene(manager),
-	inputState_(input)
+	inputState_(input),
+	currentInputIndex_(0),
+	isEditing_(false)
 {
 
 }

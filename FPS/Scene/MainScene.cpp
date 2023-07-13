@@ -70,7 +70,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pCollision_->SetEnemyManager(pEnemyManager_);
 
 	pStageManager_->Init();
-	pEnemyManager_->Create();
+	pEnemyManager_->Create(pTower_->GetCheckPoint());
 
 	// ‰æ‘œ‚Ìƒ[ƒh
 	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");

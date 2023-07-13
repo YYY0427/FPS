@@ -13,9 +13,6 @@ namespace
 	// ファイルパス
 	const char* const bee_adress = "Data/Model/beeCol.mv1";
 
-	// 初期位置
-	constexpr VECTOR init_pos_1{ 5500.0f, 100.0f, 2200.0f };
-
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
@@ -55,7 +52,7 @@ namespace
 	constexpr float lost_distance = 4000.0f;
 }
 
-Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory)
+Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
@@ -82,7 +79,7 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 
-	pos_ = init_pos_1;
+	pos_ = pos;
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }

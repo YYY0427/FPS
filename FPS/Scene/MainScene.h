@@ -74,5 +74,6 @@ private:
 	// シャドウマップ
 	int shadowMap_;
 
+	// ゲームオーバーかどうか
 	bool isGameOver_;
 };

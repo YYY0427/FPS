@@ -11,9 +11,6 @@ namespace
 	// ファイルパス
 	const char* const enemy_adress = "Data/Model/enemyCol.mv1";
 
-	// 初期位置
-	constexpr VECTOR init_pos_1{ 5000.0f, 0.0f, 2200.0f };
-
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
@@ -53,7 +50,7 @@ namespace
 	constexpr float lost_distance = 2000.0f;
 }
 
-Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory)
+Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
@@ -83,7 +80,7 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 
-	pos_ = init_pos_1;
+	pos_ = pos;
 
 	pModel_->Update();
 }

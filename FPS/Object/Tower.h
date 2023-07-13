@@ -38,15 +38,16 @@ public:
 	float GetColRadius() const { return colRadius_; }
 	int GetIsDead() const { return isDead_; }
 	bool GetIsGoal() const { return isGoal_; }
+	int GetCheckPoint() const { return checkPoint_; }
 
-private:	
-	enum
+public:	
+	enum CheckPoint
 	{
-		k_check_point1 = 1,
-		k_check_point2,
-		k_check_point3,
-		k_check_point4,
-		k_check_point5,
+		check_point1 = 1,
+		check_point2,
+		check_point3,
+		check_point4,
+		check_point5,
 	};
 
 private:

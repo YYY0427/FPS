@@ -69,7 +69,7 @@ namespace
 	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
 
 	// 初期位置
-	constexpr VECTOR init_pos_1{ 6000.0f, 0.0f, 2200.0f };
+	constexpr VECTOR bee_init_pos_1{ 6000.0f, 0.0f, 2200.0f };
 
 	// 速度（1=1m、60fps固定として、時速10km）
 	// 10000m ÷ 時間 ÷ 分 ÷ 秒 ÷ フレーム
@@ -100,7 +100,7 @@ Player::Player(MainScene* pMainScene) :
 	pModel_->SetAnimation(animNo_, true, true);
 
 	// 初期位置
-	pos_ = init_pos_1;
+	pos_ = bee_init_pos_1;
 	pModel_->SetPos(pos_);
 }
 

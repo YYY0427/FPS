@@ -29,7 +29,7 @@ namespace
 	constexpr float tower_scale = 0.4f;
 
 	// 初期位置
-	constexpr VECTOR init_pos_1{ 6000.0f, -250.0f, 3000.0f };
+	constexpr VECTOR bee_init_pos_1{ 6000.0f, -250.0f, 3000.0f };
 
 	// チェックポイント
 
@@ -59,7 +59,7 @@ Tower::Tower(StageManager* pStageManager) :
 	switch (pStageManager_->GetAnyStage())
 	{
 	case 0:
-		pos_ = init_pos_1;
+		pos_ = bee_init_pos_1;
 		checkPointPos1_ = check_pos_1;
 		checkPointPos2_ = check_pos_2;
 		checkPointPos3_ = check_pos_3;
@@ -68,7 +68,7 @@ Tower::Tower(StageManager* pStageManager) :
 	}
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
-	checkPoint_ = k_check_point1;
+	checkPoint_ = check_point1;
 	pModel_ = std::make_shared<Model>(adress);
 	pModel_->SetUseCollision(true, true);
 	pModel_->SetScale(VGet(tower_scale, tower_scale, tower_scale));
@@ -88,7 +88,7 @@ void Tower::Update()
 	CheckPointSet();
 	HeadToDestination(checkPointPos_);
 
-	if (checkPoint_ == k_check_point5 + 1)
+	if (checkPoint_ == check_point5 + 1)
 	{
 		isGoal_ = true;
 	}
@@ -136,13 +136,13 @@ void Tower::OnDamage(int damage)
 	}
 }
 
-void Tower::HeadToDestination(VECTOR checkPoint)
+void Tower::HeadToDestination(VECTOR checkPointPos)
 {
 	vec_ = VGet(0, 0, 0);
 	if (isMove_)
 	{
 		// 敵から目標へのベクトルを求める
-		VECTOR toTarget_ = VSub(checkPoint, pos_);
+		VECTOR toTarget_ = VSub(checkPointPos, pos_);
 
 		// 角度の取得
 		angle_ = static_cast<float>(atan2(toTarget_.x, toTarget_.z));
@@ -164,13 +164,14 @@ void Tower::HeadToDestination(VECTOR checkPoint)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
 	// チェックポイントの当たり判定
-	float dist = VSize(VSub(pos_, checkPoint));
+	float dist = VSize(VSub(pos_, checkPointPos));
 	if (dist < (colRadius_ + 50.0f))
 	{
-		if (!IsEnemyEnabled() && checkPoint_ <= k_check_point5)
+		if (!IsEnemyEnabled() && checkPoint_ <= check_point5)
 		{
 			isMove_ = true;
 			checkPoint_++;
+			pEnemyManager_->Create(checkPoint_);
 		}
 		else
 		{
@@ -196,19 +197,19 @@ void Tower::CheckPointSet()
 {
 	switch (checkPoint_)
 	{
-	case k_check_point1:
+	case check_point1:
 		checkPointPos_ = checkPointPos1_;
 		break;
-	case k_check_point2:
+	case check_point2:
 		checkPointPos_ = checkPointPos2_;
 		break;
-	case k_check_point3:
+	case check_point3:
 		checkPointPos_ = checkPointPos3_;
 		break;
-	case k_check_point4:
+	case check_point4:
 		checkPointPos_ = checkPointPos4_;
 		break;
-	case k_check_point5:
+	case check_point5:
 		checkPointPos_ = checkPointPos5_;
 		break;
 	}

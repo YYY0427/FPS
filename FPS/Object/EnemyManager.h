@@ -14,7 +14,7 @@ public:
 	EnemyManager(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
 	virtual ~EnemyManager();
 
-	void Create();
+	void Create(int checkPoint);
 	void Update();
 	void Draw();
 	void DrawUI();

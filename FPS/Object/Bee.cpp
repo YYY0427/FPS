@@ -50,6 +50,9 @@ namespace
 
 	// 目標を見失う距離
 	constexpr float lost_distance = 4000.0f;
+
+	// 攻撃の再使用まで待機フレーム数
+	constexpr int attack_wait_time = 20;
 }
 
 Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos)
@@ -202,17 +205,22 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 	// 角度の取得
 	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
+	// タワーの足元を狙うためY軸をプラス
+	toTargetVec_ = VGet(toTargetVec_.x, toTargetVec_.y + 150.0f, toTargetVec_.z);
+
 	// プレイヤーまでの距離
 	float distans = VSize(toTargetVec_);
 
+	// 正規化
 	toTargetVec_ = VNorm(toTargetVec_);
 
+	// ショットのスピードをかける
 	toTargetVec_ = VScale(toTargetVec_, 20.0f);
 
-	if (cnt_++ % 10 == 0)
+	// 
+	if (attackWaitTimer_++ % attack_wait_time == 0)
 	{
-		pEnemyShotFactory_->ShootStart(pos_, toTargetVec_);
-
+		pEnemyShotFactory_->ShootStart(pos_, toTargetVec_, target);
 	}
 
 	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
@@ -301,12 +309,10 @@ void Bee::UpdateToFront()
 		else
 		{
 			// 回転する角度をランダムで計算
-		//	rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
-		//	rotSpeed_ += 0.025f;
-		//	if (GetRand(1)) rotSpeed_ *= -1.0f;
-			rotSpeed_ += DX_PI_F / 2;
-			rotSpeed_ *= -1;
-
+			rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
+			rotSpeed_ += 0.025f;
+			if (GetRand(1)) rotSpeed_ *= -1.0f;
+			
 			// udpateを変更
 			updateFunc_ = &Bee::UpdateTurn;
 			frameCount_ = 0;

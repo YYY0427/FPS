@@ -12,6 +12,8 @@ public:
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½
 	void OnDamage(int damage);
 
+	int GetEnemyType() const { return enemy; }
+
 private:
 	// ’ÇÕˆ—
 	void Tracking(VECTOR pos, int target, float attackDistance);

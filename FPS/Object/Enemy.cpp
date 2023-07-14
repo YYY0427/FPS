@@ -48,6 +48,9 @@ namespace
 
 	// 目標を見失う距離
 	constexpr float lost_distance = 2000.0f;
+
+	// 攻撃の再使用まで待機フレーム数
+	constexpr int attack_wait_time = 20;
 }
 
 Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos)
@@ -194,6 +197,17 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
+
+	// 指定されたフレームに1回攻撃する
+	if (attackWaitTimer_++ % attack_wait_time == 0)
+	{
+		// 攻撃
+		isAttack_ = true;
+	}
+	else
+	{
+		isAttack_ = false;
+	}
 
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pos, pos_);

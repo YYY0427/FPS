@@ -63,7 +63,7 @@ namespace
 	constexpr int invincible_time = 60;
 
 	// ショットの再使用まで待機フレーム数
-	constexpr int shot_wait_time = 5;
+	constexpr int attack_wait_time = 5;
 
 	// リスポーン地点
 	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
@@ -239,7 +239,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// ショットを撃つ処理(ボタンが押されたとき、)
-	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= shot_wait_time)
+	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= attack_wait_time)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成

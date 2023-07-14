@@ -14,7 +14,7 @@ namespace
 	constexpr int max_hp = 100;
 
 	// ダメージを受けた時の無敵時間
-	constexpr int invincible_time = 60;
+	constexpr int invincible_time = 0;
 
 	// HPバー
 	constexpr int hp_bar_width = 500;	// HPバーの横幅
@@ -86,7 +86,7 @@ void Tower::Update()
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	CheckPointSet();
-	HeadToDestination(checkPointPos_);
+//	HeadToDestination(checkPointPos_);
 
 	if (checkPoint_ == goal)
 	{

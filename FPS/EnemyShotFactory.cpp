@@ -7,8 +7,9 @@ namespace
 	const char* const shot_adress = "Data/Model/sord.mv1";
 }
 
-EnemyShotFactory::EnemyShotFactory(std::shared_ptr<Player> pPlayer) :
-	pPlayer_(pPlayer)
+EnemyShotFactory::EnemyShotFactory(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower) :
+	pPlayer_(pPlayer),
+	pTower_(pTower)
 {
 	handle_ = MV1LoadModel(shot_adress);
 	assert(handle_ != -1);
@@ -42,8 +43,7 @@ void EnemyShotFactory::Draw()
 	}
 }
 
-void EnemyShotFactory::ShootStart(const VECTOR& pos, const VECTOR& vec)
+void EnemyShotFactory::ShootStart(const VECTOR& pos, const VECTOR& vec, int target)
 {
-	pBullets_.push_back(std::make_shared<EnemyShot>(handle_, pPlayer_));
-	pBullets_.back()->Start(pos, vec);
+	pBullets_.push_back(std::make_shared<EnemyShot>(handle_, pos, vec, pPlayer_, pTower_, target));
 }

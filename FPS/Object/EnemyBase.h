@@ -23,6 +23,10 @@ public:
 	// ダメージを受けた
 	virtual void OnDamage(int damage) = 0;
 
+	virtual int GetEnemyType() const = 0;
+
+	bool GetIsAttak() const { return isAttack_; }
+
 	// モデルのハンドルのゲッター
 	int GetModelHandle() const;
 
@@ -37,6 +41,18 @@ public:
 
 	// 当たり判定の半径のゲッター
 	float GetColRadius() const { return colRadius_; };
+
+	enum EnemyType
+	{
+		enemy,
+		bee,
+	};
+
+	enum Target
+	{
+		player,
+		tower
+	};
 
 protected:
 	// ターゲットが正面にいるかどうか
@@ -64,12 +80,6 @@ protected:
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
 	std::shared_ptr<Collision> pCollision_;
-
-	enum Target
-	{
-		player,
-		tower
-	};
 
 	// 現在再生しているアニメーション番号
 	int animNo_ = 0;
@@ -124,4 +134,10 @@ protected:
 
 	// 敵が死んでから消えるまでの時間
 	int deadDisappearTime_ = 0;
+
+	// 攻撃の再使用まで待機フレームカウント
+	int attackWaitTimer_ = 0;
+
+	// 攻撃しているか
+	bool isAttack_ = false;
 };

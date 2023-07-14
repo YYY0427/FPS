@@ -12,6 +12,8 @@ public:
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½
 	void OnDamage(int damage);
 	
+	int GetEnemyType() const { return bee; };
+
 private:
 	// ’ÇÕˆ—
 	void Tracking(VECTOR pos, int target, float attackDistance);
@@ -44,6 +46,4 @@ private:
 	void(Bee::* updateFunc_)();
 
 	float degree_;
-
-	int cnt_;
 };

@@ -35,7 +35,7 @@ public:
 	float GetColRadius() const;
 
 	// 弾を消すセッター
-	void SetExsit(bool isExsit) { isEnabled_ = isExsit; }
+	void SetEnabled(bool isExsit) { isEnabled_ = isExsit; }
 
 private:
 	// ポインタ

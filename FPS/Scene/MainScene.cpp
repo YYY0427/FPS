@@ -281,21 +281,39 @@ void MainScene::NormalUpdate(const InputState& input)
 			}
 		}
 
-		// 敵の弾とタワーの当たり判定
+		
 		for (auto& bullets : pEnemyShotFactory_->GetBullets())
 		{
-			// DxLibの関数を利用して当たり判定をとる
-			MV1_COLL_RESULT_POLY_DIM result;// あたりデータ
+			// 敵の弾とタワーの当たり判定
+			MV1_COLL_RESULT_POLY_DIM result;
 			result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
 
-			if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			if (result.HitNum > 0)
 			{
 				// 当たった
-				pTower_->OnDamage(1);			// タワーにダメージ
-				bullets->SetIsEnabled(false);	// 敵に当たった弾を消す
+				pTower_->OnDamage(1);			
+				bullets->SetIsEnabled(false);	
 			}
 			// 当たり判定情報の後始末
 			MV1CollResultPolyDimTerminate(result);
+
+			// 敵の弾とプレイヤーの当たり判定
+			MV1_COLL_RESULT_POLY_DIM result2;
+			result2 = MV1CollCheck_Capsule(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+
+			if (result2.HitNum > 0)
+			{
+				// 当たった
+				pPlayer_->OnDamage(1);
+				bullets->SetIsEnabled(false);
+			}
+			// 当たり判定情報の後始末
+			MV1CollResultPolyDimTerminate(result2);
+			/*float dist = VSize(VSub(pPlayer_->GetPos(), bullets->GetPos()));
+			if (dist < (pPlayer_->GetColRadius() + bullets->GetColRadius()))
+			{
+				pPlayer_->OnDamage(1);
+			}*/
 		}
 
 		// 敵とプレイヤーの当たり判定

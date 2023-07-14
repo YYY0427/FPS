@@ -25,6 +25,9 @@ public:
 	// 床ポリゴン当たり判定処理
 	void FloorPolyColCheckProcess(bool isJump, int chara);
 
+	// ジャンプ中の場合の床ポリゴンとの当たり判定
+	void JumpingFloorPolyColCheckProcess();
+
 	// 当たり判定処理
 	VECTOR Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara);
 

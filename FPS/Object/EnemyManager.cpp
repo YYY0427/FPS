@@ -42,10 +42,6 @@ void EnemyManager::Create(int checkPoint)
 		pEnemies_.push_back(std::make_shared<Bee>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, bee_init_pos_1));
 		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, enemy_init_pos_1));
 		break;
-	case Tower::CheckPoint::check_point5:
-		pEnemies_.push_back(std::make_shared<Bee>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, bee_init_pos_1));
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, enemy_init_pos_1));
-		break;
 	}
 	
 }

@@ -301,9 +301,11 @@ void Bee::UpdateToFront()
 		else
 		{
 			// ‰ñ“]‚·‚éŠp“x‚ğƒ‰ƒ“ƒ_ƒ€‚ÅŒvZ
-			rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
-			rotSpeed_ += 0.025f;
-			if (GetRand(1)) rotSpeed_ *= -1.0f;
+		//	rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
+		//	rotSpeed_ += 0.025f;
+		//	if (GetRand(1)) rotSpeed_ *= -1.0f;
+			rotSpeed_ += DX_PI_F / 2;
+			rotSpeed_ *= -1;
 
 			// udpate‚ğ•ÏX
 			updateFunc_ = &Bee::UpdateTurn;

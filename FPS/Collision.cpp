@@ -31,11 +31,6 @@ void Collision::Init()
 
 void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTOR pos, VECTOR vec)
 {
-	// 初期化
-//	isHitFlag_ = false;
-//	kabeNum_ = 0;
-//	yukaNum_ = 0;
-
 	// モデルの最大頂点座標と最小頂点座標の取得
 	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
 
@@ -281,6 +276,10 @@ void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 			moveAfterPos_.y -= 20;
 		}
 	}
+}
+
+void Collision::JumpingFloorPolyColCheckProcess()
+{
 }
 
 VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara)

@@ -10,17 +10,12 @@ namespace
 EnemyShotFactory::EnemyShotFactory(std::shared_ptr<Player> pPlayer) :
 	pPlayer_(pPlayer)
 {
-	Init();
+	handle_ = MV1LoadModel(shot_adress);
+	assert(handle_ != -1);
 }
 
 EnemyShotFactory::~EnemyShotFactory()
 {
-}
-
-void EnemyShotFactory::Init()
-{
-	handle_ = MV1LoadModel(shot_adress);
-	assert(handle_ != -1);
 }
 
 void EnemyShotFactory::Update()

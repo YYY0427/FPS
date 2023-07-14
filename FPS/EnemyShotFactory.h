@@ -12,7 +12,6 @@ public:
 	EnemyShotFactory(std::shared_ptr<Player> pPlayer);
 	virtual ~EnemyShotFactory();
 
-	void Init();
 	void Update();
 	void Draw();
 

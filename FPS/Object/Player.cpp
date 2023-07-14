@@ -221,7 +221,7 @@ void Player::UpdateIdle(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y + 50.0f <= pCollision_->GetPlayerMinY())
+	if (pos_.y <= pCollision_->GetPlayerMinY())
 	{
 	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
@@ -231,7 +231,7 @@ void Player::UpdateIdle(const InputState& input)
 	// ジャンプ処理
 	if (!isJump_)
 	{
-		if (input.IsTriggered(InputType::jump))
+		if (input.IsPressed(InputType::jump))
 		{
 			jumpAcc_ = jump_power;
 			isJump_ = true;

@@ -29,16 +29,17 @@ namespace
 	constexpr float tower_scale = 0.4f;
 
 	// 初期位置
-	constexpr VECTOR bee_init_pos_1{ 6000.0f, -250.0f, 3000.0f };
+	constexpr VECTOR stage_1_init_pos{ 6000.0f, -250.0f, 3000.0f };
 
-	// チェックポイント
-
+	//// チェックポイント ////
+	// チェックポイントの数
+	constexpr int check_point_num = 4;
+	 
 	// ステージ１
-	constexpr VECTOR check_pos_1{ 4316.818359f, -68.738754f, 3061.866211f};
-	constexpr VECTOR check_pos_2{ 2353.516846f, -185.86734f, 14.413342f };
-	constexpr VECTOR check_pos_3{ 1389.046021f, -37.761520f, -3957.060059f};
-	constexpr VECTOR check_pos_4{ -2108.958008f, -284.074921, -404.127014 };
-	constexpr VECTOR check_pos_5{ -4665.145996, -293.110107, -6190.505859 };
+	constexpr VECTOR stage_1_check_pos_1{ 980.0f, -291.0f, 2998.0f };
+	constexpr VECTOR stage_1_check_pos_2{ 1934.0f, 4.0f, -4257.0f };
+	constexpr VECTOR stage_1_check_pos_3{ -3996.0f, -52.0f, 695.0f };
+	constexpr VECTOR stage_1_check_pos_4{ -4665.0f, -293.0f, -6190.0f};
 }
 
 Tower::Tower(StageManager* pStageManager) :
@@ -59,12 +60,11 @@ Tower::Tower(StageManager* pStageManager) :
 	switch (pStageManager_->GetAnyStage())
 	{
 	case 0:
-		pos_ = bee_init_pos_1;
-		checkPointPos1_ = check_pos_1;
-		checkPointPos2_ = check_pos_2;
-		checkPointPos3_ = check_pos_3;
-		checkPointPos4_ = check_pos_4;
-		checkPointPos5_ = check_pos_5;
+		pos_ = stage_1_init_pos;
+		checkPointPos1_ = stage_1_check_pos_1;
+		checkPointPos2_ = stage_1_check_pos_2;
+		checkPointPos3_ = stage_1_check_pos_3;
+		checkPointPos4_ = stage_1_check_pos_4;
 	}
 	hp_ = max_hp;
 	colRadius_ = 100.0f;
@@ -88,9 +88,10 @@ void Tower::Update()
 	CheckPointSet();
 	HeadToDestination(checkPointPos_);
 
-	if (checkPoint_ == check_point5 + 1)
+	if (checkPoint_ == goal)
 	{
 		isGoal_ = true;
+		isMove_ = false;
 	}
 
 	pModel_->Update();
@@ -167,13 +168,13 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	float dist = VSize(VSub(pos_, checkPointPos));
 	if (dist < (colRadius_ + 50.0f))
 	{
-		if (!IsEnemyEnabled() && checkPoint_ <= check_point5)
+		if (!IsEnemyEnabled() && checkPoint_ <= check_point_num)
 		{
 			isMove_ = true;
 			checkPoint_++;
-			pEnemyManager_->Create(checkPoint_);
+		//	pEnemyManager_->Create(checkPoint_);
 		}
-		else
+		else 
 		{
 			isMove_ = false;
 		}
@@ -208,9 +209,6 @@ void Tower::CheckPointSet()
 		break;
 	case check_point4:
 		checkPointPos_ = checkPointPos4_;
-		break;
-	case check_point5:
-		checkPointPos_ = checkPointPos5_;
 		break;
 	}
 }

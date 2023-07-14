@@ -43,11 +43,12 @@ public:
 public:	
 	enum CheckPoint
 	{
-		check_point1 = 1,
+		start,
+		check_point1,
 		check_point2,
 		check_point3,
 		check_point4,
-		check_point5,
+		goal
 	};
 
 private:
@@ -71,7 +72,6 @@ private:
 	VECTOR checkPointPos2_;
 	VECTOR checkPointPos3_;
 	VECTOR checkPointPos4_;
-	VECTOR checkPointPos5_;
 
 	// 現在目指しているチェックポイントの位置
 	VECTOR checkPointPos_;

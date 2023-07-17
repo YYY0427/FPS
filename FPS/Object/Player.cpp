@@ -98,10 +98,12 @@ Player::Player(MainScene* pMainScene) :
 
 	// アニメーション設定
 	pModel_->SetAnimation(animNo_, true, true);
+	pModel_->SetUseCollision(true);
 
 	// 初期位置
 	pos_ = bee_init_pos_1;
 	pModel_->SetPos(pos_);
+	pModel_->Update();
 }
 
 Player::~Player()
@@ -116,16 +118,6 @@ void Player::Update(const InputState& input)
 
 void Player::Draw()
 {
-	// HPの描画
-	for (int i = 0; i < hp_; i++)
-	{
-		DrawCircle(100 + (i * 70), 130, 30, 0xff0000, true);
-	}
-
-	DrawFormatString(20, 300, 0x000000, "%f", pCollision_->GetPlayerMinY());
-
-	DrawFormatString(20, 400, 0x000000, "%f, %f, %f", pos_.x, pos_.y, pos_.z);
-
 	// ダメージ処理
 	if (damageFrame_ > 0)
 	{
@@ -134,6 +126,18 @@ void Player::Draw()
 
 	// モデルの描画
 	pModel_->Draw();
+
+	// HPの描画
+	for (int i = 0; i < hp_; i++)
+	{
+		DrawCircle(100 + (i * 70), 130, 30, 0xff0000, true);
+	}
+
+#ifdef _DEBUG
+	DrawFormatString(20, 300, 0x000000, "playerMinY = %f", pCollision_->GetPlayerMinY());
+	DrawFormatString(20, 400, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
+	DrawSphere3D(pos_, col_radius, 16.0f, 0xff0000, 0xff0000, false);
+#endif
 }
 
 void Player::SetRespawn()
@@ -348,14 +352,14 @@ void Player::UpdateIdle(const InputState& input)
 		pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
 	}
 
-	// アニメーションを進める
-	pModel_->Update();
-
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraYaw(), 0.0f));
+
+	// アニメーションを進める
+	pModel_->Update();
 }
 
 void Player::UpdateIdleShot(const InputState& input)
@@ -367,9 +371,6 @@ void Player::UpdateIdleShot(const InputState& input)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
@@ -379,6 +380,15 @@ void Player::UpdateIdleShot(const InputState& input)
 		jumpAcc_ = 0.0f;
 		isJump_ = false;
 	}
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraYaw(), 0.0f));
+
+	// アニメーションを進める
+	pModel_->Update();
 
 	frameCount_++;
 	if (pModel_->IsAnimEnd())
@@ -412,6 +422,13 @@ void Player::UpdateDead(const InputState& input)
 void Player::UpdateOnDamage(const InputState& input)
 {
 	assert(animNo_ == damage_anim_no);
+
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, pCamera_->GetCameraYaw(), 0.0f));
+
+	// アニメーションを進める
 	pModel_->Update();
 
 	if (pModel_->IsAnimEnd())

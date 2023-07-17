@@ -42,8 +42,6 @@ EnemyShot::EnemyShot(int handle, const VECTOR& pos, const VECTOR& vec, std::shar
 	// モデルの作成(インスタンス化)
 	pModel_ = std::make_shared<Model>(handle_);
 
-	pModel_->SetUseCollision(true, true);
-
 	// ターゲットまでのベクトルの作成
 	VECTOR toTargetVec = VSub(targetPos_, pos_);
 
@@ -84,13 +82,14 @@ void EnemyShot::Update()
 
 	// モデルの座標変換用行列をセットする
 	MV1SetMatrix(pModel_->GetModelHandle(), mat2);
-
-	pModel_->Update();
 }
 
 void EnemyShot::Draw()
 {
+#ifdef _DEBUG
 	DrawCapsule3D(pos_, lastPos_, col_radius, 16, 0xff0000, 0xff0000, false);
+#endif
+	
 	pModel_->Draw();
 }
 

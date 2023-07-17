@@ -206,7 +206,8 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
 	// タワーの足元を狙うためY軸をプラス
-	toTargetVec_ = VGet(toTargetVec_.x, toTargetVec_.y + 150.0f, toTargetVec_.z);
+	if(target == tower)
+		toTargetVec_ = VGet(toTargetVec_.x, toTargetVec_.y + 150.0f, toTargetVec_.z);
 
 	// プレイヤーまでの距離
 	float distans = VSize(toTargetVec_);

@@ -48,6 +48,11 @@ public:
 		check_point2,
 		check_point3,
 		check_point4,
+		check_point5,
+		check_point6,
+		check_point7,
+		check_point8,
+		check_point9,
 		goal
 	};
 
@@ -72,6 +77,11 @@ private:
 	VECTOR checkPointPos2_;
 	VECTOR checkPointPos3_;
 	VECTOR checkPointPos4_;
+	VECTOR checkPointPos5_;
+	VECTOR checkPointPos6_;
+	VECTOR checkPointPos7_;
+	VECTOR checkPointPos8_;
+	VECTOR checkPointPos9_;
 
 	// 現在目指しているチェックポイントの位置
 	VECTOR checkPointPos_;

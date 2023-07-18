@@ -7,6 +7,7 @@ class Model;
 class Tower;
 class Collision;
 class EnemyShotFactory;
+class UI;
 
 class EnemyBase
 {
@@ -80,6 +81,7 @@ protected:
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
 	std::shared_ptr<Collision> pCollision_;
+	std::shared_ptr<UI> pUI_;
 
 	// 現在再生しているアニメーション番号
 	int animNo_ = 0;

@@ -166,6 +166,8 @@
     <ClCompile Include="InputState.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object\Player.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
+    <ClCompile Include="ObstacleManager.cpp" />
     <ClCompile Include="Scene\KeyConfigScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scene\PauseScene.cpp" />
@@ -182,6 +184,7 @@
     <ClCompile Include="Scene\StageSelectScene.cpp" />
     <ClCompile Include="StageBase.cpp" />
     <ClCompile Include="StageManager.cpp" />
+    <ClCompile Include="UI.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +203,8 @@
     <ClInclude Include="InputState.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object\Player.h" />
+    <ClInclude Include="Obstacle.h" />
+    <ClInclude Include="ObstacleManager.h" />
     <ClInclude Include="Scene\KeyConfigScene.h" />
     <ClInclude Include="Scene\PauseScene.h" />
     <ClInclude Include="Scene\MainScene.h" />
@@ -215,6 +220,7 @@
     <ClInclude Include="Scene\StageSelectScene.h" />
     <ClInclude Include="StageBase.h" />
     <ClInclude Include="StageManager.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="Vec2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -16,6 +16,8 @@
 #include "../Collision.h"
 #include "../EnemyShotFactory.h"
 #include "../EnemyShot.h"
+#include "../ObstacleManager.h"
+#include "../Obstacle.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -53,6 +55,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_);
 	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_, pTower_);
 	pEnemyManager_ = std::make_shared<EnemyManager>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
+	pObstacleManager_ = std::make_shared<ObstacleManager>(pTower_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	pShot_.push_back(std::make_shared<Shot>());
@@ -103,9 +106,11 @@ void MainScene::Draw()
 	{
 		ShadowMap_DrawSetup(shadowMap_);
 		pStageManager_->Draw();
+		pObstacleManager_->Draw();
 		pPlayer_->Draw();
 		pEnemyManager_->Draw();
 		pTower_->Draw();
+		pEnemyShotFactory_->Draw();
 		for (auto& shot : pShot_)
 		{
 			shot->Draw();
@@ -118,6 +123,7 @@ void MainScene::Draw()
 	{
 		SetUseShadowMap(0, shadowMap_);
 		pStageManager_->Draw();
+		pObstacleManager_->Draw();
 		pPlayer_->Draw();
 		pEnemyManager_->Draw();
 		pTower_->Draw();
@@ -132,6 +138,7 @@ void MainScene::Draw()
 
 	// 敵のHPの表示
 	pEnemyManager_->DrawUI();
+	pObstacleManager_->DrawUI();
 
 	// ゲームオーバー時に表示開始
 	if (isGameOver_)
@@ -249,6 +256,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		pPlayer_->Update(input);
 		pEnemyManager_->Update();
 		pTower_->Update();
+		pObstacleManager_->Update();
 		pEnemyShotFactory_->Update();
 		for (auto& shot : pShot_)
 		{
@@ -259,11 +267,11 @@ void MainScene::NormalUpdate(const InputState& input)
 	
 	// TODO:Collisionクラスに移す
 	{
-		// プレイヤーの弾と敵の当たり判定
 		for (auto& shot : pShot_)
 		{
 			if (!shot->isExist()) continue;
 
+			// プレイヤーの弾と敵の当たり判定
 			for (auto& enemies : pEnemyManager_->GetEnemies())
 			{
 				// DxLibの関数を利用して当たり判定をとる
@@ -274,6 +282,22 @@ void MainScene::NormalUpdate(const InputState& input)
 				{
 					// 当たった
 					enemies->OnDamage(10);	// 敵にダメージ
+					shot->SetEnabled(false);	// 敵に当たった弾を消す
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
+			}
+
+			for (auto& obj : pObstacleManager_->GetObstacles())
+			{
+				// DxLibの関数を利用して当たり判定をとる
+				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+				result = MV1CollCheck_Capsule(obj->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
+
+				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				{
+					// 当たった
+					obj->OnDamage(1);	// 敵にダメージ
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
 				}
 				// 当たり判定情報の後始末

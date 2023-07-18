@@ -134,8 +134,8 @@ void Player::Draw()
 	}
 
 #ifdef _DEBUG
-	DrawFormatString(20, 300, 0x000000, "playerMinY = %f", pCollision_->GetPlayerMinY());
-	DrawFormatString(20, 400, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
+	DrawFormatString(20, 200, 0x000000, "playerMinY = %f", pCollision_->GetPlayerMinY());
+	DrawFormatString(20, 300, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
 	DrawSphere3D(pos_, col_radius, 16.0f, 0xff0000, 0xff0000, false);
 #endif
 }

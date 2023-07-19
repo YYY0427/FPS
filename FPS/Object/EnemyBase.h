@@ -55,6 +55,9 @@ protected:
 	// ターゲットが正面にいるかどうか
 	bool IsPlayerFront(VECTOR targetPos) const;
 
+	// ターゲットが検知範囲に入ったかどうか
+	bool IsTargetDetection(VECTOR targetPos, float targetCollisionRadius) const;
+
 	// プレイヤーに向かう
 	virtual void UpdateTrackingToPlayer() = 0;
 
@@ -143,4 +146,7 @@ protected:
 
 	// 攻撃しているか
 	bool isAttack_ = false;
+
+	// 検知範囲
+	float detectionRange_ = 0.0f;
 };

@@ -13,13 +13,17 @@ namespace
 	constexpr float model_scale = 0.1f;
 
 	// ƒ‚ƒfƒ‹‚Ì“–‚½‚è”»’è‚Ì”¼Œa
-	constexpr float col_radius = 16.0f;
+	constexpr float collision_radius = 16.0f;
 
+	// ’e‚ªŒü‚¢‚Ä‚¢‚é‰Šú•ûŒü
 	constexpr VECTOR init_direction{ 0, 1, 0 };
+
+	// ”­ËˆÊ’u‚©‚ç‚Ç‚ê‚¾‚¯Y²‚ğ‚¸‚ç‚·‚©
+	constexpr float shift_y = 50.0f;
 }
 
 EnemyShot::EnemyShot(int handle, const VECTOR& pos, const VECTOR& vec, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, int target) :
-	pos_(pos),
+	pos_(VGet(pos.x, pos.y + shift_y, pos.z)),
 	vec_(vec),
 	initPos_(pos),
 	lastPos_(VGet(0, 0, 0)),
@@ -87,7 +91,7 @@ void EnemyShot::Update()
 void EnemyShot::Draw()
 {
 #ifdef _DEBUG
-	DrawCapsule3D(pos_, lastPos_, col_radius, 16, 0xff0000, 0xff0000, false);
+//	DrawCapsule3D(pos_, lastPos_, col_radius, 16, 0xff0000, 0xff0000, false);
 #endif
 	
 	pModel_->Draw();
@@ -95,5 +99,5 @@ void EnemyShot::Draw()
 
 float EnemyShot::GetColRadius() const
 {
-	return col_radius;
+	return collision_radius;
 }

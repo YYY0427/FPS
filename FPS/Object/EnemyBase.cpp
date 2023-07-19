@@ -59,6 +59,16 @@ bool EnemyBase::IsPlayerFront(VECTOR targetPos) const
 	return false;
 }
 
+bool EnemyBase::IsTargetDetection(VECTOR targetPos, float targetCollisionRadius) const
+{
+	float dist = VSize(VSub(targetPos, pos_));
+	if (dist < (targetCollisionRadius + detectionRange_))
+	{
+		return true;
+	}
+	return false;
+}
+
 void EnemyBase::UpdateDead()
 {
 	frameCount_++;

@@ -16,7 +16,7 @@ namespace
 	constexpr float model_magnification = 25.0f;
 
 	// “–‚½‚è”¼Œa‚ÌƒTƒCƒY
-	constexpr float col_radius = 36.0f;
+	constexpr float collision_radius = 36.0f;
 }
 
 Shot::Shot() :
@@ -119,5 +119,5 @@ void Shot::Start(VECTOR pos, VECTOR vec, std::shared_ptr<Player> pPlayer, std::s
 
 float Shot::GetColRadius() const
 {
-	return col_radius;
+	return collision_radius;
 }

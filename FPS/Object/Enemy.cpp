@@ -23,12 +23,13 @@ namespace
 
 	// アニメーション番号
 	constexpr int walk_anim_no = 8;
-	constexpr int ondamage_anim = 4;
+	constexpr int ondamage_anim_no = 4;
 	constexpr int dead_anim_no = 3;
 	constexpr int attack_anim_no = 0;
+	constexpr int idle_anim_no = 2;
 
 	// 当たり半径のサイズ
-	constexpr float col_radius = 70.0f;
+	constexpr float collision_radius = 70.0f;
 
 	// 最大HP
 	constexpr int max_hp = 30;
@@ -47,40 +48,52 @@ namespace
 
 	// 攻撃の再使用まで待機フレーム数
 	constexpr int attack_wait_time = 20;
+
+	// 検知範囲
+	constexpr float detection_range = 2000.0f;
 }
 
-Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos)
+Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
 	pCollision_ = pCollision;
 	pEnemyShotFactory_ = pEnemyShotFactory;
 
-	updateFunc_ = &Enemy::UpdateTrackingToTower;
-	animNo_ = walk_anim_no;
+	pos_ = pos;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
 	sHp_.hp_ = max_hp;
 	damageFrame_ = 0;
 	isDead_ = false;
-	colRadius_ = col_radius;
+	colRadius_ = collision_radius;
 	sHp_.maxHp_ = max_hp;
 	viewAngle_ = view_angle;
 	dir_ = enemy_dir;
 	deadDisappearTime_ = 120;
 	sHp_.hpUIDrawY_ = 30.0f;
 	deadAnimNo_ = dead_anim_no;
+	detectionRange_ = detection_range;
+
+	if (isMove)
+	{
+		animNo_ = walk_anim_no;
+		updateFunc_ = &Enemy::UpdateToFront;
+	}
+	else
+	{
+		animNo_ = idle_anim_no;
+		updateFunc_ = &Enemy::UpdateToIdle;	
+	}
 
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(enemy_adress);
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
+	pModel_->SetPos(pos);
+	pModel_->Update();
 
 	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
-
-	pos_ = pos;
-
-	pModel_->Update();
 }
 
 Enemy::~Enemy()
@@ -105,7 +118,7 @@ void Enemy::OnDamage(int damage)
 	if (sHp_.hp_ > 0)
 	{
 		// アニメーション設定
-		animNo_ = ondamage_anim;
+		animNo_ = ondamage_anim_no;
 		pModel_->ChangeAnimation(animNo_, false, false, 4);
 
 		// update変更
@@ -242,6 +255,36 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }
 
+void Enemy::UpdateToIdle()
+{
+	// タワーを見つけたらプレイヤーを追いかける
+	if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+	{
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(animNo_, true, false, 4);
+
+		updateFunc_ = &Enemy::UpdateTrackingToTower;
+		frameCount_ = 0;
+	}
+	// プレイヤーを見つけたらプレイヤーを追いかける
+	else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+	{
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(animNo_, true, false, 4);
+
+		updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+		frameCount_ = 0;
+	}
+	
+	// フィールドとの当たり判定を行い、その結果によって移動
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), false , false, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy);
+
+	pModel_->SetPos(pos_);
+
+	// アニメーション更新処理
+	pModel_->Update();
+}
+
 void Enemy::UpdateTrackingToPlayer()
 {
 	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
@@ -273,13 +316,19 @@ void Enemy::UpdateToFront()
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)
 	{
+		// タワーを見つけたらプレイヤーを追いかける
+		if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+		{
+			updateFunc_ = &Enemy::UpdateTrackingToTower;
+			frameCount_ = 0;
+		}
 		// プレイヤーを見つけたらプレイヤーを追いかける
-		// 見つからなかったら回転する
-		if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
 		{
 			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			frameCount_ = 0;
 		}
+		// 見つからなかったら回転する
 		else
 		{
 			// 回転する角度をランダムで計算
@@ -349,7 +398,7 @@ void Enemy::UpdateTurn()
 
 void Enemy::UpdateHitDamage()
 {
-	assert(animNo_ == ondamage_anim);
+	assert(animNo_ == ondamage_anim_no);
 
 	// ダメージ処理
 	damageFrame_--;

@@ -54,10 +54,10 @@ namespace
 	constexpr int head_frame_no = 43;	// 頭のフレーム
 
 	// 当たり半径のサイズ
-	constexpr float col_radius = 70.0f;
+	constexpr float collision_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 1;
+	constexpr int max_hp = 1000;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;
@@ -70,10 +70,6 @@ namespace
 
 	// 初期位置
 	constexpr VECTOR bee_init_pos_1{ 6000.0f, 0.0f, 2200.0f };
-
-	// 速度（1=1m、60fps固定として、時速10km）
-	// 10000m ÷ 時間 ÷ 分 ÷ 秒 ÷ フレーム
-//	constexpr float player_speed = 10000.0f / 60.0f / 60.0f / 60.0f;
 }
 
 Player::Player(MainScene* pMainScene) :
@@ -136,7 +132,7 @@ void Player::Draw()
 #ifdef _DEBUG
 	DrawFormatString(20, 200, 0x000000, "playerMinY = %f", pCollision_->GetPlayerMinY());
 	DrawFormatString(20, 300, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
-	DrawSphere3D(pos_, col_radius, 16.0f, 0xff0000, 0xff0000, false);
+	DrawSphere3D(pos_, collision_radius, 16.0f, 0xff0000, 0xff0000, false);
 #endif
 }
 
@@ -149,7 +145,7 @@ void Player::SetRespawn()
 
 float Player::GetColRadius() const
 {
-	return col_radius;
+	return collision_radius;
 }
 
 void Player::OnDamage(int damage)

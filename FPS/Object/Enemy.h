@@ -4,7 +4,7 @@
 class Enemy : public EnemyBase
 {
 public:
-	Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos);
+	Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove);
 	virtual ~Enemy();
 
 	void Update();
@@ -20,6 +20,9 @@ private:
 
 	// 攻撃処理
 	void Attacking(VECTOR pos, int target, float attacDistance);
+
+	// 待機
+	void UpdateToIdle();
 
 	// プレイヤーを追跡
 	void UpdateTrackingToPlayer();

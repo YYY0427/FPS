@@ -3,7 +3,7 @@
 
 namespace
 {
-	constexpr VECTOR obstacle_pos_1{ 2510.0f, -304.0f, -754.0f };
+	constexpr VECTOR obstacle_pos_1{ 1747.0f, -213.0f, -1405.0f };
 	constexpr VECTOR obstacle_rot_1{ 0.0f, 45.0f * (DX_PI_F / 180.0f), 0.0f };
 
 	constexpr VECTOR obstacle_pos_2{ -375.0f, -331.0f, -2250.0f };

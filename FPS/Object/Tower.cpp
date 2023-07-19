@@ -4,6 +4,8 @@
 #include "../Object/EnemyManager.h"
 #include "../Object/EnemyBase.h"
 #include "../StageManager.h"
+#include "../ObstacleManager.h"
+#include "../Obstacle.h"
 
 namespace
 {
@@ -41,8 +43,9 @@ namespace
 	constexpr VECTOR stage_1_check_pos_9{ -3572.0f, -324.0f, -5984.0f };
 }
 
-Tower::Tower(StageManager* pStageManager) :
+Tower::Tower(StageManager* pStageManager, std::shared_ptr<ObstacleManager> pObstacleManager) :
 	pStageManager_(pStageManager),
+	pObstacleManager_(pObstacleManager),
 	pos_(VGet(0, 0, 0)),
 	hp_(0),
 	damageFrame_(0),
@@ -167,26 +170,27 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
+	IsEnemyEnabled();
+
 	// チェックポイントの当たり判定
 	float dist = VSize(VSub(pos_, checkPointPos));
 	if (dist < (colRadius_ + 50.0f))
 	{
-		if (!IsEnemyEnabled() && checkPoint_ < goal)
+		if (checkPoint_ < goal)
 		{
-			isMove_ = true;
 			checkPoint_++;
 		//	pEnemyManager_->Create(checkPoint_);
 		}
-		else 
+		else
 		{
 			isMove_ = false;
 		}
 	}
 }
 
-bool Tower::IsEnemyEnabled()
+void Tower::IsEnemyEnabled()
 {
-	int cnt = 0;
+	/*int cnt = 0;
 	for (auto& enemy : pEnemyManager_->GetEnemies())
 	{
 		if (!enemy->GetDead())
@@ -194,7 +198,17 @@ bool Tower::IsEnemyEnabled()
 			cnt++;
 		}
 	}
-	return (cnt > 0);
+	return (cnt > 0);*/
+	isMove_ = true;
+	for (auto& obj : pObstacleManager_->GetObstacles())
+	{
+		float dist = VSize(VSub(pos_, obj->GetPos()));
+		if (dist < (colRadius_ + obj->GetTowerToCollsionRadius()))
+		{
+			isMove_ = false;
+			break;
+		}
+	}
 }
 
 void Tower::CheckPointSet()

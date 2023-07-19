@@ -53,7 +53,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pUI_ = std::make_shared<UI>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
 	pPlayer_ = std::make_shared<Player>(this);
-	pTower_ = std::make_shared<Tower>(pStageManager);
+	pTower_ = std::make_shared<Tower>(pStageManager, pObstacleManager_);
 	pSkyDoom_ = std::make_shared<SkyDoom>(pPlayer_);
 	pCamera_ = std::make_shared<Camera>(pPlayer_, this);
 	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_, pTower_);
@@ -300,18 +300,12 @@ void MainScene::NormalUpdate(const InputState& input)
 			// 障害物とプレイヤーショットの当たり判定
 			for (auto& obj : pObstacleManager_->GetObstacles())
 			{
-				// DxLibの関数を利用して当たり判定をとる
-				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Capsule(obj->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
-
-				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				float dist = VSize(VSub(shot->GetPos(), obj->GetPos()));
+				if (dist < (shot->GetColRadius() + obj->GetNormalCollsionRadius()))
 				{
-					// 当たった
 					obj->OnDamage(1);	// 敵にダメージ
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
 				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
 			}
 		}
 

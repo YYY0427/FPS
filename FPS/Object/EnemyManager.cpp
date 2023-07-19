@@ -6,8 +6,8 @@
 namespace
 {
 	// èâä˙à íu
-	constexpr VECTOR bee_init_pos_1{ 5000.0f, 0.0f, 2200.0f };
-	constexpr VECTOR enemy_init_pos_1{ 5000.0f, 100.0f, 2200.0f };
+	constexpr VECTOR bee_init_pos_1{ 5000.0f, 100.0f, 2200.0f };
+	constexpr VECTOR enemy_init_pos_1{ 5000.0f, 0.0f, 2200.0f };
 }
 
 EnemyManager::EnemyManager()

@@ -6,12 +6,13 @@
 class Model;
 class Collision;
 class EnemyManager;
+class ObstacleManager;
 class StageManager;
 
 class Tower
 {
 public:
-	Tower(StageManager* pStageManager);
+	Tower(StageManager* pStageManager, std::shared_ptr<ObstacleManager> pObstacleManager);
 	virtual ~Tower();
 
 	void Update();
@@ -23,7 +24,7 @@ public:
 	void HeadToDestination(VECTOR checkPoint);
 
 	// 敵がフィールドに存在するか
-	bool IsEnemyEnabled();
+	void IsEnemyEnabled();
 
 	// 現在どのチェックポイントを目指すか設定
 	void CheckPointSet();
@@ -31,6 +32,7 @@ public:
 	// セッター
 	void SetCollision(std::shared_ptr<Collision> pCollision) { pCollision_ = pCollision; }
 	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
+	void SetIsMove(bool isMove) { isMove_ = isMove; }
 	
 	// ゲッター
 	int GetModelHandle() const { return pModel_->GetModelHandle(); }
@@ -64,6 +66,7 @@ private:
 	std::shared_ptr<Model> pModel_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::shared_ptr<Collision> pCollision_;
+	std::shared_ptr<ObstacleManager> pObstacleManager_;
 	StageManager* pStageManager_;
 
 	// 位置

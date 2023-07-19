@@ -297,7 +297,6 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
 	}
 	
-	
 	if (chara == enemy || chara == bee)
 	{
 		for (auto& enemy : pEnemyManager_->GetEnemies())

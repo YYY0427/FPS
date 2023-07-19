@@ -64,14 +64,6 @@ void EnemyManager::Draw()
 	}
 }
 
-void EnemyManager::DrawUI()
-{
-	for (auto& enemies : pEnemies_)
-	{
-		enemies->DrawUI();
-	}
-}
-
 void EnemyManager::DeadCheck()
 {
 	auto enemies = std::remove_if(pEnemies_.begin(), pEnemies_.end(), [](const std::shared_ptr<EnemyBase>& enemies)

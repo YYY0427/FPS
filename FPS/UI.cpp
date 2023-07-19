@@ -1,4 +1,5 @@
 #include "UI.h"
+#include "Object/Player.h"
 
 namespace
 {
@@ -17,9 +18,9 @@ UI::~UI()
 {
 }
 
-void UI::DrawHpUI(int handle, int hp, int maxHp, const char* frameName, float height)
+void UI::DrawHpUI(std::shared_ptr<Player> pPlayer, VECTOR pos, int handle, int hp, int maxHp, const char* frameName, float height)
 {
-	int mouseX, mouseY;
+	/*int mouseX, mouseY;
 	GetMousePoint(&mouseX, &mouseY);
 
 	VECTOR startPos = ConvScreenPosToWorldPos(VGet(static_cast<float>(mouseX), static_cast<float>(mouseY), 0.0f));
@@ -27,8 +28,10 @@ void UI::DrawHpUI(int handle, int hp, int maxHp, const char* frameName, float he
 
 	MV1SetupCollInfo(handle, -1, 8, 8, 8);
 
-	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(handle, -1, startPos, endPos);
-	if (hitPoly.HitFlag)
+	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(handle, -1, startPos, endPos);*/
+//	if (hitPoly.HitFlag)
+	float dist = VSize(VSub(pPlayer->GetPos(), pos));
+	if (dist < (pPlayer->GetColRadius() + 3000.0f))
 	{
 		// モデル内にあるHPバーを表示する座標のデータを取得する
 		int frameNo = MV1SearchFrame(handle, frameName);
@@ -61,9 +64,5 @@ void UI::DrawHpUI(int handle, int hp, int maxHp, const char* frameName, float he
 
 		// 枠線
 		DrawBoxAA(screenPos.x - hpBarWidth_ / 2, screenPos.y, screenPos.x + hpBarWidth_ / 2, screenPos.y + hpBarHeight_, 0xffffff, false);
-
-#ifdef _DEBUG
-		//	DrawSphere3D(pos_, col_radius, 8, GetColor(255, 0, 0), GetColor(255, 255, 255), false);
-#endif
 	}
 }

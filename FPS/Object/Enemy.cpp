@@ -33,10 +33,6 @@ namespace
 	// 最大HP
 	constexpr int max_hp = 30;
 
-	// HPバーの表示
-	constexpr int hp_bar_width = 64;
-	constexpr int hp_bar_height = 10;
-
 	// ダメージ受けた時の無敵時間
 	constexpr int invincible_time = 10;
 
@@ -64,16 +60,15 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
-	hp_ = max_hp;
+	sHp_.hp_ = max_hp;
 	damageFrame_ = 0;
 	isDead_ = false;
 	colRadius_ = col_radius;
-	hpBarHeight_ = hp_bar_height;
-	hpBarWidth_ = hp_bar_width;
-	maxHp_ = max_hp;
+	sHp_.maxHp_ = max_hp;
 	viewAngle_ = view_angle;
 	dir_ = enemy_dir;
 	deadDisappearTime_ = 120;
+	sHp_.hpUIDrawY_ = 30.0f;
 	deadAnimNo_ = dead_anim_no;
 
 	// 3Dモデルの生成
@@ -102,12 +97,12 @@ void Enemy::OnDamage(int damage)
 {
 	// ダメージ処理
 	if (damageFrame_ > 0)	return;
-	hp_ -= damage;
+	sHp_.hp_ -= damage;
 	damageFrame_ = invincible_time;
 
 	// HPがあればダメージアニメーションに移行
 	// HPがなければ死亡アニメーションに移行
-	if (hp_ > 0)
+	if (sHp_.hp_ > 0)
 	{
 		// アニメーション設定
 		animNo_ = ondamage_anim;

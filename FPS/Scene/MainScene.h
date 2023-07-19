@@ -14,10 +14,11 @@ class Collision;
 class StageManager;
 class EnemyShotFactory;
 class ObstacleManager;
+class UI;
 
 /// <summary>
 /// メインシーン
-/// </summary>
+/// <summary>
 class MainScene : public Scene
 {
 public:
@@ -61,6 +62,7 @@ private:
 	std::shared_ptr<Collision> pCollision_;
 	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
 	std::shared_ptr<ObstacleManager> pObstacleManager_;
+	std::shared_ptr<UI> pUI_;
 	StageManager* pStageManager_;	 // シーンがなくなっても消えてほしくないのでshard_ptrを使わない
 
 	// 画像ハンドル

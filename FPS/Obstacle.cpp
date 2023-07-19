@@ -1,6 +1,5 @@
 #include "Obstacle.h"
 #include "Model.h"
-#include "UI.h"
 
 namespace
 {
@@ -19,9 +18,10 @@ namespace
 Obstacle::Obstacle(VECTOR pos, VECTOR rot)  :
 	damageFrame_(0)
 {
-	pUI_ = std::make_shared<UI>();
 	pos_ = pos;
-	hp_ = max_hp;
+	sHp_.maxHp_ = max_hp;
+	sHp_.hp_ = max_hp;
+	sHp_.hpUIDrawY_ = 300.0f;
 	isEnabled_ = true;
 	pModel_ = std::make_shared<Model>(file_path);
 	pModel_->SetUseCollision(true);
@@ -40,7 +40,7 @@ void Obstacle::Update()
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	if (hp_ <= 0)
+	if (sHp_.hp_ <= 0)
 	{
 		isEnabled_ = false;
 	}
@@ -56,16 +56,11 @@ void Obstacle::Draw()
 #endif
 }
 
-void Obstacle::DrawUI()
-{
-	pUI_->DrawHpUI(pModel_->GetModelHandle(), hp_, max_hp, "Stairs", 300.0f);
-}
-
 void Obstacle::OnDamage(int damage)
 {
 	// ƒ_ƒ[ƒWˆ—
 	if (damageFrame_ > 0)	return;
-	hp_ -= damage;
+	sHp_.hp_ -= damage;
 	damageFrame_ = invincible_time;
 }
 

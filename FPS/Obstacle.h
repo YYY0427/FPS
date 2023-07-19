@@ -3,7 +3,6 @@
 #include <DxLib.h>
 
 class Model;
-class UI;
 
 class Obstacle
 {
@@ -13,18 +12,25 @@ public:
 
 	void Update();
 	void Draw();
-	void DrawUI();
 	void OnDamage(int damage);
 	VECTOR GetPos() const { return VGet(pos_.x, pos_.y + 150.0f, pos_.z); }
 	float GetNormalCollsionRadius() const;
 	float GetTowerToCollsionRadius() const;
 	bool GetIsEnabled() const { return isEnabled_; }
 	int GetModelHandle() const;
+	struct HP;
+	HP GetHP() const { return sHp_; }
 private:
+	struct HP
+	{
+		int hp_;
+		int maxHp_;
+		// HPを表示する際指定位置からどれだけY軸をプラスするか
+		float hpUIDrawY_;
+	};
+	HP sHp_;
 	VECTOR pos_;
 	std::shared_ptr<Model> pModel_;
-	std::shared_ptr<UI> pUI_;
-	int hp_;
 	int damageFrame_;
 	bool isEnabled_;
 };

@@ -7,7 +7,6 @@ class Model;
 class Tower;
 class Collision;
 class EnemyShotFactory;
-class UI;
 
 class EnemyBase
 {
@@ -55,6 +54,9 @@ public:
 		tower
 	};
 
+	struct HP;
+	HP GetHP() const { return sHp_; }
+
 protected:
 	// ターゲットが正面にいるかどうか
 	bool IsPlayerFront(VECTOR targetPos) const;
@@ -81,7 +83,20 @@ protected:
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
 	std::shared_ptr<Collision> pCollision_;
-	std::shared_ptr<UI> pUI_;
+
+	struct HP
+	{
+		// HP
+		int hp_ = 0;
+
+		// 最大HP
+		int maxHp_ = 0;
+
+		// HPを表示する際指定位置からどれだけY軸をプラスするか
+		float hpUIDrawY_ = 0.0f;
+	};
+
+	HP sHp_;
 
 	// 現在再生しているアニメーション番号
 	int animNo_ = 0;
@@ -103,18 +118,6 @@ protected:
 
 	// 回転速度
 	float rotSpeed_ = 0.0f;
-
-	// HP
-	int hp_ = 0;
-
-	// 最大HP
-	int maxHp_ = 0;
-
-	// HPバーの横幅
-	int hpBarWidth_ = 0;
-
-	// HPバーの縦幅
-	int hpBarHeight_ = 0;
 
 	// 無敵時間
 	int damageFrame_ = 0;

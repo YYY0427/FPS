@@ -18,6 +18,7 @@
 #include "../EnemyShot.h"
 #include "../ObstacleManager.h"
 #include "../Obstacle.h"
+#include "../UI.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -56,6 +57,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_, pTower_);
 	pEnemyManager_ = std::make_shared<EnemyManager>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
 	pObstacleManager_ = std::make_shared<ObstacleManager>(pTower_);
+	pUI_ = std::make_shared<UI>();
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	pShot_.push_back(std::make_shared<Shot>());
@@ -136,9 +138,17 @@ void MainScene::Draw()
 	// 描画終了
 	SetUseShadowMap(0, -1);
 
-	// 敵のHPの表示
-	pEnemyManager_->DrawUI();
-	pObstacleManager_->DrawUI();
+	// HPの表示
+	{
+		for (auto& obj : pObstacleManager_->GetObstacles())
+		{
+			pUI_->DrawHpUI(pPlayer_, obj->GetPos(), obj->GetModelHandle(), obj->GetHP().hp_, obj->GetHP().maxHp_, "Stairs", obj->GetHP().hpUIDrawY_);
+		}
+		for (auto& enemies : pEnemyManager_->GetEnemies())
+		{
+			pUI_->DrawHpUI(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
+		}
+	}
 
 	// ゲームオーバー時に表示開始
 	if (isGameOver_)
@@ -304,6 +314,8 @@ void MainScene::NormalUpdate(const InputState& input)
 				MV1CollResultPolyDimTerminate(result);
 			}
 		}
+
+
 
 		for (auto& bullets : pEnemyShotFactory_->GetBullets())
 		{

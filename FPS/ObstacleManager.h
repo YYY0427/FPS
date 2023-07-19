@@ -14,7 +14,6 @@ public:
 
 	void Update();
 	void Draw();
-	void DrawUI();
 
 	std::vector<std::shared_ptr<Obstacle>> GetObstacles() const { return pObstacles_; }
 private:

@@ -1,12 +1,10 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
-#include "../UI.h"
 #include <cassert>
 
 EnemyBase::EnemyBase()
 {
-	pUI_ = std::make_shared<UI>();
 }
 
 EnemyBase::~EnemyBase()
@@ -24,11 +22,6 @@ void EnemyBase::Draw()
 
 	// ƒ‚ƒfƒ‹‚Ì•`‰æ
 	pModel_->Draw();
-}
-
-void EnemyBase::DrawUI()
-{
-	pUI_->DrawHpUI(pModel_->GetModelHandle(), hp_, maxHp_, "Head3_end", 30.0f);
 }
 
 int EnemyBase::GetModelHandle() const

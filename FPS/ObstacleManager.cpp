@@ -47,11 +47,3 @@ void ObstacleManager::Draw()
 		obj->Draw();
 	}
 }
-
-void ObstacleManager::DrawUI()
-{
-	for (auto& obj : pObstacles_)
-	{
-		obj->DrawUI();
-	}
-}

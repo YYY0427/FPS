@@ -49,15 +49,15 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gameOverUIFadeTimer_(0),
 	gameClearUIhandle_(-1)
 {
+	pObstacleManager_ = std::make_shared<ObstacleManager>();
+	pUI_ = std::make_shared<UI>();
+	pEnemyManager_ = std::make_shared<EnemyManager>();
 	pPlayer_ = std::make_shared<Player>(this);
 	pTower_ = std::make_shared<Tower>(pStageManager);
-	pCamera_ = std::make_shared<Camera>(pPlayer_, this);
 	pSkyDoom_ = std::make_shared<SkyDoom>(pPlayer_);
-	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_);
+	pCamera_ = std::make_shared<Camera>(pPlayer_, this);
 	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_, pTower_);
-	pEnemyManager_ = std::make_shared<EnemyManager>(pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
-	pObstacleManager_ = std::make_shared<ObstacleManager>(pTower_);
-	pUI_ = std::make_shared<UI>();
+	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_, pEnemyManager_, pObstacleManager_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	pShot_.push_back(std::make_shared<Shot>());
@@ -73,10 +73,9 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pPlayer_->SetTower(pTower_);
 	pTower_->SetEnemyManager(pEnemyManager_);
 	pTower_->SetCollision(pCollision_);
-	pCollision_->SetEnemyManager(pEnemyManager_);
 
 	pStageManager_->Init();
-	pEnemyManager_->Create(pTower_->GetCheckPoint());
+	pEnemyManager_->Create(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
 
 	// 画像のロード
 	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");
@@ -288,16 +287,17 @@ void MainScene::NormalUpdate(const InputState& input)
 				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
 				result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
 
-				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 				{
 					// 当たった
-					enemies->OnDamage(10);	// 敵にダメージ
+					enemies->OnDamage(10);		// 敵にダメージ
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
 				}
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
 			}
 
+			// 障害物とプレイヤーショットの当たり判定
 			for (auto& obj : pObstacleManager_->GetObstacles())
 			{
 				// DxLibの関数を利用して当たり判定をとる
@@ -315,71 +315,72 @@ void MainScene::NormalUpdate(const InputState& input)
 			}
 		}
 
-
-
 		for (auto& bullets : pEnemyShotFactory_->GetBullets())
 		{
 			// 敵の弾とプレイヤーの当たり判定
-			MV1_COLL_RESULT_POLY_DIM result2;
-			result2 = MV1CollCheck_Capsule(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
-
-			if (result2.HitNum > 0)
 			{
-				// 当たった
-				pPlayer_->OnDamage(1);
-				bullets->SetIsEnabled(false);
+				MV1_COLL_RESULT_POLY_DIM result;
+				result = MV1CollCheck_Capsule(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+
+				if (result.HitNum > 0)
+				{
+					// 当たった
+					pPlayer_->OnDamage(1);
+					bullets->SetIsEnabled(false);
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
 			}
-			// 当たり判定情報の後始末
-			MV1CollResultPolyDimTerminate(result2);
-
-
+			
 			// 敵の弾とタワーの当たり判定
-			MV1_COLL_RESULT_POLY_DIM result;
-			result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
-
-			if (result.HitNum > 0)
-			{
-				// 当たった
-				pTower_->OnDamage(1);			
-				bullets->SetIsEnabled(false);	
-			}
-			// 当たり判定情報の後始末
-			MV1CollResultPolyDimTerminate(result);
-		}
-
-		// 敵とプレイヤーの当たり判定
-		for (auto& enemies : pEnemyManager_->GetEnemies())
-		{
-			float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
-			if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
-			{
-				pPlayer_->OnDamage(1);
+			{	
+				MV1_COLL_RESULT_POLY_DIM result;
+				result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+				if (result.HitNum > 0)
+				{
+					// 当たった
+					pTower_->OnDamage(1);
+					bullets->SetIsEnabled(false);
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
 			}
 		}
 
-		// 敵とタワーの当たり判定
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
-			// 敵の種別によって当たり判定を行わない
-			if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
-
-			// 死んでいたら当たり判定を行わない
-			if (enemies->GetDead()) continue;
-
-			// 攻撃をしていなかったら当たり判定を行わない
-			if (!enemies->GetIsAttak()) continue;
-
-			// DxLibの関数を利用して当たり判定をとる
-			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-			result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetColRadius() + 30.0f);
-
-			if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			// 敵とプレイヤーの当たり判定
 			{
-				// 当たった
-				pTower_->OnDamage(1);	// タワーにダメージ
+				float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
+				if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
+				{
+					pPlayer_->OnDamage(1);
+				}
 			}
-			// 当たり判定情報の後始末
-			MV1CollResultPolyDimTerminate(result);
+
+			// 敵とタワーの当たり判定
+			{
+				// 敵の種別によって当たり判定を行わない
+				if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
+
+				// 死んでいたら当たり判定を行わない
+				if (enemies->GetDead()) continue;
+
+				// 攻撃をしていなかったら当たり判定を行わない
+				if (!enemies->GetIsAttak()) continue;
+
+				// DxLibの関数を利用して当たり判定をとる
+				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetColRadius() + 30.0f);
+
+				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				{
+					// 当たった
+					pTower_->OnDamage(1);	// タワーにダメージ
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
+			}
 		}
 	}
 

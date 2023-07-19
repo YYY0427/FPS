@@ -11,13 +11,12 @@ class Collision;
 class EnemyManager
 {
 public:
-	EnemyManager(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
+	EnemyManager();
 	virtual ~EnemyManager();
 
-	void Create(int checkPoint);
+	void Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
 	void Update();
 	void Draw();
-	void DrawUI();
 
 	void DeadCheck();
 
@@ -25,8 +24,4 @@ public:
 
 private:
 	std::vector<std::shared_ptr<EnemyBase>> pEnemies_;
-	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<Tower> pTower_;
-	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
-	std::shared_ptr<Collision> pCollision_;
 };

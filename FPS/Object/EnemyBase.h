@@ -17,9 +17,6 @@ public:
 	virtual void Update() = 0;
 	void Draw();
 
-	// 2DのUIの表示
-	void DrawUI();
-
 	// ダメージを受けた
 	virtual void OnDamage(int damage) = 0;
 
@@ -54,9 +51,6 @@ public:
 		tower
 	};
 
-	struct HP;
-	HP GetHP() const { return sHp_; }
-
 protected:
 	// ターゲットが正面にいるかどうか
 	bool IsPlayerFront(VECTOR targetPos) const;
@@ -77,13 +71,6 @@ protected:
 	virtual void UpdateDead();
 
 protected:
-	// ポインタ
-	std::shared_ptr<Player> pPlayer_;
-	std::shared_ptr<Model> pModel_;
-	std::shared_ptr<Tower> pTower_;
-	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
-	std::shared_ptr<Collision> pCollision_;
-
 	struct HP
 	{
 		// HP
@@ -95,6 +82,17 @@ protected:
 		// HPを表示する際指定位置からどれだけY軸をプラスするか
 		float hpUIDrawY_ = 0.0f;
 	};
+
+public:
+	HP GetHP() const { return sHp_; }
+
+protected:
+	// ポインタ
+	std::shared_ptr<Player> pPlayer_;
+	std::shared_ptr<Model> pModel_;
+	std::shared_ptr<Tower> pTower_;
+	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
+	std::shared_ptr<Collision> pCollision_;
 
 	HP sHp_;
 

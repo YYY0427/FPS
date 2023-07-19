@@ -4,15 +4,19 @@
 #include "Object/Tower.h"
 #include "Object/EnemyManager.h"
 #include "Object/EnemyBase.h"
+#include "Obstacle.h"
+#include "ObstacleManager.h"
 
-Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower) :
+Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager) :
 	moveAfterPos_(VGet(0, 0, 0)),
 	oldPos_(VGet(0, 0, 0)),
 	yukaNum_(0),
 	kabeNum_(0),
 	isHitFlag_(false),
 	pStages_(pStages),
-	pTower_(pTower)
+	pTower_(pTower),
+	pEnemyManager_(pEnemyManager),
+	pObstacleManager_(pObstacleManager)
 {
 }
 
@@ -293,20 +297,27 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
 	}
 	
-	// フィールドとの当たり判定チェック
-	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec);
-
-	// 敵同士の当たり判定チェック
+	
 	if (chara == enemy || chara == bee)
 	{
 		for (auto& enemy : pEnemyManager_->GetEnemies())
 		{
 			if (modelHandle == enemy->GetModelHandle())	continue;
 
+			// 敵同士の当たり判定チェック
 			CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec);
 		}
 	}
 
+	for (auto& obj : pObstacleManager_->GetObstacles())
+	{
+		// 障害物との当たり判定チェック
+		CollCheck(modelHandle, obj->GetModelHandle(), pos, vec);
+	}
+
+	// フィールドとの当たり判定チェック
+	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec);
+	
 	// 壁ポリゴン処理
 	WallPolyColCheckProcess(isMove, vec);
 	

@@ -18,8 +18,7 @@ public:
 	float GetTowerToCollsionRadius() const;
 	bool GetIsEnabled() const { return isEnabled_; }
 	int GetModelHandle() const;
-	struct HP;
-	HP GetHP() const { return sHp_; }
+
 private:
 	struct HP
 	{
@@ -28,6 +27,11 @@ private:
 		// HPを表示する際指定位置からどれだけY軸をプラスするか
 		float hpUIDrawY_;
 	};
+
+public:
+	HP GetHP() const { return sHp_; }
+
+private:
 	HP sHp_;
 	VECTOR pos_;
 	std::shared_ptr<Model> pModel_;

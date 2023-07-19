@@ -1,6 +1,5 @@
 #include "ObstacleManager.h"
 #include "Obstacle.h"
-#include "Object/Tower.h"
 
 namespace
 {
@@ -14,8 +13,7 @@ namespace
 	constexpr VECTOR obstacle_rot_3{ 0.0f, -40.0f * (DX_PI_F / 180.0f), 0.0f };
 }
 
-ObstacleManager::ObstacleManager(std::shared_ptr<Tower> pTower) :
-	pTower_(pTower)
+ObstacleManager::ObstacleManager()
 {
 	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_1, obstacle_rot_1));
 	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_2, obstacle_rot_2));

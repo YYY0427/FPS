@@ -4,13 +4,13 @@
 
 class StageManager;
 class EnemyManager; 
-class Player;
 class Tower;
+class ObstacleManager;
 
 class Collision
 {
 public:
-	Collision(StageManager* pStages, std::shared_ptr<Tower> pTower);
+	Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager);
 	virtual ~Collision();
 
 	// 初期化
@@ -34,10 +34,6 @@ public:
 	// ゲッター
 	float GetPlayerMinY() const { return playerMinY_; }
 
-	// セッター
-	void SetEnemyManager(std::shared_ptr<EnemyManager> pEnemyManager) { pEnemyManager_ = pEnemyManager; }
-	void SetPlayer(std::shared_ptr<Player> pPlayer) { pPlayer_ = pPlayer; }
-
 public:
 	enum Chara
 	{
@@ -50,8 +46,8 @@ public:
 private:
 	StageManager* pStages_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
-	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<Tower> pTower_;
+	std::shared_ptr<ObstacleManager> pObstacleManager_;
 
 	MV1_COLL_RESULT_POLY* poly_{};
 	HITRESULT_LINE lineRes_{};

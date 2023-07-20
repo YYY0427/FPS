@@ -6,8 +6,9 @@
 #include "Object/EnemyBase.h"
 #include "Obstacle.h"
 #include "ObstacleManager.h"
+#include "Object/Player.h"
 
-Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager) :
+Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager, std::shared_ptr<Player> pPlayer) :
 	moveAfterPos_(VGet(0, 0, 0)),
 	oldPos_(VGet(0, 0, 0)),
 	yukaNum_(0),
@@ -16,7 +17,8 @@ Collision::Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::
 	pStages_(pStages),
 	pTower_(pTower),
 	pEnemyManager_(pEnemyManager),
-	pObstacleManager_(pObstacleManager)
+	pObstacleManager_(pObstacleManager),
+	pPlayer_(pPlayer)
 {
 }
 
@@ -245,41 +247,45 @@ void Collision::FloorPolyColCheckProcess(bool isJump, bool isUseGravity, int cha
 
 			// ÚG‚µ‚½‚xÀ•W‚ð•Û‘¶‚·‚é
 			minY = lineRes_.Position.y;
-
-			if (chara == player)
-			{
-				playerMinY_ = minY;
-			}
 		}
 
 		// °ƒ|ƒŠƒSƒ“‚É“–‚½‚Á‚½‚©‚Ç‚¤‚©‚Åˆ—‚ð•ªŠò
 		if (isHitFlag_)
 		{
 			//// “–‚½‚Á‚½ê‡ ////
+			
+			// ÚG‚µ‚½ƒ|ƒŠƒSƒ“‚Åˆê”Ô‚‚¢‚xÀ•W‚ðƒvƒŒƒCƒ„[‚Ì‚xÀ•W‚É‚·‚é
+			moveAfterPos_.y = minY;	
 
-			if (!isJump)
-			{
-				// ÚG‚µ‚½ƒ|ƒŠƒSƒ“‚Åˆê”Ô‚‚¢‚xÀ•W‚ðƒvƒŒƒCƒ„[‚Ì‚xÀ•W‚É‚·‚é
-				moveAfterPos_.y = minY;
-			}
+			// ÚG‚µ‚½°ƒ|ƒŠƒSƒ“‚ð•Û‘¶
+			groundY_ = minY;
 		}
 		else
 		{
 			//// “–‚½‚Á‚Ä‚¢‚È‚¢ê‡ ////
 
-			if (isUseGravity && !isJump)
+			if (isUseGravity)
 			{
+				// °ƒ|ƒŠƒSƒ“‚Æ“–‚½‚Á‚Ä‚¢‚È‚¢ê‡—Ž‰º
 				moveAfterPos_.y -= 20;
 			}
+
+			// ’n–Ê‚ª‘¶Ý‚µ‚È‚¢‚Ì‚Å‚ ‚è‚¦‚È‚¢’l‚ð‘ã“ü
+			groundY_ = -10000.0f;
 		}
 	}
 	else
 	{
+		//// “–‚½‚Á‚Ä‚¢‚È‚¢ê‡ ////
+
 		if (isUseGravity)
 		{
-			// 1–‡‚àƒtƒB[ƒ‹ƒhƒ|ƒŠƒSƒ“‚Æ“–‚½‚Á‚Ä‚¢‚È‚¢ê‡—Ž‰º
+			// °ƒ|ƒŠƒSƒ“‚Æ“–‚½‚Á‚Ä‚¢‚È‚¢ê‡—Ž‰º
 			moveAfterPos_.y -= 20;
 		}
+
+		// ’n–Ê‚ª‘¶Ý‚µ‚È‚¢‚Ì‚Å‚ ‚è‚¦‚È‚¢’l‚ð‘ã“ü
+		groundY_ = -10000.0f;
 	}
 }
 
@@ -292,13 +298,13 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, bool isUse
 	// ‰Šú‰»
 	Init();
 
-	if (chara != tower)
+//	if (chara != tower)
 	{
 		// ƒ^ƒ[‚Æ‚Ì“–‚½‚è”»’èƒ`ƒFƒbƒN
 		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec, collisionRadius);
 	}
 	
-	if (chara == enemy || chara == bee)
+//	if (chara == enemy || chara == bee)
 	{
 		for (auto& enemy : pEnemyManager_->GetEnemies())
 		{

@@ -6,11 +6,12 @@ class StageManager;
 class EnemyManager; 
 class Tower;
 class ObstacleManager;
+class Player;
 
 class Collision
 {
 public:
-	Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager);
+	Collision(StageManager* pStages, std::shared_ptr<Tower> pTower, std::shared_ptr<EnemyManager> pEnemyManager, std::shared_ptr<ObstacleManager> pObstacleManager, std::shared_ptr<Player> pPlayer);
 	virtual ~Collision();
 
 	// 初期化
@@ -31,8 +32,7 @@ public:
 	// 当たり判定処理
 	VECTOR Colision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius);
 
-	// ゲッター
-	float GetPlayerMinY() const { return playerMinY_; }
+	float GetGroundY() const { return groundY_; }
 
 public:
 	enum Chara
@@ -48,6 +48,7 @@ private:
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<ObstacleManager> pObstacleManager_;
+	std::shared_ptr<Player> pPlayer_;
 
 	MV1_COLL_RESULT_POLY* poly_{};
 	HITRESULT_LINE lineRes_{};
@@ -73,6 +74,5 @@ private:
 	int yukaNum_;
 	int kabeNum_;
 
-	// 床ポリゴンの高さ
-	float playerMinY_;
+	float groundY_;
 };

@@ -110,10 +110,10 @@ void Tower::Update()
 
 void Tower::Draw()
 {
-	pModel_->SetPos(VGet(pos_.x, pos_.y + ground_far, pos_.z));
-	pModel_->Update();
-	pModel_->Draw();
-	pModel_->SetPos(VGet(pos_.x, pos_.y - ground_far, pos_.z));
+	// 浮いているように見せるために実座標とは違う座標で表示する
+	pModel_->SetPos(VGet(pos_.x, pos_.y + ground_far, pos_.z));		// 実座標を書き換える
+	pModel_->Draw();												// 表示	
+	pModel_->SetPos(VGet(pos_.x, pos_.y - ground_far, pos_.z));		// 実座標に戻す
 
 	// 最大HPに対する現在のHPの割合を計算する
 	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
@@ -177,7 +177,7 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
-	IsEnemyEnabled();
+	IsObstacleFront();
 
 	// チェックポイントの当たり判定
 	float dist = VSize(VSub(pos_, checkPointPos));
@@ -195,7 +195,7 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	}
 }
 
-void Tower::IsEnemyEnabled()
+void Tower::IsObstacleFront()
 {
 	/*int cnt = 0;
 	for (auto& enemy : pEnemyManager_->GetEnemies())

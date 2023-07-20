@@ -57,7 +57,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pSkyDoom_ = std::make_shared<SkyDoom>(pPlayer_);
 	pCamera_ = std::make_shared<Camera>(pPlayer_, this);
 	pEnemyShotFactory_ = std::make_shared<EnemyShotFactory>(pPlayer_, pTower_);
-	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_, pEnemyManager_, pObstacleManager_);
+	pCollision_ = std::make_shared<Collision>(pStageManager_, pTower_, pEnemyManager_, pObstacleManager_, pPlayer_);
 
 	// 1回だけモデルをロードしてそれを使ってモデルの複製
 	pShot_.push_back(std::make_shared<Shot>());

@@ -55,6 +55,8 @@ public:
 	// FPSとTPS切り替え用のフレームの表示非表示
 	void SetVisible(bool visible);
 
+	void SetJump(bool jump) { isJump_ = jump; }
+
 private:
 	// 待機
 	void UpdateIdle(const InputState& input);

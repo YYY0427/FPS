@@ -130,8 +130,8 @@ void Player::Draw()
 	}
 
 #ifdef _DEBUG
-	DrawFormatString(20, 200, 0x000000, "playerMinY = %f", pCollision_->GetPlayerMinY());
 	DrawFormatString(20, 300, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
+	DrawFormatString(20, 250, 0x000000, "playerGroundY = %f", pCollision_->GetGroundY());
 	DrawSphere3D(pos_, collision_radius, 16.0f, 0xff0000, 0xff0000, false);
 #endif
 }
@@ -207,26 +207,9 @@ void Player::UpdateIdle(const InputState& input)
 		updateFunc_ = &Player::UpdateDead;
 	}
 
-	// 地面から落ちた場合ダメージをくらい、リスポーン地点に戻る
-	if (pos_.y < pCollision_->GetPlayerMinY() - 2000.0f)
-	{
-		isFall_ = true;
-		pMainScene_->PlayerFallFade();
-	}
-
 	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
-
-	// ジャンプ処理
-	jumpAcc_ += gravity;
-	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetPlayerMinY())
-	{
-	//	pos_.y = pMainScene_->GetMaxY();
-		jumpAcc_ = 0.0f;
-		isJump_ = false;
-	}
 
 	// ジャンプ処理
 	if (!isJump_)
@@ -339,7 +322,22 @@ void Player::UpdateIdle(const InputState& input)
 
 	// 当たり判定チェック
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
-//	pos_ = pCollision_->ColisionToTower(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
+
+	// ジャンプ処理
+	jumpAcc_ += gravity;
+	pos_.y += jumpAcc_;
+	if (pos_.y < pCollision_->GetGroundY())
+	{
+		jumpAcc_ = 0.0f;
+		isJump_ = false;
+	}
+
+	// 地面から落ちた場合ダメージをくらい、リスポーン地点に戻る
+	if (pos_.y <  - 3000.0f)
+	{
+		isFall_ = true;
+		pMainScene_->PlayerFallFade();
+	}
 
 	// ショットアニメが終わり次第待機アニメに変更
 	if (pModel_->IsAnimEnd() && animNo_ == idle_shot_anim_no)
@@ -370,9 +368,8 @@ void Player::UpdateIdleShot(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetPlayerMinY())
+	if (pos_.y <= pCollision_->GetGroundY())
 	{
-	//	pos_.y = pMainScene_->GetMaxY();
 		jumpAcc_ = 0.0f;
 		isJump_ = false;
 	}
@@ -407,17 +404,14 @@ void Player::UpdateDead(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	if (pos_.y <= pCollision_->GetPlayerMinY())
-	{
-		pos_.y = pCollision_->GetPlayerMinY();
-		jumpAcc_ = 0.0f;
-		isJump_ = false;
-	}
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
 }
 
 void Player::UpdateOnDamage(const InputState& input)
 {
 	assert(animNo_ == damage_anim_no);
+
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 
 	pModel_->SetPos(pos_);
 

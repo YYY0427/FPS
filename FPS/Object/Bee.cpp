@@ -77,6 +77,12 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	deadAnimNo_ = dead_anim_no;
 	detectionRange_ = detection_range;
 
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pPlayer_->GetPos(), pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
 	if (isMove)
 	{
 		updateFunc_ = &Bee::UpdateToFront;
@@ -91,9 +97,8 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 	pModel_->SetPos(pos);
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 	pModel_->Update();
-
-	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }
 
 Bee::~Bee()
@@ -356,7 +361,7 @@ void Bee::UpdateToFront()
 	pModel_->Update();
 
 	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+	pModel_->SetRot(VGet(0.0f, angle_ , 0.0f));
 }
 
 void Bee::UpdateTurn()

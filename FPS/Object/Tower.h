@@ -18,13 +18,14 @@ public:
 	void Update();
 	void Draw();
 
+	// ダメージを受けた時の処理
 	void OnDamage(int damage);
 
 	// 目的地に向かう処理
 	void HeadToDestination(VECTOR checkPoint);
 
-	// 敵がフィールドに存在するか
-	void IsEnemyEnabled();
+	// 正面に障害物があるか確認しある場合動きを止める
+	void IsObstacleFront();
 
 	// 現在どのチェックポイントを目指すか設定
 	void CheckPointSet();

@@ -1,10 +1,12 @@
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
+#include "../Collision.h"
 #include <cassert>
 
 EnemyBase::EnemyBase()
 {
+
 }
 
 EnemyBase::~EnemyBase()
@@ -73,7 +75,11 @@ void EnemyBase::UpdateDead()
 {
 	frameCount_++;
 	assert(animNo_ == deadAnimNo_);
+
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), false, false, true, pos_, VGet(0, 0, 0), bee, colRadius_);
+	pModel_->SetPos(pos_);
 	pModel_->Update();
+
 
 	if (pModel_->IsAnimEnd() && frameCount_ > deadDisappearTime_)
 	{

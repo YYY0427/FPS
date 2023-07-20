@@ -75,6 +75,12 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	deadAnimNo_ = dead_anim_no;
 	detectionRange_ = detection_range;
 
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pPlayer_->GetPos(), pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
 	if (isMove)
 	{
 		animNo_ = walk_anim_no;
@@ -91,9 +97,8 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	pModel_->SetAnimation(animNo_, true, true);
 	pModel_->SetUseCollision(true, true);
 	pModel_->SetPos(pos);
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 	pModel_->Update();
-
-	angle_ = static_cast<float>(GetRand(360) * DX_PI_F / 180.0f);
 }
 
 Enemy::~Enemy()
@@ -191,11 +196,11 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
 void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
@@ -345,11 +350,11 @@ void Enemy::UpdateToFront()
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
 void Enemy::UpdateAttackToPlayer()
@@ -393,7 +398,7 @@ void Enemy::UpdateTurn()
 	pModel_->Update();
 
 	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+	pModel_->SetRot(VGet(0.0f, angle_ , 0.0f));
 }
 
 void Enemy::UpdateHitDamage()

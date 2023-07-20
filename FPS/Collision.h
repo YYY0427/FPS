@@ -18,7 +18,7 @@ public:
 	void Init();
 
 	// ポリゴンと当たっているかチェックして壁ポリゴンか床ポリゴンか判定
-	void CollCheck(int modelHandle, int objectModelHandle, VECTOR pos, VECTOR vec, float collisionRadius);
+	void CollCheck(int modelHandle, int objectModelHandle, VECTOR pos, VECTOR vec, float collisionRadius, int chara);
 
 	// 壁ポリゴン当たり判定処理
 	void WallPolyColCheckProcess(bool isMove, VECTOR vec);

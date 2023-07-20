@@ -15,8 +15,8 @@ namespace
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
 	// 敵キャラクターの移動速度
-	constexpr float to_front_speed = 4.0f;
-	constexpr float to_player_speed = 4.0f;
+	constexpr float to_front_speed = 8.0f;
+	constexpr float to_player_speed = 8.0f;
 
 	// 敵キャラクターの視野角
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
@@ -50,7 +50,7 @@ namespace
 	constexpr int attack_wait_time = 20;
 
 	// 検知範囲
-	constexpr float detection_range = 2000.0f;
+	constexpr float detection_range = 1500.0f;
 }
 
 Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove)
@@ -95,7 +95,7 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(enemy_adress);
 	pModel_->SetAnimation(animNo_, true, true);
-	pModel_->SetUseCollision(true, true);
+	pModel_->SetUseCollision(true);
 	pModel_->SetPos(pos);
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 	pModel_->Update();
@@ -156,9 +156,7 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	// 移動速度の反映
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
-	// 当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, true, VGet(pos_.x, pos_.y, pos_.z), vec, Collision::Chara::enemy, collision_radius);
-
+	
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
 
@@ -193,8 +191,13 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 		frameCount_ = 0;
 	}
 
+	// 当たり判定を行い、その結果によって移動
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
+
+	MV1RefreshCollInfo(pModel_->GetModelHandle(), -1);
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
@@ -253,11 +256,11 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
 void Enemy::UpdateToIdle()

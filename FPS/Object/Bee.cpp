@@ -51,7 +51,7 @@ namespace
 	constexpr int attack_wait_time = 20;
 
 	// ŒŸ’m”ÍˆÍ
-	constexpr float detection_range = 2000.0f;
+	constexpr float detection_range = 1000.0f;
 }
 
 Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove)

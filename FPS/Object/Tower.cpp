@@ -197,15 +197,6 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 
 void Tower::IsObstacleFront()
 {
-	/*int cnt = 0;
-	for (auto& enemy : pEnemyManager_->GetEnemies())
-	{
-		if (!enemy->GetDead())
-		{
-			cnt++;
-		}
-	}
-	return (cnt > 0);*/
 	isMove_ = true;
 	for (auto& obj : pObstacleManager_->GetObstacles())
 	{

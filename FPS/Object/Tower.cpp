@@ -27,11 +27,14 @@ namespace
 	// 移動速度
 	constexpr float to_goal_speed = 5.0f;
 
-	// タワーの拡大率
-	constexpr float tower_scale = 0.4f;
+	 // モデルの拡大率
+	constexpr float model_scale = 0.4f;
 	 
+	// モデルを地面からどれだけ浮かすか
+	constexpr float ground_far = 150.0f;
+
 	// ステージ１
-	constexpr VECTOR stage_1_start_pos{ 6959.0f, 100.0f, 2370.0f };
+	constexpr VECTOR stage_1_start_pos{ 6959.0f, -100.0f, 2370.0f };
 	constexpr VECTOR stage_1_check_pos_1{ 4690.0f, -331.0f, 2146.0f };
 	constexpr VECTOR stage_1_check_pos_2{ 4614.0f, -291.0f, 351.0f };
 	constexpr VECTOR stage_1_check_pos_3{ 1985.0f, -228.0f, -1185.0f };
@@ -74,12 +77,13 @@ Tower::Tower(StageManager* pStageManager, std::shared_ptr<ObstacleManager> pObst
 		checkPointPos9_ = stage_1_check_pos_9;
 	}
 	hp_ = max_hp;
-	colRadius_ = 100.0f;
+	colRadius_ = 50.0f;
 	checkPoint_ = check_point1;
 	pModel_ = std::make_shared<Model>(adress);
 	pModel_->SetUseCollision(true);
-	pModel_->SetScale(VGet(tower_scale, tower_scale, tower_scale));
+	pModel_->SetScale(VGet(model_scale, model_scale, model_scale));
 	pModel_->SetPos(pos_);
+	pModel_->Update();
 }
 
 Tower::~Tower()
@@ -93,7 +97,7 @@ void Tower::Update()
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	CheckPointSet();
-	HeadToDestination(checkPointPos_);
+	HeadToDestination(VGet(checkPointPos_.x, pos_.y, checkPointPos_.z));
 
 	if (checkPoint_ == goal)
 	{
@@ -106,7 +110,10 @@ void Tower::Update()
 
 void Tower::Draw()
 {
+	pModel_->SetPos(VGet(pos_.x, pos_.y + ground_far, pos_.z));
+	pModel_->Update();
 	pModel_->Draw();
+	pModel_->SetPos(VGet(pos_.x, pos_.y - ground_far, pos_.z));
 
 	// 最大HPに対する現在のHPの割合を計算する
 	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
@@ -162,7 +169,7 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	}
 
 	// 当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMove_, false, pos_, vec_, Collision::Chara::tower);
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMove_, false, true, pos_, vec_, Collision::Chara::tower, colRadius_);
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);

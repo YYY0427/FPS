@@ -33,7 +33,7 @@ void Collision::Init()
 	isHitFlag_ = false;
 }
 
-void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTOR pos, VECTOR vec)
+void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTOR pos, VECTOR vec, float collisionRadius)
 {
 	// モデルの最大頂点座標と最小頂点座標の取得
 	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
@@ -46,7 +46,7 @@ void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTO
 
 	// モデルとフィールドの当たり判定(何枚のポリゴンと当たっているか)
 //	hitDim_ = MV1CollCheck_Sphere(objectModelHandle, -1, oldPos_, (refPoly_.MaxPosition.y + 50.0f) + VSize(vec));
-	hitDim_ = MV1CollCheck_Capsule(objectModelHandle, -1, oldPos_, VGet(oldPos_.x, oldPos_.y + refPoly_.MaxPosition.y, oldPos_.z), 50.0f);
+	hitDim_ = MV1CollCheck_Capsule(objectModelHandle, -1, oldPos_, VGet(oldPos_.x, oldPos_.y + refPoly_.MaxPosition.y, oldPos_.z), collisionRadius);
 
 	// 検出されたポリゴンの数だけ繰り返し
 	for (int i = 0; i < hitDim_.HitNum; i++)
@@ -205,7 +205,7 @@ void Collision::WallPolyColCheckProcess(bool isMove, VECTOR vec)
 	}
 }
 
-void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
+void Collision::FloorPolyColCheckProcess(bool isJump, bool isUseGravity, int chara)
 {
 	// 床ポリゴンとの当たり判定
 	if (yukaNum_ != 0)
@@ -266,7 +266,8 @@ void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 		else
 		{
 			//// 当たっていない場合 ////
-			if (!isJump && chara != bee)
+
+			if (isUseGravity && !isJump)
 			{
 				moveAfterPos_.y -= 20;
 			}
@@ -274,7 +275,7 @@ void Collision::FloorPolyColCheckProcess(bool isJump, int chara)
 	}
 	else
 	{
-		if (chara != bee)
+		if (isUseGravity)
 		{
 			// 1枚もフィールドポリゴンと当たっていない場合落下
 			moveAfterPos_.y -= 20;
@@ -286,7 +287,7 @@ void Collision::JumpingFloorPolyColCheckProcess()
 {
 }
 
-VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara)
+VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
 {
 	// 初期化
 	Init();
@@ -294,34 +295,37 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos
 	if (chara != tower)
 	{
 		// タワーとの当たり判定チェック
-		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec);
+		CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec, collisionRadius);
 	}
 	
 	if (chara == enemy || chara == bee)
 	{
 		for (auto& enemy : pEnemyManager_->GetEnemies())
 		{
-			if (modelHandle == enemy->GetModelHandle())	continue;
+		//	if (modelHandle == enemy->GetModelHandle())	continue;
 
 			// 敵同士の当たり判定チェック
-			CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec);
+			CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec, collisionRadius);
 		}
 	}
 
 	for (auto& obj : pObstacleManager_->GetObstacles())
 	{
 		// 障害物との当たり判定チェック
-		CollCheck(modelHandle, obj->GetModelHandle(), pos, vec);
+		CollCheck(modelHandle, obj->GetModelHandle(), pos, vec, collisionRadius);
 	}
 
 	// フィールドとの当たり判定チェック
-	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec);
+	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec, collisionRadius);
 	
-	// 壁ポリゴン処理
-	WallPolyColCheckProcess(isMove, vec);
-	
+	if (tower != chara)
+	{
+		// 壁ポリゴン処理
+		WallPolyColCheckProcess(isMove, vec);
+	}
+
 	// 床ポリゴン処理
-	FloorPolyColCheckProcess(isJump, chara);
+	FloorPolyColCheckProcess(isJump, isUseGravity, chara);
 
 	// 検出したプレイヤーの周囲のポリゴン情報を開放する
 	MV1CollResultPolyDimTerminate(hitDim_);

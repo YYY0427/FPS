@@ -338,7 +338,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_, Collision::Chara::player);
+	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 //	pos_ = pCollision_->ColisionToTower(pModel_->GetModelHandle(), isMoving_, isJump_, pos_, moveVec_);
 
 	// ショットアニメが終わり次第待機アニメに変更

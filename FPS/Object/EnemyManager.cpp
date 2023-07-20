@@ -11,7 +11,8 @@ namespace
 	constexpr VECTOR bee_init_pos_3{ 5558,  1112, 1369 };
 
 	constexpr VECTOR enemy_init_pos_1{ 4307, -65, 3400 };
-	constexpr VECTOR enemy_init_pos_2{ 2222, -266, -967 };
+	constexpr VECTOR enemy_init_pos_2{ 2427, -283, -862 };
+	constexpr VECTOR enemy_init_pos_3{ 5589, -89, -504 };
 }
 
 EnemyManager::EnemyManager()
@@ -29,7 +30,8 @@ void EnemyManager::Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::
 	pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, bee_init_pos_3, false));
 
 	pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_1, true));
-	pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_1, false));
+	pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_2, false));
+	pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_3, false));
 
 	/*switch (checkPoint)
 	{

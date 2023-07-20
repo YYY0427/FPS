@@ -17,19 +17,19 @@ public:
 	void Init();
 
 	// ポリゴンと当たっているかチェックして壁ポリゴンか床ポリゴンか判定
-	void CollCheck(int modelHandle, int objectModelHandle, VECTOR pos, VECTOR vec);
+	void CollCheck(int modelHandle, int objectModelHandle, VECTOR pos, VECTOR vec, float collisionRadius);
 
 	// 壁ポリゴン当たり判定処理
 	void WallPolyColCheckProcess(bool isMove, VECTOR vec);
 
 	// 床ポリゴン当たり判定処理
-	void FloorPolyColCheckProcess(bool isJump, int chara);
+	void FloorPolyColCheckProcess(bool isJump, bool isUseGravity, int chara);
 
 	// ジャンプ中の場合の床ポリゴンとの当たり判定
 	void JumpingFloorPolyColCheckProcess();
 
 	// 当たり判定処理
-	VECTOR Colision(int modelHandle, bool isMove, bool isJump, VECTOR pos, VECTOR vec, int chara);
+	VECTOR Colision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius);
 
 	// ゲッター
 	float GetPlayerMinY() const { return playerMinY_; }

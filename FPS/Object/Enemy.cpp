@@ -27,6 +27,7 @@ namespace
 	constexpr int dead_anim_no = 3;
 	constexpr int attack_anim_no = 0;
 	constexpr int idle_anim_no = 2;
+	constexpr int jump_anim_no = 6;
 
 	// 当たり半径のサイズ
 	constexpr float collision_radius = 70.0f;
@@ -53,7 +54,7 @@ namespace
 	constexpr float detection_range = 1500.0f;
 }
 
-Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove)
+Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove, int handle)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
@@ -73,7 +74,9 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	deadDisappearTime_ = 120;
 	sHp_.hpUIDrawY_ = 30.0f;
 	deadAnimNo_ = dead_anim_no;
+	discoverAnimNo_ = jump_anim_no;
 	detectionRange_ = detection_range;
+	handle_ = handle;
 
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pPlayer_->GetPos(), pos_);
@@ -262,25 +265,43 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 
 void Enemy::UpdateToIdle()
 {
-	// タワーを見つけたらプレイヤーを追いかける
-	if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+	frameCount_++;
+	if (!targetDiscover_ && frameCount_ > 120)
 	{
-		animNo_ = walk_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		updateFunc_ = &Enemy::UpdateTrackingToTower;
-		frameCount_ = 0;
+		// タワーを見つけたらプレイヤーを追いかける
+		if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+		{
+			target_ = tower;
+		}
+		// プレイヤーを見つけたらプレイヤーを追いかける
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		{
+			target_ = player;
+		}
+		animNo_ = discoverAnimNo_;
+		pModel_->ChangeAnimation(animNo_, false, false, 4);
+		targetDiscover_ = true;
 	}
-	// プレイヤーを見つけたらプレイヤーを追いかける
-	else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+	else if(targetDiscover_)
 	{
-		animNo_ = walk_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		updateFunc_ = &Enemy::UpdateTrackingToPlayer;
-		frameCount_ = 0;
+		if (pModel_->IsAnimEnd())
+		{
+			targetDiscover_ = false;
+			animNo_ = walk_anim_no;
+			pModel_->ChangeAnimation(animNo_, true, false, 4);
+			frameCount_ = 0;
+			if (target_ == tower)
+			{
+				updateFunc_ = &Enemy::UpdateTrackingToTower;
+			}
+			else if (target_ == player)
+			{
+				updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+			}
+			
+		}
 	}
-	
+
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
 

@@ -105,6 +105,8 @@ protected:
 	// アニメーション番号
 	int deadAnimNo_ = 0;
 
+	int discoverAnimNo_ = 0;
+
 	// フレームカウント
 	int frameCount_ = 0;
 
@@ -149,4 +151,10 @@ protected:
 
 	// 検知範囲
 	float detectionRange_ = 0.0f;
+
+	int handle_ = -1;
+
+	bool targetDiscover_ = false;
+
+	int target_ = 0;
 };

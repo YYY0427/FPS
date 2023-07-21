@@ -343,6 +343,9 @@ void MainScene::NormalUpdate(const InputState& input)
 
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
+			// “G‚ÌHP‚ª‚È‚©‚Á‚½‚ç”»’è‚ðs‚í‚È‚¢
+			if (enemies->GetHP().hp_ <= 0) continue;
+
 			// “G‚ÆƒvƒŒƒCƒ„[‚Ì“–‚½‚è”»’è
 			{
 				float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));

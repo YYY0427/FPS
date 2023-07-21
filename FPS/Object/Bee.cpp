@@ -54,7 +54,7 @@ namespace
 	constexpr float detection_range = 1000.0f;
 }
 
-Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove)
+Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove, int handle)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
@@ -75,7 +75,9 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	deadDisappearTime_ = 120;
 	sHp_.hpUIDrawY_ = 30.0f;
 	deadAnimNo_ = dead_anim_no;
+	discoverAnimNo_ = -1;
 	detectionRange_ = detection_range;
+	handle_ = handle;
 
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pPlayer_->GetPos(), pos_);
@@ -269,19 +271,43 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 
 void Bee::UpdateToIdle()
 {
-	// タワーを見つけたらプレイヤーを追いかける
-	if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+	frameCount_++;
+	if (!targetDiscover_ && frameCount_ > 120)
 	{
-		updateFunc_ = &Bee::UpdateTrackingToTower;
+		// タワーを見つけたらプレイヤーを追いかける
+		if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+		{
+			target_ = tower;
+		}
+		// プレイヤーを見つけたらプレイヤーを追いかける
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		{
+			target_ = player;
+		}
+		animNo_ = discoverAnimNo_;
+	//	pModel_->ChangeAnimation(animNo_, false, false, 4);
+		targetDiscover_ = true;
 		frameCount_ = 0;
 	}
-	// プレイヤーを見つけたらプレイヤーを追いかける
-	else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+	else if (targetDiscover_)
 	{
-		updateFunc_ = &Bee::UpdateTrackingToPlayer;
-		frameCount_ = 0;
+	//	if (pModel_->IsAnimEnd())
+		if(frameCount_ > 20)
+		{
+			targetDiscover_ = false;
+			animNo_ = walk_anim_no;
+			pModel_->ChangeAnimation(animNo_, true, false, 4);
+			frameCount_ = 0;
+			if (target_ == tower)
+			{
+				updateFunc_ = &Bee::UpdateTrackingToTower;
+			}
+			else if (target_ == player)
+			{
+				updateFunc_ = &Bee::UpdateTrackingToPlayer;
+			}
+		}
 	}
-
 	// アニメーション更新処理
 	pModel_->Update();
 }

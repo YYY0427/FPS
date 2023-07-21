@@ -17,13 +17,22 @@ EnemyBase::~EnemyBase()
 void EnemyBase::Draw()
 {
 	// ダメージ処理
-	if (damageFrame_ > 0)
+	/*if (damageFrame_ > 0)
 	{
-//		if (damageFrame_ % 2) return;
-	}
+		if (damageFrame_ % 2) return;
+	}*/
 
 	// モデルの描画
 	pModel_->Draw();
+
+	if (animNo_ == discoverAnimNo_)
+	{
+		VECTOR drawPos = VGet(pos_.x, pos_.y + 100, pos_.z);
+		MV1SetPosition(handle_, drawPos);
+		MV1SetRotationXYZ(handle_, VGet(0, angle_ + DX_PI_F, 0));
+		MV1SetScale(handle_, VGet(10, 10, 10));
+		MV1DrawModel(handle_);
+	}
 }
 
 int EnemyBase::GetModelHandle() const
@@ -79,7 +88,6 @@ void EnemyBase::UpdateDead()
 	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), false, false, true, pos_, VGet(0, 0, 0), bee, colRadius_);
 	pModel_->SetPos(pos_);
 	pModel_->Update();
-
 
 	if (pModel_->IsAnimEnd() && frameCount_ > deadDisappearTime_)
 	{

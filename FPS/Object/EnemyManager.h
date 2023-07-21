@@ -24,4 +24,5 @@ public:
 
 private:
 	std::vector<std::shared_ptr<EnemyBase>> pEnemies_;
+	int handle_;
 };

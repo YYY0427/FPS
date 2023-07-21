@@ -156,7 +156,6 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	// 移動速度の反映
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
-	
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
 
@@ -197,13 +196,11 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	MV1RefreshCollInfo(pModel_->GetModelHandle(), -1);
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
 	// アニメーション更新処理
-	pModel_->Update();
+    pModel_->Update();
 }
 
 void Enemy::Attacking(VECTOR pos, int target, float attacDistance)

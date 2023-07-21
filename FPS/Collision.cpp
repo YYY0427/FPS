@@ -35,7 +35,7 @@ void Collision::Init()
 	isHitFlag_ = false;
 }
 
-void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
+void Collision::CollCheck(int characterModelHandle, int objectModelHandle, int collisionFrameIndex, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
 {
 	// モデルの最大頂点座標と最小頂点座標の取得
 	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
@@ -48,9 +48,7 @@ void Collision::CollCheck(int characterModelHandle, int objectModelHandle, VECTO
 
 	// モデルとフィールドの当たり判定(何枚のポリゴンと当たっているか)
 //	hitDim_ = MV1CollCheck_Sphere(objectModelHandle, -1, oldPos_, (refPoly_.MaxPosition.y + 50.0f) + VSize(vec));
-	{
-		hitDim_ = MV1CollCheck_Capsule(objectModelHandle, -1, oldPos_, VGet(oldPos_.x, oldPos_.y + refPoly_.MaxPosition.y, oldPos_.z), collisionRadius);
-	}
+	hitDim_ = MV1CollCheck_Capsule(objectModelHandle, collisionFrameIndex, oldPos_, VGet(oldPos_.x, oldPos_.y + refPoly_.MaxPosition.y, oldPos_.z), collisionRadius);
 
 	// 検出されたポリゴンの数だけ繰り返し
 	for (int i = 0; i < hitDim_.HitNum; i++)
@@ -300,23 +298,25 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, bool isUse
 	// 初期化
 	Init();
 
-	// フィールドとの当たり判定チェック
-	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), pos, vec, collisionRadius, chara);
-
 	// タワーとの当たり判定チェック
-	CollCheck(modelHandle, pTower_->GetModelHandle(), pos, vec, collisionRadius, chara);
+	CollCheck(modelHandle, pTower_->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 
 	for (auto& obj : pObstacleManager_->GetObstacles())
 	{
 		// 障害物との当たり判定チェック
-		CollCheck(modelHandle, obj->GetModelHandle(), pos, vec, collisionRadius, chara);
+		CollCheck(modelHandle, obj->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 	}
 
 	for (auto& enemy : pEnemyManager_->GetEnemies())
 	{
+		if (enemy->GetModelHandle() == modelHandle) continue;
+
 		// 敵同士の当たり判定チェック
-		CollCheck(modelHandle, enemy->GetModelHandle(), pos, vec, collisionRadius, chara);
+		CollCheck(modelHandle, enemy->GetModelHandle(), enemy->GetColFrameIndex(), pos, vec, collisionRadius, chara);
 	}
+
+	// フィールドとの当たり判定チェック
+	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 
 	if (tower != chara)
 	{
@@ -329,20 +329,6 @@ VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, bool isUse
 
 	// 検出したプレイヤーの周囲のポリゴン情報を開放する
 	MV1CollResultPolyDimTerminate(hitDim_);
-
-	/*if (chara == enemy)
-	{
-		for (auto& enemies : pEnemyManager_->GetEnemies())
-		{
-			if (pos.x == enemies->GetPos().x && pos.y == enemies->GetPos().y && pos.z == enemies->GetPos().z) continue;
-
-			float dist = VSize(VSub(enemies->GetPos(), pos));
-			if (dist < (enemies->GetColRadius() + collisionRadius))
-			{
-				moveAfterPos_ = pos;
-			}
-		}
-	}*/
 
 	return moveAfterPos_;
 }

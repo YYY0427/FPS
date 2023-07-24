@@ -5,6 +5,7 @@
 #include "../Camera.h"
 #include "../Scene/MainScene.h"
 #include "../Collision.h"
+#include "../BomManager.h"
 #include "Tower.h"
 #include <DxLib.h>
 #include <cassert>
@@ -28,6 +29,9 @@ namespace
 
 	// ショットの速度
 	constexpr float shot_speed = 100.0f;
+
+	// ボムショットの速度
+	constexpr float bom_speed = 50.0f;
 
 	// ジャンプ力
 	constexpr float jump_power = 45.0f;
@@ -63,7 +67,10 @@ namespace
 	constexpr int invincible_time = 60;
 
 	// ショットの再使用まで待機フレーム数
-	constexpr int attack_wait_time = 5;
+	constexpr int shot_wait_time = 30;
+
+	// 爆弾の再使用まで待機フレーム数
+	constexpr int bom_wait_time = 60 * 10;
 
 	// リスポーン地点
 	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
@@ -87,7 +94,8 @@ Player::Player(MainScene* pMainScene) :
 	shotFrameCount_(0),
 	isJump_(false),
 	pCollision_(nullptr),
-	isFall_(false)
+	isFall_(false),
+	bomFrameCount_(bom_wait_time)
 {
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
@@ -199,6 +207,14 @@ void Player::UpdateIdle(const InputState& input)
 {
 	// フレームカウント
 	shotFrameCount_++;
+	if (shotFrameCount_ > shot_wait_time) shotFrameCount_ = shot_wait_time;
+
+	bomFrameCount_++;
+	if (bomFrameCount_ > bom_wait_time) bomFrameCount_ = bom_wait_time;
+
+	// ダメージ処理
+	damageFrame_--;
+	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// タワーが死んでいたらプレイヤーを動かさない
 	if (pTower_->GetIsDead())
@@ -206,10 +222,6 @@ void Player::UpdateIdle(const InputState& input)
 		animNo_ = dead_anim_no;
 		updateFunc_ = &Player::UpdateDead;
 	}
-
-	// ダメージ処理
-	damageFrame_--;
-	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	// ジャンプ処理
 	if (!isJump_)
@@ -221,12 +233,12 @@ void Player::UpdateIdle(const InputState& input)
 		}
 	}
 
-	// ショットを撃つ処理(ボタンが押されたとき、)
-	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= attack_wait_time)
+	// ショットを撃つ処理
+	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= shot_wait_time)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
-		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());	// 横移動情報の行列作成		
+		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());		// 横移動情報の行列作成		
 		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);			// 横移動情報行列とプレイヤーの平行移動行列の合成
 		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
 
@@ -251,6 +263,35 @@ void Player::UpdateIdle(const InputState& input)
 
 		// 初期化
 		shotFrameCount_ = 0;
+	}
+
+	if (input.IsTriggered(InputType::bom) && bomFrameCount_ >= bom_wait_time)
+	{
+		// 弾の発射位置の作成
+		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
+		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());		// 横移動情報の行列作成		
+		MATRIX matrix = MMult(cameraRotMtxSide, playerTransMtx);			// 横移動情報行列とプレイヤーの平行移動行列の合成
+		VECTOR shootStartPos = VTransform(shot_firing_init_pos, matrix);	// ショットの発射初期位置と作成した行列からベクトルの生成
+
+		// レティクルの位置の取得
+		VECTOR shotVec = ConvScreenPosToWorldPos(VGet(pMainScene_->GetReticlePosX(), pMainScene_->GetReticlePosY(), 1.0f));
+
+		// 終点から始点を引く
+		shotVec = VSub(shotVec, shootStartPos);
+
+		// 正規化
+		shotVec = VNorm(shotVec);
+
+		// スピードかける
+		shotVec = VScale(shotVec, bom_speed);
+
+		pBomManager_->StartBom(shootStartPos, shotVec, pCamera_->GetCameraYaw());
+
+		// ショットアニメに変更する
+		animNo_ = idle_shot_anim_no;
+		pModel_->ChangeAnimation(animNo_, false, true, 4);
+
+		bomFrameCount_ = 0;
 	}
 
 	// プレイヤーの回転値を取得する
@@ -321,7 +362,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 
 	// ジャンプ処理
 	jumpAcc_ += gravity;
@@ -404,14 +445,14 @@ void Player::UpdateDead(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
 }
 
 void Player::UpdateOnDamage(const InputState& input)
 {
 	assert(animNo_ == damage_anim_no);
 
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 
 	pModel_->SetPos(pos_);
 

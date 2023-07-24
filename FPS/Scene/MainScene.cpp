@@ -3,6 +3,7 @@
 #include "PauseScene.h"
 #include "SceneManager.h"
 #include "../StageManager.h"
+#include "../StageBase.h"
 #include "../Object/EnemyManager.h"
 #include "../Game.h"
 #include "../InputState.h"
@@ -18,6 +19,8 @@
 #include "../EnemyShot.h"
 #include "../ObstacleManager.h"
 #include "../Obstacle.h"
+#include "../Bom.h"
+#include "../BomManager.h"
 #include "../UI.h"
 #include <cassert>
 #include <stdlib.h>
@@ -49,6 +52,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gameOverUIFadeTimer_(0),
 	gameClearUIhandle_(-1)
 {
+	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
 	pUI_ = std::make_shared<UI>();
 	pEnemyManager_ = std::make_shared<EnemyManager>();
@@ -71,6 +75,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pPlayer_->SetCamera(pCamera_);
 	pPlayer_->SetCollision(pCollision_);
 	pPlayer_->SetTower(pTower_);
+	pPlayer_->SetBomManager(pBomManager_);
 	pTower_->SetEnemyManager(pEnemyManager_);
 	pTower_->SetCollision(pCollision_);
 
@@ -112,6 +117,7 @@ void MainScene::Draw()
 		pEnemyManager_->Draw();
 		pTower_->Draw();
 		pEnemyShotFactory_->Draw();
+		pBomManager_->Draw();
 		for (auto& shot : pShot_)
 		{
 			shot->Draw();
@@ -129,6 +135,7 @@ void MainScene::Draw()
 		pEnemyManager_->Draw();
 		pTower_->Draw();
 		pEnemyShotFactory_->Draw();
+		pBomManager_->Draw();
 		for (auto& shot : pShot_)
 		{
 			shot->Draw();
@@ -161,6 +168,12 @@ void MainScene::Draw()
 		// クロスヘア
 		DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
 		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
+
+		if (isHit_)
+		{
+			DrawLine(reticle_pos_x - 25, reticle_pos_y - 25, reticle_pos_x + 25, reticle_pos_y + 25, 0xff0000);
+			DrawLine(reticle_pos_x - 25, reticle_pos_y + 25, reticle_pos_x + 25, reticle_pos_y - 25, 0xff0000);
+		}	
 	}
 
 	// ゲームクリア時に表示
@@ -252,6 +265,12 @@ void MainScene::FadeOutUpdate(const InputState& input)
 
 void MainScene::NormalUpdate(const InputState& input)
 {
+	if (cnt_++ > 45)
+	{
+		isHit_ = false;
+		cnt_ = 0;
+	}
+
 	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
 	{
 		// フェード処理
@@ -267,6 +286,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		pTower_->Update();
 		pObstacleManager_->Update();
 		pEnemyShotFactory_->Update();
+		pBomManager_->Update();
 		for (auto& shot : pShot_)
 		{
 			shot->Update();
@@ -292,6 +312,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					// 当たった
 					enemies->OnDamage(10);		// 敵にダメージ
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
+					isHit_ = true;
 				}
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
@@ -303,10 +324,50 @@ void MainScene::NormalUpdate(const InputState& input)
 				float dist = VSize(VSub(shot->GetPos(), obj->GetPos()));
 				if (dist < (shot->GetColRadius() + obj->GetNormalCollsionRadius()))
 				{
-					obj->OnDamage(1);	// 敵にダメージ
+					obj->OnDamage(1);			// 敵にダメージ
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
+					isHit_ = true;
 				}
 			}
+			// プレイヤーショットとステージの当たり判定
+			{
+				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+				result = MV1CollCheck_Capsule(pStageManager_->GetStages()->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
+
+				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				{
+					// 当たった
+					shot->SetEnabled(false);	// 敵に当たった弾を消す
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
+			}
+		}
+
+		// ボムと障害物の当たり判定
+		for (auto& boms : pBomManager_->GetBoms())
+		{
+			for (auto& obs : pObstacleManager_->GetObstacles())
+			{
+				float dist = VSize(VSub(obs->GetPos(), boms->GetPos()));
+				if (dist < (obs->GetNormalCollsionRadius() + boms->GetCollisionRadius()))
+				{
+					obs->OnDamage(10);			
+					boms->SetIsExplosion();	
+					isHit_ = true;
+				}
+			}
+
+			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+			result = MV1CollCheck_Sphere(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius());
+
+			if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			{
+				// 当たった
+				boms->SetIsExplosion();	
+			}
+			// 当たり判定情報の後始末
+			MV1CollResultPolyDimTerminate(result);
 		}
 
 		for (auto& bullets : pEnemyShotFactory_->GetBullets())
@@ -339,6 +400,19 @@ void MainScene::NormalUpdate(const InputState& input)
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
 			}
+			// エネミーショットとステージの当たり判定
+			{
+				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
+				result = MV1CollCheck_Capsule(pStageManager_->GetStages()->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+
+				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				{
+					// 当たった
+					bullets->SetIsEnabled(false);	// 敵に当たった弾を消す
+				}
+				// 当たり判定情報の後始末
+				MV1CollResultPolyDimTerminate(result);
+			}
 		}
 
 		for (auto& enemies : pEnemyManager_->GetEnemies())
@@ -349,9 +423,20 @@ void MainScene::NormalUpdate(const InputState& input)
 			// 敵とプレイヤーの当たり判定
 			{
 				float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
-				if (dist < (pPlayer_->GetColRadius() + enemies->GetColRadius()))
+				if (dist < (pPlayer_->GetColRadius() + enemies->GetCollisionRadius()))
 				{
 					pPlayer_->OnDamage(1);
+				}
+			}
+
+			for (auto& bom : pBomManager_->GetBoms())
+			{
+				float dist = VSize(VSub(enemies->GetPos(), bom->GetPos()));
+				if (dist < (enemies->GetCollisionRadius() + bom->GetCollisionRadius()))
+				{
+					isHit_ = true;
+					enemies->OnDamage(30);
+					bom->SetIsExplosion();
 				}
 			}
 
@@ -368,7 +453,7 @@ void MainScene::NormalUpdate(const InputState& input)
 
 				// DxLibの関数を利用して当たり判定をとる
 				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetColRadius() + 30.0f);
+				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f);
 
 				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 				{

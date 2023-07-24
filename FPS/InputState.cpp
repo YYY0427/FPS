@@ -46,9 +46,11 @@ InputState::InputState()
 	defaultMapTable_[InputType::perspective] = { {InputCategory::keybd, KEY_INPUT_T},
 										{InputCategory::pad, 0 } };					// 視点切り替え
 
-	defaultMapTable_[InputType::shot] = { {InputCategory::keybd, KEY_INPUT_Z},
-										{InputCategory::pad, PAD_INPUT_C },
+	defaultMapTable_[InputType::shot] = { {InputCategory::pad, PAD_INPUT_C },
 										{InputCategory::mouse, MOUSE_INPUT_LEFT} };	// ショット
+
+	defaultMapTable_[InputType::bom] = { {InputCategory::pad, PAD_INPUT_C },
+									{InputCategory::mouse, MOUSE_INPUT_RIGHT} };	// ショット
 
 	defaultMapTable_[InputType::jump] = { {InputCategory::keybd, KEY_INPUT_SPACE},
 										{InputCategory::pad, PAD_INPUT_1 } };		// ジャンプ
@@ -68,6 +70,7 @@ InputState::InputState()
 	inputNameTable_[InputType::keyconf] = "keyconf";
 	inputNameTable_[InputType::change] = "change";
 	inputNameTable_[InputType::shot] = "shot";
+	inputNameTable_[InputType::bom] = "bom";
 	inputNameTable_[InputType::jump] = "jump";
 	inputNameTable_[InputType::perspective] = "perspective";
 	inputNameTable_[InputType::w] = "w";

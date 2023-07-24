@@ -152,6 +152,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bom.cpp" />
+    <ClCompile Include="BomManager.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="EnemyShot.cpp" />
     <ClCompile Include="EnemyShotFactory.cpp" />
@@ -168,6 +170,7 @@
     <ClCompile Include="Object\Player.cpp" />
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="ObstacleManager.cpp" />
+    <ClCompile Include="PlayerBase.cpp" />
     <ClCompile Include="Scene\KeyConfigScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scene\PauseScene.cpp" />
@@ -188,6 +191,8 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bom.h" />
+    <ClInclude Include="BomManager.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="EnemyShot.h" />
     <ClInclude Include="EnemyShotFactory.h" />
@@ -205,6 +210,7 @@
     <ClInclude Include="Object\Player.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="ObstacleManager.h" />
+    <ClInclude Include="PlayerBase.h" />
     <ClInclude Include="Scene\KeyConfigScene.h" />
     <ClInclude Include="Scene\PauseScene.h" />
     <ClInclude Include="Scene\MainScene.h" />

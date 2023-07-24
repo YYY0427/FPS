@@ -30,7 +30,9 @@ public:
 	void JumpingFloorPolyColCheckProcess();
 
 	// ìñÇΩÇËîªíËèàóù
-	VECTOR Colision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius);
+	VECTOR MovingColision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius);
+
+//	void HitCollision();
 
 	float GetGroundY() const { return groundY_; }
 

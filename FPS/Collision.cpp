@@ -35,6 +35,8 @@ void Collision::Init()
 	isHitFlag_ = false;
 }
 
+
+
 void Collision::CollCheck(int characterModelHandle, int objectModelHandle, int collisionFrameIndex, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
 {
 	// モデルの最大頂点座標と最小頂点座標の取得
@@ -293,7 +295,7 @@ void Collision::JumpingFloorPolyColCheckProcess()
 {
 }
 
-VECTOR Collision::Colision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
+VECTOR Collision::MovingColision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
 {
 	// 初期化
 	Init();

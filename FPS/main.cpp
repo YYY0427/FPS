@@ -4,6 +4,7 @@
 #include "SoundManager.h"
 #include "Scene/SceneManager.h"
 #include "Scene/TitleScene.h"
+#include "EffekseerForDXLib.h"
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -26,12 +27,33 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// ウィンドウのサイズを変更可能にする
 	SetWindowSizeChangeEnableFlag(true);
 
+	// DirectX9を使用するようにする。(DirectX11も可)
+	// Effekseerを使用するには必ず設定する。
+	SetUseDirect3DVersion(DX_DIRECT3D_9);
+
 	// ＤＸライブラリ初期化処理
 	if (DxLib_Init() == -1)
 	{
 		// エラーが起きたら直ちに終了
 		return -1;
 	}
+
+	// Effekseerを初期化する。
+	// 引数には画面に表示する最大パーティクル数を設定する。
+	if (Effkseer_Init(8000) == -1)
+	{
+		DxLib_End();
+		return -1;
+	}
+
+	// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
+	// Effekseerを使用する場合は必ず設定する。
+	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
+
+	// DXライブラリのデバイスロストした時のコールバックを設定する。
+	// ウインドウとフルスクリーンの切り替えが発生する場合は必ず実行する。
+	// ただし、DirectX11を使用する場合は実行する必要はない。
+	Effekseer_SetGraphicsDeviceLostCallbackFunctions();
 
 	// ダブルバッファモード
 	// 裏画面に描画
@@ -77,6 +99,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 		}
 	}
+
+	// Effekseerを終了する。
+	Effkseer_End();
 
 	// ＤＸライブラリ使用の終了処理
 	DxLib_End();

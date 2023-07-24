@@ -14,6 +14,7 @@ class Collision;
 class StageManager;
 class EnemyShotFactory;
 class ObstacleManager;
+class BomManager;
 class UI;
 
 /// <summary>
@@ -57,6 +58,7 @@ private:
 	std::shared_ptr<Player> pPlayer_;
 	std::shared_ptr<EnemyManager> pEnemyManager_;
 	std::vector<std::shared_ptr<Shot>> pShot_;
+	std::shared_ptr<BomManager> pBomManager_;
 	std::shared_ptr<SkyDoom> pSkyDoom_;
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<Collision> pCollision_;
@@ -80,4 +82,9 @@ private:
 
 	// ゲームオーバーかどうか
 	bool isGameOver_;
+
+	// プレイヤーショットと敵に弾が当たったか
+	bool isHit_;
+
+	int cnt_;
 };

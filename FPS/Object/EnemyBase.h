@@ -37,7 +37,7 @@ public:
 	bool GetDead() const { return isDead_; }
 
 	// “–‚½‚è”»’è‚Ì”¼Œa‚ÌƒQƒbƒ^[
-	float GetColRadius() const { return colRadius_; };
+	float GetCollisionRadius() const { return colRadius_; };
 
 	enum EnemyType
 	{

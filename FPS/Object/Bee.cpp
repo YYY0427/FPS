@@ -161,7 +161,7 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
 
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
@@ -348,7 +348,7 @@ void Bee::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)

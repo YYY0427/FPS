@@ -21,6 +21,7 @@ enum class InputType
 	perspective,	// 視点
 	shot,	//弾発射
 	jump,	//ジャンプ
+	bom,
 	max		//最大入力インデックス
 };
 

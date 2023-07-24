@@ -194,7 +194,7 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	}
 
 	// 当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
@@ -303,7 +303,7 @@ void Enemy::UpdateToIdle()
 	}
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
 
 	pModel_->SetPos(pos_);
 
@@ -337,7 +337,7 @@ void Enemy::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->Colision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)

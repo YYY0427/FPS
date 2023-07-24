@@ -1,8 +1,6 @@
 #pragma once
 #include <DxLib.h>
 #include <memory>
-#include <vector>
-#include "../Model.h"
 
 class InputState;
 class Model;
@@ -10,27 +8,21 @@ class Camera;
 class MainScene;
 class Collision;
 class Tower;
-class BomManager;
 
-class Player
+class PlayerBase
 {
 public:
-	Player(MainScene* pMainScene);
-	virtual ~Player();
+	PlayerBase();
+	virtual ~PlayerBase();
 
 	void Update(const InputState& input);
 	void Draw();
-
-	void SetRespawn();
 
 	// カメラのポインタのセッター
 	void SetCamera(std::shared_ptr<Camera> pCamera) { pCamera_ = pCamera; }
 
 	// 当たり判定ポインタのセッター
 	void SetCollision(std::shared_ptr<Collision> pCollision) { pCollision_ = pCollision; }
-
-
-	void SetBomManager(std::shared_ptr<BomManager> pBomManager) { pBomManager_ = pBomManager; }
 
 	// タワーのセッター
 	void SetTower(std::shared_ptr<Tower> pTower) { pTower_ = pTower; }
@@ -42,7 +34,7 @@ public:
 	VECTOR GetPos() const { return pos_; }
 
 	// モデルハンドルのゲッター
-	int GetHandle() const { return pModel_->GetModelHandle(); }
+	int GetHandle() const;
 
 	// プレイヤーのHPのゲッター
 	int GetHP() const { return hp_; }
@@ -61,23 +53,7 @@ public:
 
 	void SetJump(bool jump) { isJump_ = jump; }
 
-private:
-	// 待機
-	void UpdateIdle(const InputState& input);
-
-	// ショットを撃つ
-	void UpdateIdleShot(const InputState& input);
-
-	// 死亡アニメーション
-	void UpdateDead(const InputState& input);
-
-	// ダメージアニメーション
-	void UpdateOnDamage(const InputState& input);
-
-private:
-	// メンバー関数ポインタ
-	void(Player::* updateFunc_)(const InputState& input);
-
+protected:
 	// メインシーン
 	MainScene* pMainScene_;
 
@@ -90,44 +66,39 @@ private:
 
 	std::shared_ptr<Tower> pTower_;
 
-	std::shared_ptr<BomManager> pBomManager_;
-
 	// 再生しているアニメーション番号
-	int animNo_;
+	int animNo_ = -1;
 
 	// フレームカウント
-	int frameCount_;
+	int frameCount_ = 0;
 
 	// プレイヤーの位置
-	VECTOR pos_;
+	VECTOR pos_ = VGet(0, 0, 0);
 
 	// ジャンプ処理用加速度
-	float jumpAcc_;
+	float jumpAcc_ = 0.0f;
 
 	// HP
-	int hp_;
+	int hp_ = 0;
 
 	// 無敵時間
-	int damageFrame_;
+	int damageFrame_ = 0;
 
 	// 移動中か
-	bool isMoving_;
+	bool isMoving_ = false;
 
 	// プレイヤーが死んでいるか
-	bool isDead_;
+	bool isDead_ = false;
 
 	// ショットを撃ってから何フレーム経過したかのカウント
-	int shotFrameCount_;
-
-	// 爆弾を使ってから何フレーム経過したかのカウント
-	int bomFrameCount_;
+	int shotFrameCount_ = 0;
 
 	// 移動ベクトル
-	VECTOR moveVec_;
+	VECTOR moveVec_ = VGet(0, 0, 0);
 
 	// ジャンプ中か
-	bool isJump_;
+	bool isJump_ = false;
 
 	// 地面から落ちたか
-	bool isFall_;
+	bool isFall_ = false;
 };

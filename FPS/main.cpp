@@ -72,11 +72,20 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		// 画面のクリア
 		ClearDrawScreen();
 
+		// DXライブラリのカメラとEffekseerのカメラを同期する。
+		Effekseer_Sync3DSetting();
+
+		// Effekseerにより再生中のエフェクトを更新する。
+		UpdateEffekseer3D();
+
 		input.Update();
 
 		sceneManager.Update(input);
 
 		sceneManager.Draw();
+
+		// Effekseerにより再生中のエフェクトを描画する。
+		DrawEffekseer3D();
 
 		// FPS(Frame Per Second)の取得
 		auto fps = GetFPS();

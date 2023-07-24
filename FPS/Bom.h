@@ -26,4 +26,7 @@ private:
 	bool isExplosion_;
 	bool isEnabled_;
 	int frameCount_;
+	int effectH_;
+	int effectResourceHandle_;
+	int grFrontHandle_;
 };

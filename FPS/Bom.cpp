@@ -1,5 +1,6 @@
 #include "Bom.h"
 #include "Model.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
@@ -22,6 +23,10 @@ Bom::Bom(VECTOR pos, VECTOR vec, float angle) :
 	collisionRadius_(befor_collision_radius),
 	frameCount_(0)
 {
+	// エフェクトリソースを読み込む。
+	effectResourceHandle_ = LoadEffekseerEffect("Data/Effect/Fire3.efkproj");
+	grFrontHandle_ = LoadGraph("Data/Effect/png.png");
+
 	pModel_ = std::make_shared<Model>(file_path);
 	pModel_->SetPos(pos_);
 	pModel_->SetScale(VGet(model_scale, model_scale, model_scale));
@@ -70,6 +75,8 @@ void Bom::SetIsExplosion()
 	if (!isExplosion_)
 	{
 		isExplosion_ = true;
+		effectH_ = PlayEffekseer3DEffect(effectResourceHandle_);
+		SetPosPlayingEffekseer3DEffect(effectH_, position_x, position_y, 0);
 	}
 	else
 	{

@@ -42,6 +42,8 @@ public:
 	int GetIsDead() const { return isDead_; }
 	bool GetIsGoal() const { return isGoal_; }
 	int GetCheckPoint() const { return checkPoint_; }
+	int GetHP() const { return hp_; }
+	int GetMaxHP() const;
 
 public:	
 	enum CheckPoint

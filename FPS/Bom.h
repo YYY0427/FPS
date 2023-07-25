@@ -16,7 +16,7 @@ public:
 	float GetCollisionRadius() const { return collisionRadius_; }
 	bool GetIsEnabled() const { return isEnabled_; }
 	VECTOR GetPos() const { return pos_; }
-	void SetIsExplosion();
+	void StartExplosion();
 
 private:
 	std::shared_ptr<Model> pModel_;

@@ -10,7 +10,8 @@ public:
 	UI();
 	virtual ~UI();
 
-	void DrawHpUI(std::shared_ptr<Player> pPlayer, VECTOR pos, int handle, int hp, int maxHp, const char* frameName, float height);
+	void DrawEnemyHpBar(std::shared_ptr<Player> pPlayer, VECTOR pos, int handle, int hp, int maxHp, const char* frameName, float height);
+	void DrawAllyHpBar(int hp, int maxHp, int posX, int posY);
 
 private:
 

@@ -12,7 +12,7 @@ namespace
 
 	constexpr float model_scale = 1.0f;
 
-	constexpr int explosion_continuation_time = 60;
+	constexpr int explosion_continuation_time = 30;
 }
 
 Bom::Bom(VECTOR pos, VECTOR vec, float angle) :
@@ -23,10 +23,6 @@ Bom::Bom(VECTOR pos, VECTOR vec, float angle) :
 	collisionRadius_(befor_collision_radius),
 	frameCount_(0)
 {
-	// エフェクトリソースを読み込む。
-	effectResourceHandle_ = LoadEffekseerEffect("Data/Effect/Fire3.efkproj");
-	grFrontHandle_ = LoadGraph("Data/Effect/png.png");
-
 	pModel_ = std::make_shared<Model>(file_path);
 	pModel_->SetPos(pos_);
 	pModel_->SetScale(VGet(model_scale, model_scale, model_scale));
@@ -44,15 +40,6 @@ void Bom::Update()
 		// まっすぐ進む
 		pos_ = VAdd(pos_, vec_);
 	}
-	else
-	{
-		collisionRadius_ = after_collision_radius;
-
-		if (frameCount_++ > explosion_continuation_time)
-		{
-			isEnabled_ = false;
-		}
-	}
 
 	// モデルのポジションの設定
 	pModel_->SetPos(pos_);
@@ -65,19 +52,32 @@ void Bom::Draw()
 	{
 		pModel_->Draw();
 	}
+	else
+	{
+		frameCount_++;
+		if (explosion_continuation_time > frameCount_)
+		{
+			isEnabled_ = false;
+		}
+	}
 #ifdef _DEBUG
-	DrawSphere3D(pos_, collisionRadius_, 16.0f, 0xff0000, 0xff0000, false);
+	DrawSphere3D(pos_, collisionRadius_, 16, 0xff0000, 0xff0000, false);
 #endif
 }
 
-void Bom::SetIsExplosion()
+void Bom::StartExplosion()
 {
 	if (!isExplosion_)
 	{
 		isExplosion_ = true;
+		collisionRadius_ = after_collision_radius;
+		effectResourceHandle_ = LoadEffekseerEffect("Data/Effect/explosion.efkefc", 100.0f);
+		grFrontHandle_ = LoadGraph("Data/Effect/png.png");
 		effectH_ = PlayEffekseer3DEffect(effectResourceHandle_);
-		SetPosPlayingEffekseer3DEffect(effectH_, position_x, position_y, 0);
+		SetSpeedPlayingEffekseer3DEffect(effectH_, 1.5f);
+		SetPosPlayingEffekseer3DEffect(effectH_, pos_.x, pos_.y,  pos_.z);
 	}
+	// 既に爆発していたら消す
 	else
 	{
 		isEnabled_ = false;

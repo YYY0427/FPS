@@ -19,8 +19,8 @@ namespace
 	constexpr int invincible_time = 0;
 
 	// HPバー
-	constexpr int hp_bar_width = 500;	// HPバーの横幅
-	constexpr int hp_bar_height = 50;	// HPバーの縦幅
+	constexpr int enemy_hp_bar_width = 500;	// HPバーの横幅
+	constexpr int enemy_hp_bar_height = 50;	// HPバーの縦幅
 	constexpr int hp_bar_x_pos = 1500;	// HPバーのx座標
 	constexpr int hp_bar_y_pos = 100;	// HPバーのy座標
 
@@ -115,23 +115,7 @@ void Tower::Draw()
 	pModel_->Draw();												// 表示	
 	pModel_->SetPos(VGet(pos_.x, pos_.y - ground_far, pos_.z));		// 実座標に戻す
 
-	// 最大HPに対する現在のHPの割合を計算する
-	float hpRate = static_cast<float>(hp_) / static_cast<float>(max_hp);
-
-	// HPバーの長さを計算する
-	int barWidth = static_cast<int>(hp_bar_width * hpRate);
-
-	// HPバーの土台(赤)
-//	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos + hp_bar_width / 2, hp_bar_y_pos + hp_bar_height, 0xff0000, true);
-
-	// 現在のHP(緑)
-	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos - hp_bar_width / 2 + barWidth, hp_bar_y_pos + hp_bar_height, 0x00ff00, true);
-
-	// HPの枠
-	DrawBox(hp_bar_x_pos - hp_bar_width / 2, hp_bar_y_pos, hp_bar_x_pos + hp_bar_width / 2, hp_bar_y_pos + hp_bar_height, 0x000000, false);
-
 #ifdef _DEBUG
-	DrawFormatString(1100, 80, 0x000000, "towerHp = %d", hp_);
 	DrawFormatString(20, 400, 0x000000, "towerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
 	DrawFormatString(20, 500, 0x000000, "checkPoint = %d", checkPoint_);
 #endif
@@ -241,4 +225,9 @@ void Tower::CheckPointSet()
 		checkPointPos_ = checkPointPos9_;
 		break;
 	}
+}
+
+int Tower::GetMaxHP() const
+{
+	return max_hp;
 }

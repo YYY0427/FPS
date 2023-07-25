@@ -131,12 +131,6 @@ void Player::Draw()
 	// ƒ‚ƒfƒ‹‚Ì•`‰æ
 	pModel_->Draw();
 
-	// HP‚Ì•`‰æ
-	for (int i = 0; i < hp_; i++)
-	{
-		DrawCircle(100 + (i * 70), 130, 30, 0xff0000, true);
-	}
-
 #ifdef _DEBUG
 	DrawFormatString(20, 300, 0x000000, "playerPos = %f, %f, %f", pos_.x, pos_.y, pos_.z);
 	DrawFormatString(20, 250, 0x000000, "playerGroundY = %f", pCollision_->GetGroundY());
@@ -149,6 +143,11 @@ void Player::SetRespawn()
 	isFall_ = false;
 	OnDamage(1);
 	pos_ = respawn_point;
+}
+
+int Player::GetMaxHP() const
+{
+	return max_hp;
 }
 
 float Player::GetColRadius() const

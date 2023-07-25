@@ -148,12 +148,14 @@ void MainScene::Draw()
 	{
 		for (auto& obj : pObstacleManager_->GetObstacles())
 		{
-			pUI_->DrawHpUI(pPlayer_, obj->GetPos(), obj->GetModelHandle(), obj->GetHP().hp_, obj->GetHP().maxHp_, "Stairs", obj->GetHP().hpUIDrawY_);
+			pUI_->DrawEnemyHpBar(pPlayer_, obj->GetPos(), obj->GetModelHandle(), obj->GetHP().hp_, obj->GetHP().maxHp_, "Stairs", obj->GetHP().hpUIDrawY_);
 		}
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
-			pUI_->DrawHpUI(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
+			pUI_->DrawEnemyHpBar(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
 		}
+		pUI_->DrawAllyHpBar(pPlayer_->GetHP(), pPlayer_->GetMaxHP(), 350, 850);
+		pUI_->DrawAllyHpBar(pTower_->GetHP(), pTower_->GetMaxHP(), Game::screen_width / 2, 100);
 	}
 
 	// ゲームオーバー時に表示開始
@@ -353,7 +355,7 @@ void MainScene::NormalUpdate(const InputState& input)
 				if (dist < (obs->GetNormalCollsionRadius() + boms->GetCollisionRadius()))
 				{
 					obs->OnDamage(10);			
-					boms->SetIsExplosion();	
+					boms->StartExplosion();	
 					isHit_ = true;
 				}
 			}
@@ -364,7 +366,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 			{
 				// 当たった
-				boms->SetIsExplosion();	
+				boms->StartExplosion();	
 			}
 			// 当たり判定情報の後始末
 			MV1CollResultPolyDimTerminate(result);
@@ -436,7 +438,7 @@ void MainScene::NormalUpdate(const InputState& input)
 				{
 					isHit_ = true;
 					enemies->OnDamage(30);
-					bom->SetIsExplosion();
+					bom->StartExplosion();
 				}
 			}
 

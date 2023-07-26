@@ -392,7 +392,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			// 敵の弾とタワーの当たり判定
 			{	
 				MV1_COLL_RESULT_POLY_DIM result;
-				result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+				result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
 				if (result.HitNum > 0)
 				{
 					// 当たった
@@ -455,7 +455,7 @@ void MainScene::NormalUpdate(const InputState& input)
 
 				// DxLibの関数を利用して当たり判定をとる
 				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), -1, enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f);
+				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f);
 
 				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
 				{

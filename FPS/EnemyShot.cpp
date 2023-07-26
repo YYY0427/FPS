@@ -19,11 +19,11 @@ namespace
 	constexpr VECTOR init_direction{ 0, 1, 0 };
 
 	// ”­ŽËˆÊ’u‚©‚ç‚Ç‚ê‚¾‚¯YŽ²‚ð‚¸‚ç‚·‚©
-	constexpr float shift_y = 50.0f;
+	constexpr float shift_y = 100.0f;
 }
 
 EnemyShot::EnemyShot(int handle, const VECTOR& pos, const VECTOR& vec, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, int target) :
-	pos_(VGet(pos.x, pos.y + shift_y, pos.z)),
+	pos_(VGet(pos.x, pos.y /*+ shift_y*/, pos.z)),
 	vec_(vec),
 	initPos_(pos),
 	lastPos_(VGet(0, 0, 0)),

@@ -10,7 +10,7 @@
 namespace
 {
 	// タワーのアドレス
-	const char* const adress = "Data/Model/tower.mv1";
+	const char* const adress = "Data/Model/balloon.mv1";
 
 	// 最大HP
 	constexpr int max_hp = 10000;
@@ -28,10 +28,10 @@ namespace
 	constexpr float to_goal_speed = 5.0f;
 
 	 // モデルの拡大率
-	constexpr float model_scale = 0.4f;
+	constexpr float model_scale = 20.0f;
 	 
 	// モデルを地面からどれだけ浮かすか
-	constexpr float ground_far = 150.0f;
+	constexpr float ground_far = 200.0f;
 
 	// ステージ１
 	constexpr VECTOR stage_1_start_pos{ 6959.0f, -100.0f, 2370.0f };
@@ -80,6 +80,7 @@ Tower::Tower(StageManager* pStageManager, std::shared_ptr<ObstacleManager> pObst
 	colRadius_ = 50.0f;
 	checkPoint_ = check_point1;
 	pModel_ = std::make_shared<Model>(adress);
+
 	pModel_->SetUseCollision(true);
 	pModel_->SetScale(VGet(model_scale, model_scale, model_scale));
 	pModel_->SetPos(pos_);
@@ -97,7 +98,8 @@ void Tower::Update()
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	CheckPointSet();
-	HeadToDestination(VGet(checkPointPos_.x, pos_.y, checkPointPos_.z));
+	HeadToDestination(checkPointPos_);
+//	HeadToDestination(VGet(checkPointPos_.x, pos_.y, checkPointPos_.z));
 
 	if (checkPoint_ == goal)
 	{

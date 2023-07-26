@@ -44,6 +44,7 @@ public:
 	int GetCheckPoint() const { return checkPoint_; }
 	int GetHP() const { return hp_; }
 	int GetMaxHP() const;
+	float GetCollisionFrameIndex() const { return pModel_->GetColFrameIndex(); }
 
 public:	
 	enum CheckPoint

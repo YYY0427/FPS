@@ -301,7 +301,8 @@ VECTOR Collision::MovingColision(int modelHandle, bool isMove, bool isJump, bool
 	Init();
 
 	// タワーとの当たり判定チェック
-	CollCheck(modelHandle, pTower_->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
+	if(modelHandle != pTower_->GetModelHandle())
+		CollCheck(modelHandle, pTower_->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 
 	for (auto& obj : pObstacleManager_->GetObstacles())
 	{

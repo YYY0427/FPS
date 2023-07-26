@@ -92,6 +92,8 @@ void UI::DrawAllyHpBar(int hp, int maxHp, int posX, int posY)
 		DrawRoundRectAA(posX - hpBarWidth_ / 2, posY, posX - hpBarWidth_ / 2 + barWidth, posY + hpBarHeight_, 16, 16, 4, 0x00ff00, true);
 	DrawRoundRectAA(posX - ally_hp_bar_width / 2, posY, posX + ally_hp_bar_width / 2, posY + ally_hp_bar_height, 16, 16, 4, 0x000000, false);
 
-	DrawFormatString(posX + 200, posY - 20, 0x000000, "%d/%d", hp, maxHp);
-	DrawFormatString(posX + 201, posY - 21, 0xffffff, "%d/%d", hp, maxHp);
+	DrawFormatString(posX - 30 + 1, posY + 6 + 1, 0x000000, "%d/%d", hp, maxHp);
+	DrawFormatString(posX - 30, posY + 6, 0xffffff, "%d/%d", hp, maxHp);
+//	DrawFormatString(posX + 200, posY - 20, 0x000000, "%d/%d", hp, maxHp);
+//	DrawFormatString(posX + 201, posY - 21, 0xffffff, "%d/%d", hp, maxHp);
 }

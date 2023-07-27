@@ -95,7 +95,9 @@ Player::Player(MainScene* pMainScene) :
 	isJump_(false),
 	pCollision_(nullptr),
 	isFall_(false),
-	bomFrameCount_(bom_wait_time)
+	bomFrameCount_(0),
+	isUseBom_(true),
+	isUseShot_(true)
 {
 	// 3Dモデルの生成
 	pModel_ = std::make_shared<Model>(file_name);
@@ -205,11 +207,13 @@ void Player::SetVisible(bool visible)
 void Player::UpdateIdle(const InputState& input)
 {
 	// フレームカウント
-	shotFrameCount_++;
-	if (shotFrameCount_ > shot_wait_time) shotFrameCount_ = shot_wait_time;
+	shotFrameCount_--;
+	if (shotFrameCount_ < 0) shotFrameCount_ = 0;
+	if (shotFrameCount_ <= 0) isUseShot_ = true;
 
-	bomFrameCount_++;
-	if (bomFrameCount_ > bom_wait_time) bomFrameCount_ = bom_wait_time;
+	bomFrameCount_--;
+	if (bomFrameCount_ < 0) bomFrameCount_ = 0;
+	if (bomFrameCount_ <= 0) isUseBom_ = true;
 
 	// ダメージ処理
 	damageFrame_--;
@@ -233,7 +237,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// ショットを撃つ処理
-	if (input.IsPressed(InputType::shot) && shotFrameCount_ >= shot_wait_time)
+	if (input.IsPressed(InputType::shot) && isUseShot_)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
@@ -261,10 +265,11 @@ void Player::UpdateIdle(const InputState& input)
 		pModel_->ChangeAnimation(animNo_, false, true, 4);
 
 		// 初期化
-		shotFrameCount_ = 0;
+		shotFrameCount_ = shot_wait_time;
+		isUseShot_ = false;
 	}
 
-	if (input.IsTriggered(InputType::bom) && bomFrameCount_ >= bom_wait_time)
+	if (input.IsTriggered(InputType::bom) && /*bomFrameCount_ >= bom_wait_time*/isUseBom_)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
@@ -290,7 +295,8 @@ void Player::UpdateIdle(const InputState& input)
 		animNo_ = idle_shot_anim_no;
 		pModel_->ChangeAnimation(animNo_, false, true, 4);
 
-		bomFrameCount_ = 0;
+		bomFrameCount_ = bom_wait_time;
+		isUseBom_ = false;
 	}
 
 	// プレイヤーの回転値を取得する

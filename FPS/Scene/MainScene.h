@@ -70,6 +70,8 @@ private:
 	// 画像ハンドル
 	int gameOverUIhandle_;
 	int gameClearUIhandle_;
+	int towerIconHandle_;
+	int playerIconHandle_;
 
 	// フェイド
 	int fadeTimer_;

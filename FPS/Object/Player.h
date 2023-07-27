@@ -63,6 +63,9 @@ public:
 
 	void SetJump(bool jump) { isJump_ = jump; }
 
+	bool GetIsUseBom() const { return isUseBom_; }
+	int GetBomFrameCount() const { return bomFrameCount_; }
+
 private:
 	// ‘Ò‹@
 	void UpdateIdle(const InputState& input);
@@ -132,4 +135,7 @@ private:
 
 	// ’n–Ê‚©‚ç—Ž‚¿‚½‚©
 	bool isFall_;
+
+	bool isUseBom_;
+	bool isUseShot_;
 };

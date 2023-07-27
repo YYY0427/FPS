@@ -85,6 +85,8 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	// 画像のロード
 	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");
 	gameClearUIhandle_ = my::MyLoadGraph("Data/UI/GameClear.png");
+	towerIconHandle_ = my::MyLoadGraph("Data/UI/balloonIcon1.png");
+	playerIconHandle_ = my::MyLoadGraph("Data/UI/playerIcon1.png");
 
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
@@ -154,8 +156,13 @@ void MainScene::Draw()
 		{
 			pUI_->DrawEnemyHpBar(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
 		}
-		pUI_->DrawAllyHpBar(pPlayer_->GetHP(), pPlayer_->GetMaxHP(), 350, 850);
+		pUI_->DrawAllyHpBar(pPlayer_->GetHP(), pPlayer_->GetMaxHP(), 450, 900);
 		pUI_->DrawAllyHpBar(pTower_->GetHP(), pTower_->GetMaxHP(), Game::screen_width / 2, 100);
+		DrawRotaGraph(Game::screen_width / 2 - 320, 115, 1.0f, 0.0f, towerIconHandle_, true);
+		DrawRotaGraph(120, 920, 1.0f, 0.0f, playerIconHandle_, true);
+		
+		DrawString(Game::screen_width / 2 + 1, 80 + 1, "気球", 0x000000);
+		DrawString(Game::screen_width / 2, 80, "気球", 0xffffff);
 	}
 
 	// ゲームオーバー時に表示開始
@@ -176,6 +183,16 @@ void MainScene::Draw()
 			DrawLine(reticle_pos_x - 25, reticle_pos_y - 25, reticle_pos_x + 25, reticle_pos_y + 25, 0xff0000);
 			DrawLine(reticle_pos_x - 25, reticle_pos_y + 25, reticle_pos_x + 25, reticle_pos_y - 25, 0xff0000);
 		}	
+	}
+
+	if (pPlayer_->GetIsUseBom())
+	{
+		DrawCircle(Game::screen_width - 200, Game::screen_height - 100, 32, 0xffffff);
+	}
+	else
+	{
+		DrawCircle(Game::screen_width - 200, Game::screen_height - 100, 32, 0x000000);
+		DrawFormatString(Game::screen_width - 200, Game::screen_height - 100, 0xffffff, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
 	}
 
 	// ゲームクリア時に表示

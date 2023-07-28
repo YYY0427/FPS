@@ -75,7 +75,7 @@ void Bom::StartExplosion()
 		grFrontHandle_ = LoadGraph("Data/Effect/png.png");
 		effectH_ = PlayEffekseer3DEffect(effectResourceHandle_);
 		SetSpeedPlayingEffekseer3DEffect(effectH_, 1.5f);
-		SetPosPlayingEffekseer3DEffect(effectH_, pos_.x, pos_.y,  pos_.z);
+		SetPosPlayingEffekseer3DEffect(effectH_, pos_.x, pos_.y, pos_.z);
 	}
 	// ä˘Ç…îöî≠ÇµÇƒÇ¢ÇΩÇÁè¡Ç∑
 	else

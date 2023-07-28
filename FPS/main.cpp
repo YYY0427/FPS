@@ -38,22 +38,22 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		return -1;
 	}
 
-	// Effekseerを初期化する。
-	// 引数には画面に表示する最大パーティクル数を設定する。
-	if (Effkseer_Init(8000) == -1)
-	{
-		DxLib_End();
-		return -1;
-	}
+	//// Effekseerを初期化する。
+	//// 引数には画面に表示する最大パーティクル数を設定する。
+	//if (Effkseer_Init(8000) == -1)
+	//{
+	//	DxLib_End();
+	//	return -1;
+	//}
 
-	// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
-	// Effekseerを使用する場合は必ず設定する。
-	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
+	//// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
+	//// Effekseerを使用する場合は必ず設定する。
+	//SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
-	// DXライブラリのデバイスロストした時のコールバックを設定する。
-	// ウインドウとフルスクリーンの切り替えが発生する場合は必ず実行する。
-	// ただし、DirectX11を使用する場合は実行する必要はない。
-	Effekseer_SetGraphicsDeviceLostCallbackFunctions();
+	//// DXライブラリのデバイスロストした時のコールバックを設定する。
+	//// ウインドウとフルスクリーンの切り替えが発生する場合は必ず実行する。
+	//// ただし、DirectX11を使用する場合は実行する必要はない。
+	//Effekseer_SetGraphicsDeviceLostCallbackFunctions();
 
 	// ダブルバッファモード
 	// 裏画面に描画
@@ -72,11 +72,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		// 画面のクリア
 		ClearDrawScreen();
 
-		// DXライブラリのカメラとEffekseerのカメラを同期する。
-		Effekseer_Sync3DSetting();
+		//// DXライブラリのカメラとEffekseerのカメラを同期する。
+		//Effekseer_Sync3DSetting();
 
-		// Effekseerにより再生中のエフェクトを更新する。
-		UpdateEffekseer3D();
+		//// Effekseerにより再生中のエフェクトを更新する。
+		//UpdateEffekseer3D();
 
 		input.Update();
 
@@ -84,8 +84,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 		sceneManager.Draw();
 
-		// Effekseerにより再生中のエフェクトを描画する。
-		DrawEffekseer3D();
+		//// Effekseerにより再生中のエフェクトを描画する。
+		//DrawEffekseer3D();
 
 		// FPS(Frame Per Second)の取得
 		auto fps = GetFPS();
@@ -109,8 +109,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		}
 	}
 
-	// Effekseerを終了する。
-	Effkseer_End();
+	//// Effekseerを終了する。
+	//Effkseer_End();
 
 	// ＤＸライブラリ使用の終了処理
 	DxLib_End();

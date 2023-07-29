@@ -150,7 +150,7 @@
     <ClCompile Include="BomManager.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
-    <ClCompile Include="EffectManager.cpp">
+    <ClCompile Include="ThreeDimensionEffectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -266,7 +266,7 @@
     <ClInclude Include="BomManager.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
-    <ClInclude Include="EffectManager.h">
+    <ClInclude Include="ThreeDimensionEffectManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

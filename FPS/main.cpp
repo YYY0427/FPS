@@ -4,7 +4,7 @@
 #include "SoundManager.h"
 #include "Scene/SceneManager.h"
 #include "Scene/TitleScene.h"
-#include "EffekseerForDXLib.h"
+#include "ThreeDimensionEffectManager.h"
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -59,9 +59,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// 裏画面に描画
 	SetDrawScreen(DX_SCREEN_BACK);
 
+	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
 	auto& soundManager = SoundManager::GetInstance();
 	InputState input;
 	SceneManager sceneManager;
+
+	if (effectManager.Init() == -1)
+	{
+		return -1;
+	}
+
 	sceneManager.ChangeScene(new TitleScene(sceneManager));
 
 	// 異常が起きた時に終了
@@ -79,10 +86,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		//UpdateEffekseer3D();
 
 		input.Update();
-
 		sceneManager.Update(input);
+		effectManager.Update();
 
 		sceneManager.Draw();
+		effectManager.Draw();
 
 		//// Effekseerにより再生中のエフェクトを描画する。
 		//DrawEffekseer3D();
@@ -111,6 +119,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 	//// Effekseerを終了する。
 	//Effkseer_End();
+
+	effectManager.End();
 
 	// ＤＸライブラリ使用の終了処理
 	DxLib_End();

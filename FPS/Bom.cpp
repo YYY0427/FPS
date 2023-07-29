@@ -1,6 +1,6 @@
 #include "Bom.h"
 #include "Model.h"
-#include "EffekseerForDXLib.h"
+#include "ThreeDimensionEffectManager.h"
 
 namespace
 {
@@ -67,15 +67,14 @@ void Bom::Draw()
 
 void Bom::StartExplosion()
 {
+	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
+
 	if (!isExplosion_)
 	{
 		isExplosion_ = true;
 		collisionRadius_ = after_collision_radius;
-		effectResourceHandle_ = LoadEffekseerEffect("Data/Effect/explosion.efkefc", 100.0f);
-		grFrontHandle_ = LoadGraph("Data/Effect/png.png");
-		effectH_ = PlayEffekseer3DEffect(effectResourceHandle_);
-		SetSpeedPlayingEffekseer3DEffect(effectH_, 1.5f);
-		SetPosPlayingEffekseer3DEffect(effectH_, pos_.x, pos_.y, pos_.z);
+
+		effectManager.PlayEffect("explosion", pos_, 100.0f, 1.5f);
 	}
 	// ä˘Ç…îöî≠ÇµÇƒÇ¢ÇΩÇÁè¡Ç∑
 	else

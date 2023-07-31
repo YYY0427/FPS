@@ -20,4 +20,7 @@ private:
 
 	// HPƒo[‚Ìc•
 	int hpBarHeight_;
+
+	int hpFontHandle_;
+	int hpShadowFontHandle_;
 };

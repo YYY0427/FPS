@@ -30,7 +30,7 @@ int ThreeDimensionEffectManager::Init()
 		return -1;
 	}
 
-	LoadEffectFile("explosion");
+	LoadEffectFile("explosion3");
 	LoadEffectFile("hit");
 	LoadEffectFile("gameClear");
 

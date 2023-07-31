@@ -8,12 +8,14 @@ namespace
 	constexpr int enemy_hp_bar_height = 10;
 
 	// プレイヤーとタワーのHPバー
-	constexpr int ally_hp_bar_width = 500;
-	constexpr int ally_hp_bar_height = 30;
+	constexpr int ally_hp_bar_width = 400;
+	constexpr int ally_hp_bar_height = 50;
 }
 
 UI::UI()
 {
+	hpFontHandle_ = CreateFontToHandle("ニコカv2", 20, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	hpShadowFontHandle_ = CreateFontToHandle("ニコカv2", 21, 3, DX_FONTTYPE_ANTIALIASING_4X4);
 }
 
 UI::~UI()
@@ -79,21 +81,25 @@ void UI::DrawAllyHpBar(int hp, int maxHp, int posX, int posY)
 {
 	hpBarWidth_ = ally_hp_bar_width;
 	hpBarHeight_ = ally_hp_bar_height;
-
+		
 	// 最大HPに対する現在のHPの割合を計算する
 	float hpRate = static_cast<float>(hp) / static_cast<float>(maxHp);
 
 	// HPバーの長さを計算する
 	float barWidth = hpBarWidth_ * hpRate;
 
-	DrawRoundRectAA(posX - ally_hp_bar_width / 2, posY, posX + ally_hp_bar_width / 2, posY + ally_hp_bar_height, 16, 16, 4, 0x000000, true);
+//	DrawRoundRectAA(posX - ally_hp_bar_width / 2, posY, posX + ally_hp_bar_width / 2, posY + ally_hp_bar_height, 1, 1, 4, 0x000000, true);
+	DrawRoundRectAA(posX - ally_hp_bar_width / 2, posY, posX + ally_hp_bar_width / 2, posY + ally_hp_bar_height, 3, 3, 4, 0xffffff, false);
 
 	if (hp > 0)
-		DrawRoundRectAA(posX - hpBarWidth_ / 2, posY, posX - hpBarWidth_ / 2 + barWidth, posY + hpBarHeight_, 16, 16, 4, 0x22EA22, true);
-	DrawRoundRectAA(posX - ally_hp_bar_width / 2, posY, posX + ally_hp_bar_width / 2, posY + ally_hp_bar_height, 16, 16, 4, 0x000000, false);
+		DrawRoundRectAA(posX - hpBarWidth_ / 2, posY, posX - hpBarWidth_ / 2 + barWidth, posY + hpBarHeight_, 3, 3, 4, 0x22EA22, true);
+		//DrawRoundRectAA(posX - hpBarWidth_ / 2, posY, posX - hpBarWidth_ / 2 + barWidth, posY + hpBarHeight_, 1, 1, 4, 0xffffff, true);
 
-	DrawFormatString(posX - 30 + 1, posY + 6 + 1, 0x000000, "%d/%d", hp, maxHp);
-	DrawFormatString(posX - 30, posY + 6, 0xffffff, "%d/%d", hp, maxHp);
-//	DrawFormatString(posX + 200, posY - 20, 0x000000, "%d/%d", hp, maxHp);
-//	DrawFormatString(posX + 201, posY - 21, 0xffffff, "%d/%d", hp, maxHp);
+	DrawFormatStringToHandle(posX - 50, posY + 12, 0x000000, hpShadowFontHandle_, "%d", hp);
+	DrawStringToHandle(posX + 8, posY + 12, "|", 0x000000, hpShadowFontHandle_);
+	DrawFormatStringToHandle(posX + 25, posY + 12, 0x000000, hpShadowFontHandle_, "%d", maxHp);
+
+	DrawFormatStringToHandle(posX - 50, posY + 12, 0xffffff, hpFontHandle_, "%d", hp);
+	DrawStringToHandle(posX + 8, posY + 12, "|", 0xffffff, hpFontHandle_);
+	DrawFormatStringToHandle(posX + 25, posY + 12, 0xffffff, hpFontHandle_, "%d", maxHp);
 }

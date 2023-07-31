@@ -31,29 +31,19 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// Effekseerを使用するには必ず設定する。
 	SetUseDirect3DVersion(DX_DIRECT3D_9);
 
+	// ********** フォントのロード **********
+	LPCSTR font_path = "Data/Font/nicoca_v2.ttf"; // 読み込むフォントファイルのパス
+	if (AddFontResourceEx(font_path, FR_PRIVATE, NULL) < 0)
+	{
+		return -1;
+	}
+	
 	// ＤＸライブラリ初期化処理
 	if (DxLib_Init() == -1)
 	{
 		// エラーが起きたら直ちに終了
 		return -1;
 	}
-
-	//// Effekseerを初期化する。
-	//// 引数には画面に表示する最大パーティクル数を設定する。
-	//if (Effkseer_Init(8000) == -1)
-	//{
-	//	DxLib_End();
-	//	return -1;
-	//}
-
-	//// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
-	//// Effekseerを使用する場合は必ず設定する。
-	//SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
-
-	//// DXライブラリのデバイスロストした時のコールバックを設定する。
-	//// ウインドウとフルスクリーンの切り替えが発生する場合は必ず実行する。
-	//// ただし、DirectX11を使用する場合は実行する必要はない。
-	//Effekseer_SetGraphicsDeviceLostCallbackFunctions();
 
 	// ダブルバッファモード
 	// 裏画面に描画
@@ -79,21 +69,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		// 画面のクリア
 		ClearDrawScreen();
 
-		//// DXライブラリのカメラとEffekseerのカメラを同期する。
-		//Effekseer_Sync3DSetting();
-
-		//// Effekseerにより再生中のエフェクトを更新する。
-		//UpdateEffekseer3D();
-
 		input.Update();
 		sceneManager.Update(input);
 		effectManager.Update();
 
 		sceneManager.Draw();
 		effectManager.Draw();
-
-		//// Effekseerにより再生中のエフェクトを描画する。
-		//DrawEffekseer3D();
 
 		// FPS(Frame Per Second)の取得
 		auto fps = GetFPS();
@@ -116,9 +97,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 		}
 	}
-
-	//// Effekseerを終了する。
-	//Effkseer_End();
 
 	effectManager.End();
 

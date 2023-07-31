@@ -69,7 +69,8 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	shadowMap_(-1),
 	gameOverUIhandle_(-1),
 	gameOverUIFadeTimer_(0),
-	gameClearUIhandle_(-1)
+	gameClearUIhandle_(-1),
+	gameClearImgExRate_(3)
 {
 	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
@@ -109,7 +110,16 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gunUIhandle_ = my::MyLoadGraph("Data/UI/gunUI.png");
 	bomUIhandle_ = my::MyLoadGraph("Data/UI/bomUI.png");
 	infinityHandle_ = my::MyLoadGraph("Data/UI/infinity.png");
+	completeHandle_ = my::MyLoadGraph("Data/UI/complete.png");
 
+	// フォントのロード
+	bulletCounFontHandle_ = CreateFontToHandle("ニコカv2", 40, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	towerNameFontHandle_ = CreateFontToHandle("ニコカv2", 30, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	towerNameShadowFontHandle_ = CreateFontToHandle("ニコカv2", 31, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	playerNameFontHandle_ = CreateFontToHandle("ニコカv2", 40, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	playerNameShadowFontHandle_ = CreateFontToHandle("ニコカv2", 41, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	gameClearFontHandle_ = CreateFontToHandle("ニコカv2", 120, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+	
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
 	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
@@ -183,8 +193,11 @@ void MainScene::Draw()
 		DrawRotaGraph(Game::screen_width / 2 - 320, 115, 1.0f, 0.0f, towerIconHandle_, true);
 		DrawRotaGraph(120, 920, 1.0f, 0.0f, playerIconHandle_, true);
 		
-		DrawString(Game::screen_width / 2 + 1, 80 + 1, "気球", 0x000000);
-		DrawString(Game::screen_width / 2, 80, "気球", 0xffffff);
+		DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0x000000, towerNameShadowFontHandle_);
+		DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0xffffff, towerNameFontHandle_);
+
+		DrawStringToHandle(450 - 35, 855, "あなた", 0x000000, playerNameFontHandle_);
+		DrawStringToHandle(450 - 35, 855, "あなた", 0xffffff, playerNameShadowFontHandle_);
 	}
 
 	// 銃のUI
@@ -196,13 +209,13 @@ void MainScene::Draw()
 	// 爆弾のUI
 	if (pPlayer_->GetIsUseBom())
 	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 1.0f, 1.0f, 4, 0xffffff, true, 2);
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, true, 2);
 		DrawRotaGraph(Game::screen_width - 650, Game::screen_height - 150, 1.0f, 0.0f, bomUIhandle_, true);
 	}
 	else
 	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 1.0f, 1.0f, 4, 0x000000, true, 2);
-		DrawFormatString(Game::screen_width - 650, Game::screen_height - 200, 0xffffff, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0x000000, true, 2);
+		DrawFormatStringToHandle(Game::screen_width - 660, Game::screen_height - 175, 0xffffff, bulletCounFontHandle_, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
 	}
 
 	// ゲームオーバー時に表示開始
@@ -230,7 +243,9 @@ void MainScene::Draw()
 	// ゲームクリア時に表示
 	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
-		DrawGraph(0, 0, gameClearUIhandle_, true);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(gameClearUIFadeValue_ * 100) / 255*/gameClearUIFadeValue_);
+		DrawRotaGraph(950, 550, gameClearImgExRate_, -15.0f * DX_PI_F / 180.0f, completeHandle_, true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 
 #ifdef _DEBUG
@@ -318,10 +333,10 @@ void MainScene::NormalUpdate(const InputState& input)
 {
 	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
 
-	if (cnt_++ > 45)
+	if (reticleEffectDisplayTime++ > 45)
 	{
 		isHit_ = false;
-		cnt_ = 0;
+		reticleEffectDisplayTime = 0;
 	}
 
 	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
@@ -484,6 +499,20 @@ void MainScene::NormalUpdate(const InputState& input)
 		if (!effectManager.IsEffectPlaying("gameClear"))
 		{
 			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
+		}
+		if (gameClearCount_++ > 120)
+		{
+			gameClearUIFadeTimer_++;
+			gameClearUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(gameClearUIFadeTimer_)) / static_cast<float>(game_over_fade_interval));
+			if (gameClearUIFadeTimer_ >= game_over_fade_interval)
+			{
+				gameClearUIFadeTimer_ = game_over_fade_interval;
+			}
+			if (gameClearUIFadeTimer_ >= 30)
+			{
+				gameClearImgExRate_ = gameClearImgExRate_ - 0.1;
+				if (gameClearImgExRate_ <= 1.0)	gameClearImgExRate_ = 1.0;
+			}
 		}
 	}
 

@@ -75,12 +75,23 @@ private:
 	int gunUIhandle_;
 	int bomUIhandle_;
 	int infinityHandle_;
+	int completeHandle_;
+
+	// フォントハンドル
+	int bulletCounFontHandle_;
+	int towerNameFontHandle_;
+	int towerNameShadowFontHandle_;
+	int playerNameFontHandle_;
+	int playerNameShadowFontHandle_;
+	int gameClearFontHandle_;
 
 	// フェイド
 	int fadeTimer_;
 	int fadeValue_;
 	int gameOverUIfadeValue_;
 	int gameOverUIFadeTimer_;
+	int gameClearUIFadeValue_;
+	int gameClearUIFadeTimer_;
 
 	// シャドウマップ
 	int shadowMap_;
@@ -91,5 +102,12 @@ private:
 	// プレイヤーショットと敵に弾が当たったか
 	bool isHit_;
 
-	int cnt_;
+	// 敵に攻撃を当てたときに表示するレティクルのエフェクトの表示の持続時間
+	int reticleEffectDisplayTime;
+
+	// ゲームクリア画像の拡大率
+	double gameClearImgExRate_;
+
+	// ゲームクリアしてからの経過時間
+	int gameClearCount_;
 };

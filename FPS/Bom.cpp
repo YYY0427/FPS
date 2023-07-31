@@ -74,7 +74,7 @@ void Bom::StartExplosion()
 		isExplosion_ = true;
 		collisionRadius_ = after_collision_radius;
 
-		effectManager.PlayEffect("explosion", pos_, 100.0f, 1.5f);
+		effectManager.PlayEffect("explosion3", pos_, 100.0f, 1.0f);
 	}
 	// Šù‚É”š”­‚µ‚Ä‚¢‚½‚çÁ‚·
 	else

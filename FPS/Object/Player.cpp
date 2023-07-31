@@ -61,7 +61,7 @@ namespace
 	constexpr float collision_radius = 70.0f;
 
 	// 最大HP
-	constexpr int max_hp = 1000;
+	constexpr int max_hp = 200;
 
 	// ダメージ食らった時の無敵時間
 	constexpr int invincible_time = 60;

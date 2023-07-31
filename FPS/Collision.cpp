@@ -26,7 +26,7 @@ Collision::~Collision()
 {
 }
 
-void Collision::Init()
+void Collision::ExtrusionCollisionInit()
 {
 	moveAfterPos_ = VGet(0, 0, 0);
 	oldPos_ = VGet(0, 0, 0);
@@ -37,7 +37,7 @@ void Collision::Init()
 
 
 
-void Collision::CollCheck(int characterModelHandle, int objectModelHandle, int collisionFrameIndex, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
+void Collision::CollsionCheckAndPolyTypeCheck(int characterModelHandle, int objectModelHandle, int collisionFrameIndex, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
 {
 	// モデルの最大頂点座標と最小頂点座標の取得
 	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
@@ -295,19 +295,19 @@ void Collision::JumpingFloorPolyColCheckProcess()
 {
 }
 
-VECTOR Collision::MovingColision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
+VECTOR Collision::ExtrusionColision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
 {
 	// 初期化
-	Init();
+	ExtrusionCollisionInit();
 
 	// タワーとの当たり判定チェック
 	if(modelHandle != pTower_->GetModelHandle())
-		CollCheck(modelHandle, pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), pos, vec, collisionRadius, chara);
+		CollsionCheckAndPolyTypeCheck(modelHandle, pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), pos, vec, collisionRadius, chara);
 
 	for (auto& obj : pObstacleManager_->GetObstacles())
 	{
 		// 障害物との当たり判定チェック
-		CollCheck(modelHandle, obj->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
+		CollsionCheckAndPolyTypeCheck(modelHandle, obj->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 	}
 
 	for (auto& enemy : pEnemyManager_->GetEnemies())
@@ -315,11 +315,11 @@ VECTOR Collision::MovingColision(int modelHandle, bool isMove, bool isJump, bool
 		if (enemy->GetModelHandle() == modelHandle) continue;
 
 		// 敵同士の当たり判定チェック
-		CollCheck(modelHandle, enemy->GetModelHandle(), enemy->GetColFrameIndex(), pos, vec, collisionRadius, chara);
+		CollsionCheckAndPolyTypeCheck(modelHandle, enemy->GetModelHandle(), enemy->GetColFrameIndex(), pos, vec, collisionRadius, chara);
 	}
 
 	// フィールドとの当たり判定チェック
-	CollCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
+	CollsionCheckAndPolyTypeCheck(modelHandle, pStages_->GetStages()->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
 
 	if (tower != chara)
 	{
@@ -334,4 +334,35 @@ VECTOR Collision::MovingColision(int modelHandle, bool isMove, bool isJump, bool
 	MV1CollResultPolyDimTerminate(hitDim_);
 
 	return moveAfterPos_;
+}
+
+bool Collision::SpheresColision(VECTOR pos1, VECTOR pos2, float colisionRadius1, float colisionRadius2)
+{
+	float dist = VSize(VSub(pos1, pos2));
+	if (dist < (colisionRadius1 + colisionRadius2))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool Collision::ModelAndCapsuleCollision(int modelHandle, int frameIndex, VECTOR pos, VECTOR lastPos, float collisionRadius)
+{
+	result_ = MV1CollCheck_Capsule(modelHandle, frameIndex, pos, lastPos, collisionRadius);
+	if (result_.HitNum > 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Collision::ModelAndSphereCollision(int modelHandle, int frameIndex, VECTOR pos, float collisionRadius)
+{
+	result_ = MV1CollCheck_Sphere(modelHandle, frameIndex, pos, collisionRadius);
+	if (result_.HitNum > 0)
+	{
+		return true;
+	}
+	return false;
 }

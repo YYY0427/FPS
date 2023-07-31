@@ -37,6 +37,8 @@ public:
 	// 弾を消すセッター
 	void SetEnabled(bool isExsit) { isEnabled_ = isExsit; }
 
+	int GetModelHandle() const;
+
 private:
 	// ポインタ
 	std::shared_ptr<Player> pPlayer_;

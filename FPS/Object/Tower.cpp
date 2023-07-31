@@ -155,7 +155,7 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 	}
 
 	// 当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMove_, false, true, pos_, vec_, Collision::Chara::tower, colRadius_);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), isMove_, false, true, pos_, vec_, Collision::Chara::tower, colRadius_);
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);

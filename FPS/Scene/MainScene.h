@@ -72,6 +72,9 @@ private:
 	int gameClearUIhandle_;
 	int towerIconHandle_;
 	int playerIconHandle_;
+	int gunUIhandle_;
+	int bomUIhandle_;
+	int infinityHandle_;
 
 	// フェイド
 	int fadeTimer_;

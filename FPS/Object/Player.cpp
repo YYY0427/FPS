@@ -152,7 +152,7 @@ int Player::GetMaxHP() const
 	return max_hp;
 }
 
-float Player::GetColRadius() const
+float Player::GetCollisionRadius() const
 {
 	return collision_radius;
 }
@@ -367,7 +367,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// 当たり判定チェック
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 
 	// ジャンプ処理
 	jumpAcc_ += gravity;
@@ -450,14 +450,14 @@ void Player::UpdateDead(const InputState& input)
 	// ジャンプ処理
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
 }
 
 void Player::UpdateOnDamage(const InputState& input)
 {
 	assert(animNo_ == damage_anim_no);
 
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), isMoving_, isJump_, true, pos_, moveVec_, Collision::Chara::player, collision_radius);
 
 	pModel_->SetPos(pos_);
 

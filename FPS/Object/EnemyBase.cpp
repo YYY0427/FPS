@@ -85,7 +85,7 @@ void EnemyBase::UpdateDead()
 	frameCount_++;
 	assert(animNo_ == deadAnimNo_);
 
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), false, false, true, pos_, VGet(0, 0, 0), bee, colRadius_);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), false, false, true, pos_, VGet(0, 0, 0), bee, colRadius_);
 	pModel_->SetPos(pos_);
 	pModel_->Update();
 

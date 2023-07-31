@@ -31,6 +31,8 @@ Shot::Shot() :
 
 	// ƒ‚ƒfƒ‹‚ÌŠg‘å—¦‚ÌÝ’è
 	pModel_->SetScale(VGet(model_magnification, model_magnification, model_magnification));
+
+	pModel_->SetUseCollision(true);
 }
 
 Shot::Shot(int handle) :
@@ -79,6 +81,8 @@ void Shot::Update()
 	// FIXME:
 	// ƒJƒƒ‰‚Ì‰ñ“]
 	pModel_->SetRot(VGet(pCamera_->GetCameraPitch() + DX_PI_F / 5, pCamera_->GetCameraYaw() + DX_PI_F, 0.0f));
+
+	pModel_->Update();
 }
 
 void Shot::Draw()
@@ -120,4 +124,9 @@ void Shot::Start(VECTOR pos, VECTOR vec, std::shared_ptr<Player> pPlayer, std::s
 float Shot::GetColRadius() const
 {
 	return collision_radius;
+}
+
+int Shot::GetModelHandle() const
+{
+	return pModel_->GetModelHandle();
 }

@@ -194,7 +194,7 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	}
 
 	// 当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
@@ -274,7 +274,7 @@ void Enemy::UpdateToIdle()
 			target_ = tower;
 		}
 		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 		{
 			target_ = player;
 		}
@@ -303,7 +303,7 @@ void Enemy::UpdateToIdle()
 	}
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
 
 	pModel_->SetPos(pos_);
 
@@ -337,7 +337,7 @@ void Enemy::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)
@@ -349,7 +349,7 @@ void Enemy::UpdateToFront()
 			frameCount_ = 0;
 		}
 		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 		{
 			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			frameCount_ = 0;

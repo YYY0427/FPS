@@ -35,7 +35,7 @@ void UI::DrawEnemyHpBar(std::shared_ptr<Player> pPlayer, VECTOR pos, int handle,
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(handle, -1, startPos, endPos);*/
 //	if (hitPoly.HitFlag)
 	float dist = VSize(VSub(pPlayer->GetPos(), pos));
-	if (dist < (pPlayer->GetColRadius() + 3000.0f))
+	if (dist < (pPlayer->GetCollisionRadius() + 3000.0f))
 	{
 		// モデル内にあるHPバーを表示する座標のデータを取得する
 		int frameNo = MV1SearchFrame(handle, frameName);

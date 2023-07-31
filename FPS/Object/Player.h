@@ -53,7 +53,7 @@ public:
 	bool GetIsDead() const { return isDead_; }
 
 	// 当たり判定の半径のゲッター
-	float GetColRadius() const;
+	float GetCollisionRadius() const;
 
 	// ダメージを受けた
 	void OnDamage(int damage);

@@ -161,7 +161,7 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
 
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
@@ -280,7 +280,7 @@ void Bee::UpdateToIdle()
 			target_ = tower;
 		}
 		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 		{
 			target_ = player;
 		}
@@ -348,7 +348,7 @@ void Bee::UpdateToFront()
 	VECTOR vec = VScale(dir, to_front_speed);
 
 	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->MovingColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
 
 	frameCount_++;
 	if (frameCount_ >= 2 * 60)
@@ -360,7 +360,7 @@ void Bee::UpdateToFront()
 			frameCount_ = 0;
 		}
 		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetColRadius()) && !pPlayer_->GetIsDead())
+		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 		{
 			updateFunc_ = &Bee::UpdateTrackingToPlayer;
 			frameCount_ = 0;

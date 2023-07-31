@@ -52,7 +52,7 @@ Camera::Camera(std::shared_ptr<Player> pPlayer, MainScene* pMainScene) :
 	quakeTimer_(0),
 	quake_(VGet(0, 0, 0))
 {
-#ifdef _DEBUG
+#if false
 	SetMouseDispFlag(true);
 #else
 	// マウスカーソルの非表示

@@ -22,6 +22,7 @@
 #include "../Bom.h"
 #include "../BomManager.h"
 #include "../UI.h"
+#include "../ThreeDimensionEffectManager.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -37,8 +38,26 @@ namespace
 	constexpr int reticle_pos_x = Game::screen_width / 2;
 	constexpr int reticle_pos_y = Game::screen_height / 2;
 
+	// クロスヘアの太さ
+	constexpr int reticle_thickness = 1;
+
+	// クロスヘアの長さ
+	constexpr int reticle_length = 25;
+
+	// クロスヘアが中心からどれだけ離れているか
+	constexpr int reticle_distance_from_center = 10;
+
 	// ゲームオーバー時の表示文字のフェード速度
 	constexpr int game_over_fade_interval = 60;
+
+	// ゲームクリア時のエフェクトの位置
+	constexpr VECTOR gameclear_effect_pos{ -4434, -342, -6460 };
+
+	// プレイヤーショットのダメージ
+	constexpr int player_shot_damage = 100;
+
+	// ボムのダメージ
+	constexpr int player_bom_shot_damage = 10;
 }
 
 MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
@@ -87,6 +106,9 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gameClearUIhandle_ = my::MyLoadGraph("Data/UI/GameClear.png");
 	towerIconHandle_ = my::MyLoadGraph("Data/UI/balloonIcon1.png");
 	playerIconHandle_ = my::MyLoadGraph("Data/UI/playerIcon1.png");
+	gunUIhandle_ = my::MyLoadGraph("Data/UI/gunUI.png");
+	bomUIhandle_ = my::MyLoadGraph("Data/UI/bomUI.png");
+	infinityHandle_ = my::MyLoadGraph("Data/UI/infinity.png");
 
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
@@ -165,6 +187,24 @@ void MainScene::Draw()
 		DrawString(Game::screen_width / 2, 80, "気球", 0xffffff);
 	}
 
+	// 銃のUI
+	DrawRoundRectAA(Game::screen_width - 500, Game::screen_height  - 220, Game::screen_width - 50, Game::screen_height - 80, 1.0f, 1.0f, 4, 0xffffff, false, 2);
+	DrawLine(Game::screen_width - 140, Game::screen_height - 180, Game::screen_width - 140, Game::screen_height - 120, 0xffffff, 2);
+	DrawRotaGraph(Game::screen_width - 95, Game::screen_height - 150, 1.0, 0.0f, infinityHandle_, true);
+	DrawRotaGraph(Game::screen_width - 350, Game::screen_height - 150, 1.0f, 0.0f, gunUIhandle_, true);
+
+	// 爆弾のUI
+	if (pPlayer_->GetIsUseBom())
+	{
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 1.0f, 1.0f, 4, 0xffffff, true, 2);
+		DrawRotaGraph(Game::screen_width - 650, Game::screen_height - 150, 1.0f, 0.0f, bomUIhandle_, true);
+	}
+	else
+	{
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 1.0f, 1.0f, 4, 0x000000, true, 2);
+		DrawFormatString(Game::screen_width - 650, Game::screen_height - 200, 0xffffff, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
+	}
+
 	// ゲームオーバー時に表示開始
 	if (isGameOver_)
 	{
@@ -175,24 +215,16 @@ void MainScene::Draw()
 	else
 	{
 		// クロスヘア
-		DrawLine(reticle_pos_x - 25, reticle_pos_y, reticle_pos_x + 25, reticle_pos_y, 0xffffff);	// 横
-		DrawLine(reticle_pos_x, reticle_pos_y - 25, reticle_pos_x, reticle_pos_y + 25, 0xffffff);	// 縦
+		DrawBox(reticle_pos_x - reticle_length, reticle_pos_y - reticle_thickness, reticle_pos_x - reticle_distance_from_center, reticle_pos_y + reticle_thickness, 0xffffff, true);
+		DrawBox(reticle_pos_x + reticle_distance_from_center, reticle_pos_y - reticle_thickness, reticle_pos_x + reticle_length, reticle_pos_y + reticle_thickness, 0xffffff, true);
+		DrawBox(reticle_pos_x - reticle_thickness, reticle_pos_y - reticle_length, reticle_pos_x + reticle_thickness, reticle_pos_y - 10, 0xffffff, true);
+		DrawBox(reticle_pos_x - reticle_thickness, reticle_pos_y + reticle_distance_from_center, reticle_pos_x + reticle_thickness, reticle_pos_y + 25, 0xffffff, true);
 
 		if (isHit_)
 		{
-			DrawLine(reticle_pos_x - 25, reticle_pos_y - 25, reticle_pos_x + 25, reticle_pos_y + 25, 0xff0000);
-			DrawLine(reticle_pos_x - 25, reticle_pos_y + 25, reticle_pos_x + 25, reticle_pos_y - 25, 0xff0000);
+			DrawLine(reticle_pos_x - 15, reticle_pos_y - 15, reticle_pos_x + 15, reticle_pos_y + 15, 0xff0000, 2);
+			DrawLine(reticle_pos_x - 15, reticle_pos_y + 15, reticle_pos_x + 15, reticle_pos_y - 15, 0xff0000, 2);	
 		}	
-	}
-
-	if (pPlayer_->GetIsUseBom())
-	{
-		DrawCircle(Game::screen_width - 200, Game::screen_height - 100, 32, 0xffffff);
-	}
-	else
-	{
-		DrawCircle(Game::screen_width - 200, Game::screen_height - 100, 32, 0x000000);
-		DrawFormatString(Game::screen_width - 200, Game::screen_height - 100, 0xffffff, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
 	}
 
 	// ゲームクリア時に表示
@@ -284,6 +316,8 @@ void MainScene::FadeOutUpdate(const InputState& input)
 
 void MainScene::NormalUpdate(const InputState& input)
 {
+	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
+
 	if (cnt_++ > 45)
 	{
 		isHit_ = false;
@@ -322,166 +356,134 @@ void MainScene::NormalUpdate(const InputState& input)
 			// プレイヤーの弾と敵の当たり判定
 			for (auto& enemies : pEnemyManager_->GetEnemies())
 			{
-				// DxLibの関数を利用して当たり判定をとる
-				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Capsule(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
-
-				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				if (pCollision_->ModelAndCapsuleCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
 				{
-					// 当たった
-					enemies->OnDamage(10);		// 敵にダメージ
-					shot->SetEnabled(false);	// 敵に当たった弾を消す
+					if (!pTower_->GetIsGoal())
+						enemies->OnDamage(player_shot_damage);		
+					shot->SetEnabled(false);					
 					isHit_ = true;
+					auto temp = pCollision_->GetCollisionResult().Dim->Position;
+					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 2.0f);
 				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
 			}
-
 			// 障害物とプレイヤーショットの当たり判定
 			for (auto& obj : pObstacleManager_->GetObstacles())
 			{
-				float dist = VSize(VSub(shot->GetPos(), obj->GetPos()));
-				if (dist < (shot->GetColRadius() + obj->GetNormalCollsionRadius()))
+				if(pCollision_->ModelAndSphereCollision(shot->GetModelHandle(), -1, obj->GetPos(), obj->GetNormalCollsionRadius()))
 				{
-					obj->OnDamage(1);			// 敵にダメージ
+					if(!pTower_->GetIsGoal())
+						obj->OnDamage(player_shot_damage);			
 					shot->SetEnabled(false);	// 敵に当たった弾を消す
 					isHit_ = true;
+					auto temp = pCollision_->GetCollisionResult().Dim->Position;
+					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 1.0f);
 				}
 			}
 			// プレイヤーショットとステージの当たり判定
+			if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
 			{
-				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Capsule(pStageManager_->GetStages()->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius());
-
-				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
-				{
-					// 当たった
-					shot->SetEnabled(false);	// 敵に当たった弾を消す
-				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
+				// 当たった
+				shot->SetEnabled(false);
 			}
 		}
-
-		// ボムと障害物の当たり判定
 		for (auto& boms : pBomManager_->GetBoms())
 		{
+			// ボムと障害物の当たり判定
 			for (auto& obs : pObstacleManager_->GetObstacles())
 			{
-				float dist = VSize(VSub(obs->GetPos(), boms->GetPos()));
-				if (dist < (obs->GetNormalCollsionRadius() + boms->GetCollisionRadius()))
+				if(pCollision_->SpheresColision(obs->GetPos(), boms->GetPos(), obs->GetNormalCollsionRadius(), boms->GetCollisionRadius()))
 				{
-					obs->OnDamage(10);			
+					if (!pTower_->GetIsGoal())
+						obs->OnDamage(player_bom_shot_damage);
 					boms->StartExplosion();	
 					isHit_ = true;
 				}
 			}
-
-			MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-			result = MV1CollCheck_Sphere(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius());
-
-			if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+			// 敵とボムの当たり判定
+			for (auto& enemies : pEnemyManager_->GetEnemies())
+			{
+				if (pCollision_->SpheresColision(enemies->GetPos(), boms->GetPos(), enemies->GetCollisionRadius(), boms->GetCollisionRadius()))
+				{
+					isHit_ = true;
+					if (!pTower_->GetIsGoal())
+						enemies->OnDamage(player_bom_shot_damage);
+					boms->StartExplosion();
+				}
+			}
+			// ボムとステージの当たり判定
+			if (pCollision_->ModelAndSphereCollision(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius()))
 			{
 				// 当たった
-				boms->StartExplosion();	
+				boms->StartExplosion();
 			}
-			// 当たり判定情報の後始末
-			MV1CollResultPolyDimTerminate(result);
 		}
-
 		for (auto& bullets : pEnemyShotFactory_->GetBullets())
 		{
 			// 敵の弾とプレイヤーの当たり判定
+			if (pCollision_->ModelAndCapsuleCollision(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
 			{
-				MV1_COLL_RESULT_POLY_DIM result;
-				result = MV1CollCheck_Capsule(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
-
-				if (result.HitNum > 0)
-				{
-					// 当たった
+				// 当たった
+				if (!pTower_->GetIsGoal())
 					pPlayer_->OnDamage(1);
-					bullets->SetIsEnabled(false);
-				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
+				bullets->SetIsEnabled(false);
 			}
-			
 			// 敵の弾とタワーの当たり判定
 			{	
-				MV1_COLL_RESULT_POLY_DIM result;
-				result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+				MV1_COLL_RESULT_POLY_DIM result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
 				if (result.HitNum > 0)
 				{
 					// 当たった
-					pTower_->OnDamage(1);
+					effectManager.PlayEffect("hit", VGet(result.Dim->Position->x, result.Dim->Position->y, result.Dim->Position->z), 100.0f, 1.0f);
+					if (!pTower_->GetIsGoal())
+						pTower_->OnDamage(1);
 					bullets->SetIsEnabled(false);
 				}
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
 			}
 			// エネミーショットとステージの当たり判定
+			if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
 			{
-				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Capsule(pStageManager_->GetStages()->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
-
-				if (result.HitNum > 0)			// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
-				{
-					// 当たった
-					bullets->SetIsEnabled(false);	// 敵に当たった弾を消す
-				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
+				bullets->SetIsEnabled(false);
 			}
 		}
-
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
 			// 敵のHPがなかったら判定を行わない
 			if (enemies->GetHP().hp_ <= 0) continue;
 
 			// 敵とプレイヤーの当たり判定
+			if (pCollision_->SpheresColision(enemies->GetPos(), pPlayer_->GetPos(), enemies->GetCollisionRadius(), pPlayer_->GetCollisionRadius()))
 			{
-				float dist = VSize(VSub(enemies->GetPos(), pPlayer_->GetPos()));
-				if (dist < (pPlayer_->GetColRadius() + enemies->GetCollisionRadius()))
-				{
-					pPlayer_->OnDamage(1);
-				}
+				pPlayer_->OnDamage(1);
 			}
-
-			for (auto& bom : pBomManager_->GetBoms())
-			{
-				float dist = VSize(VSub(enemies->GetPos(), bom->GetPos()));
-				if (dist < (enemies->GetCollisionRadius() + bom->GetCollisionRadius()))
-				{
-					isHit_ = true;
-					enemies->OnDamage(30);
-					bom->StartExplosion();
-				}
-			}
-
 			// 敵とタワーの当たり判定
 			{
 				// 敵の種別によって当たり判定を行わない
 				if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
-
 				// 死んでいたら当たり判定を行わない
 				if (enemies->GetDead()) continue;
-
 				// 攻撃をしていなかったら当たり判定を行わない
 				if (!enemies->GetIsAttak()) continue;
 
-				// DxLibの関数を利用して当たり判定をとる
-				MV1_COLL_RESULT_POLY_DIM result;	// あたりデータ
-				result = MV1CollCheck_Sphere(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f);
-
-				if (result.HitNum > 0)		// 1枚以上のポリゴンと当たっていたらモデルと当たっている判定
+				if (pCollision_->ModelAndSphereCollision(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f))
 				{
 					// 当たった
-					pTower_->OnDamage(1);	// タワーにダメージ
+					auto temp = pCollision_->GetCollisionResult().Dim->Position;
+					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
+					if (!pTower_->GetIsGoal())
+						pTower_->OnDamage(1);
 				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
 			}
+		}
+	}
+
+	// ゲームクリア演出開始
+	if (pTower_->GetIsGoal() && !isGameOver_)
+	{
+		if (!effectManager.IsEffectPlaying("gameClear"))
+		{
+			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
 		}
 	}
 

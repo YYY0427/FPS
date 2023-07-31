@@ -31,6 +31,8 @@ int ThreeDimensionEffectManager::Init()
 	}
 
 	LoadEffectFile("explosion");
+	LoadEffectFile("hit");
+	LoadEffectFile("gameClear");
 
 	return 0;
 }
@@ -70,6 +72,7 @@ int ThreeDimensionEffectManager::LoadEffectFile(const char* fileName)
 
 void ThreeDimensionEffectManager::PlayEffect(const char* fileName, VECTOR pos, float scale, float speed, VECTOR rot)
 {
+//	assert(effectResourceNameAndHandleTable_[fileName] != -1);
 	effectNameAndHandleTable_[fileName] = PlayEffekseer3DEffect(effectResourceNameAndHandleTable_[fileName]);
 	SetSpeedPlayingEffekseer3DEffect(effectNameAndHandleTable_[fileName], speed);
 	SetScalePlayingEffekseer3DEffect(effectNameAndHandleTable_[fileName], scale, scale,scale);

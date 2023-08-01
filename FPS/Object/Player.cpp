@@ -7,6 +7,7 @@
 #include "../Collision.h"
 #include "../BomManager.h"
 #include "Tower.h"
+#include "../SoundManager.h"
 #include <DxLib.h>
 #include <cassert>
 
@@ -206,6 +207,8 @@ void Player::SetVisible(bool visible)
 
 void Player::UpdateIdle(const InputState& input)
 {
+	auto& soundManager = SoundManager::GetInstance();
+
 	// フレームカウント
 	shotFrameCount_--;
 	if (shotFrameCount_ < 0) shotFrameCount_ = 0;
@@ -239,6 +242,8 @@ void Player::UpdateIdle(const InputState& input)
 	// ショットを撃つ処理
 	if (input.IsPressed(InputType::shot) && isUseShot_)
 	{
+		soundManager.Play("gun");
+
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
 		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());		// 横移動情報の行列作成		
@@ -269,7 +274,7 @@ void Player::UpdateIdle(const InputState& input)
 		isUseShot_ = false;
 	}
 
-	if (input.IsTriggered(InputType::bom) && /*bomFrameCount_ >= bom_wait_time*/isUseBom_)
+	if (input.IsTriggered(InputType::bom) && isUseBom_)
 	{
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
@@ -349,6 +354,11 @@ void Player::UpdateIdle(const InputState& input)
 		// 正規化したベクトルにプレイヤーの速度をかける
 		moveVec_ = VScale(moveVec_, player_speed);
 
+		if (!soundManager.CheckMusic("run"))
+		{
+			soundManager.Play("run");
+		}
+
 		if (animNo_ == idle_anim_no)
 		{
 			// 歩行アニメに変更
@@ -358,6 +368,8 @@ void Player::UpdateIdle(const InputState& input)
 	}
 	else
 	{
+		soundManager.StopSelectMusic("run");
+
 		if (animNo_ == walk_anim_no)
 		{
 			// 待機アニメに変更
@@ -378,6 +390,11 @@ void Player::UpdateIdle(const InputState& input)
 		isJump_ = false;
 	}
 
+	if (pos_.y  > pCollision_->GetGroundY() + 50.0f)
+	{
+		soundManager.StopSelectMusic("run");
+	}
+
 	// 地面から落ちた場合ダメージをくらい、リスポーン地点に戻る
 	if (pos_.y <  - 3000.0f)
 	{
@@ -391,6 +408,8 @@ void Player::UpdateIdle(const InputState& input)
 		animNo_ = idle_anim_no;
 		pModel_->ChangeAnimation(idle_anim_no, true, true, 4);
 	}
+
+	soundManager.Set3DSoundListenerPosAndFrontPos_UpVecY(pos_, VGet(-cos(pCamera_->GetCameraYaw()), 0, sin(pCamera_->GetCameraYaw())));
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);

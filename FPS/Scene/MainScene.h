@@ -76,6 +76,7 @@ private:
 	int bomUIhandle_;
 	int infinityHandle_;
 	int completeHandle_;
+	int playerDamageUIHandle_;
 
 	// フォントハンドル
 	int bulletCounFontHandle_;
@@ -92,6 +93,8 @@ private:
 	int gameOverUIFadeTimer_;
 	int gameClearUIFadeValue_;
 	int gameClearUIFadeTimer_;
+	int playerDamageUIFadeTimer_;
+	int playerDamageUIFadeValue_;
 
 	// シャドウマップ
 	int shadowMap_;
@@ -110,4 +113,9 @@ private:
 
 	// ゲームクリアしてからの経過時間
 	int gameClearCount_;
+
+	// プレイヤーがダメージを受けたか
+	bool isPlayerDamage_;
+
+	bool isPass_;
 };

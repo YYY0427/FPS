@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "../Model.h"
 #include "../Collision.h"
+#include "../SoundManager.h"
 #include <cassert>
 
 EnemyBase::EnemyBase()
@@ -11,7 +12,6 @@ EnemyBase::EnemyBase()
 
 EnemyBase::~EnemyBase()
 {
-
 }
 
 void EnemyBase::Draw()

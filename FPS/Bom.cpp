@@ -1,6 +1,7 @@
 #include "Bom.h"
 #include "Model.h"
 #include "ThreeDimensionEffectManager.h"
+#include "SoundManager.h"
 
 namespace
 {
@@ -67,6 +68,7 @@ void Bom::Draw()
 
 void Bom::StartExplosion()
 {
+	auto& soundManager = SoundManager::GetInstance();
 	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
 
 	if (!isExplosion_)
@@ -74,7 +76,8 @@ void Bom::StartExplosion()
 		isExplosion_ = true;
 		collisionRadius_ = after_collision_radius;
 
-		effectManager.PlayEffect("explosion3", pos_, 100.0f, 1.0f);
+		effectManager.PlayEffect("explosion3", pos_, 100.0f, 0.8f);
+		soundManager.Play3D("explosion", pos_, 8000.0f, false);
 	}
 	// ä˘Ç…îöî≠ÇµÇƒÇ¢ÇΩÇÁè¡Ç∑
 	else

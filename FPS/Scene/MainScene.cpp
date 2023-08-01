@@ -23,6 +23,7 @@
 #include "../BomManager.h"
 #include "../UI.h"
 #include "../ThreeDimensionEffectManager.h"
+#include "../SoundManager.h"
 #include <cassert>
 #include <stdlib.h>
 
@@ -50,6 +51,12 @@ namespace
 	// ゲームオーバー時の表示文字のフェード速度
 	constexpr int game_over_fade_interval = 60;
 
+	// ゲームクリア時の表示文字のフェード速度
+	constexpr int game_clear_fade_interval = 60;
+
+	// プレイヤーダメージのUIのフェード速度
+	constexpr int player_damage_ui_fade_interval = 60;
+
 	// ゲームクリア時のエフェクトの位置
 	constexpr VECTOR gameclear_effect_pos{ -4434, -342, -6460 };
 
@@ -70,7 +77,9 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gameOverUIhandle_(-1),
 	gameOverUIFadeTimer_(0),
 	gameClearUIhandle_(-1),
-	gameClearImgExRate_(3)
+	gameClearImgExRate_(3),
+	playerDamageUIFadeTimer_(0),
+	isPass_(false)
 {
 	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
@@ -108,9 +117,10 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	towerIconHandle_ = my::MyLoadGraph("Data/UI/balloonIcon1.png");
 	playerIconHandle_ = my::MyLoadGraph("Data/UI/playerIcon1.png");
 	gunUIhandle_ = my::MyLoadGraph("Data/UI/gunUI.png");
-	bomUIhandle_ = my::MyLoadGraph("Data/UI/bomUI.png");
+	bomUIhandle_ = my::MyLoadGraph("Data/UI/bomUI2.png");
 	infinityHandle_ = my::MyLoadGraph("Data/UI/infinity.png");
 	completeHandle_ = my::MyLoadGraph("Data/UI/complete.png");
+	playerDamageUIHandle_ = my::MyLoadGraph("Data/UI/damageUI2.png");
 
 	// フォントのロード
 	bulletCounFontHandle_ = CreateFontToHandle("ニコカv2", 40, 3, DX_FONTTYPE_ANTIALIASING_4X4);
@@ -123,6 +133,9 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	// シャドウマップの生成
 	shadowMap_ = MakeShadowMap(1024, 1024);
 	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
+
+	auto& soundManager = SoundManager::GetInstance();
+	soundManager.Play("bgm");
 }
 
 MainScene::~MainScene()
@@ -209,13 +222,13 @@ void MainScene::Draw()
 	// 爆弾のUI
 	if (pPlayer_->GetIsUseBom())
 	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, true, 2);
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, false, 2);
 		DrawRotaGraph(Game::screen_width - 650, Game::screen_height - 150, 1.0f, 0.0f, bomUIhandle_, true);
 	}
 	else
 	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0x000000, true, 2);
-		DrawFormatStringToHandle(Game::screen_width - 660, Game::screen_height - 175, 0xffffff, bulletCounFontHandle_, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
+		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, true, 2);
+		DrawFormatStringToHandle(Game::screen_width - 660, Game::screen_height - 175, 0x000000, bulletCounFontHandle_, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
 	}
 
 	// ゲームオーバー時に表示開始
@@ -240,10 +253,15 @@ void MainScene::Draw()
 		}	
 	}
 
+	// プレイヤーがダメージを受けた
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(playerDamageUIFadeValue_ * 100) / 255*/playerDamageUIFadeValue_);
+	DrawGraph(0, 0, playerDamageUIHandle_, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	// ゲームクリア時に表示
 	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(gameClearUIFadeValue_ * 100) / 255*/gameClearUIFadeValue_);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, gameClearUIFadeValue_);
 		DrawRotaGraph(950, 550, gameClearImgExRate_, -15.0f * DX_PI_F / 180.0f, completeHandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
@@ -332,6 +350,7 @@ void MainScene::FadeOutUpdate(const InputState& input)
 void MainScene::NormalUpdate(const InputState& input)
 {
 	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
+	auto& soundManager = SoundManager::GetInstance();
 
 	if (reticleEffectDisplayTime++ > 45)
 	{
@@ -410,8 +429,8 @@ void MainScene::NormalUpdate(const InputState& input)
 				{
 					if (!pTower_->GetIsGoal())
 						obs->OnDamage(player_bom_shot_damage);
-					boms->StartExplosion();	
 					isHit_ = true;
+					boms->StartExplosion();	
 				}
 			}
 			// 敵とボムの当たり判定
@@ -423,6 +442,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					if (!pTower_->GetIsGoal())
 						enemies->OnDamage(player_bom_shot_damage);
 					boms->StartExplosion();
+					
 				}
 			}
 			// ボムとステージの当たり判定
@@ -441,6 +461,9 @@ void MainScene::NormalUpdate(const InputState& input)
 				if (!pTower_->GetIsGoal())
 					pPlayer_->OnDamage(1);
 				bullets->SetIsEnabled(false);
+				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
+				if (!soundManager.CheckMusic("playerDamage"))
+					soundManager.Play("playerDamage");
 			}
 			// 敵の弾とタワーの当たり判定
 			{	
@@ -452,6 +475,8 @@ void MainScene::NormalUpdate(const InputState& input)
 					if (!pTower_->GetIsGoal())
 						pTower_->OnDamage(1);
 					bullets->SetIsEnabled(false);
+					if (!soundManager.CheckMusic("hit"))
+						soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 				}
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
@@ -471,6 +496,9 @@ void MainScene::NormalUpdate(const InputState& input)
 			if (pCollision_->SpheresColision(enemies->GetPos(), pPlayer_->GetPos(), enemies->GetCollisionRadius(), pPlayer_->GetCollisionRadius()))
 			{
 				pPlayer_->OnDamage(1);
+				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
+				if(!soundManager.CheckMusic("playerDamage"))
+					soundManager.Play("playerDamage");
 			}
 			// 敵とタワーの当たり判定
 			{
@@ -486,6 +514,8 @@ void MainScene::NormalUpdate(const InputState& input)
 					// 当たった
 					auto temp = pCollision_->GetCollisionResult().Dim->Position;
 					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
+					if(!soundManager.CheckMusic("hit"))
+						soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 					if (!pTower_->GetIsGoal())
 						pTower_->OnDamage(1);
 				}
@@ -493,13 +523,33 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 	}
 
+	// プレイヤーがダメージを受けた時の演出
+	playerDamageUIFadeTimer_--;
+	playerDamageUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(playerDamageUIFadeTimer_)) / static_cast<float>(player_damage_ui_fade_interval));
+	if (playerDamageUIFadeTimer_ <= 0)
+	{
+		playerDamageUIFadeTimer_ = 0;
+	}
+
 	// ゲームクリア演出開始
 	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
+		soundManager.StopSelectMusic("bgm");
 		if (!effectManager.IsEffectPlaying("gameClear"))
 		{
+			soundManager.Play("gameClear");
+			soundManager.StopSelectMusic("hanabi2");
+			soundManager.Play3D("hanabi", pTower_->GetPos(), 10000, false);
 			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
 		}
+		else
+		{
+			if (!soundManager.CheckMusic("hanabi") && !soundManager.CheckMusic("hanabi2"))
+			{
+				soundManager.Play3D("hanabi2", pTower_->GetPos(), 10000, false);
+			}
+		}
+
 		if (gameClearCount_++ > 120)
 		{
 			gameClearUIFadeTimer_++;
@@ -511,7 +561,16 @@ void MainScene::NormalUpdate(const InputState& input)
 			if (gameClearUIFadeTimer_ >= 30)
 			{
 				gameClearImgExRate_ = gameClearImgExRate_ - 0.1;
-				if (gameClearImgExRate_ <= 1.0)	gameClearImgExRate_ = 1.0;
+				if (gameClearImgExRate_ <= 1.0)
+				{
+					gameClearImgExRate_ = 1.0;
+
+					if (!isPass_)
+					{
+						soundManager.Play("don");
+						isPass_ = true;
+					}
+				}
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <DxLib.h>
 
 /// <summary>
 /// SEの管理を行うシングルトンクラス
@@ -22,6 +23,7 @@ private:
 
 	std::unordered_map<std::string, int> nameAndHandleTable_;
 	int LoadSoundFile(const char* fileName, const char* ext);
+	int LoadSoundFile3D(const char* fileName, const char* ext);
 
 	// シングルトンパターンなのでコンストラクタはprivateに置く
 	SoundManager();
@@ -51,6 +53,7 @@ public:
 	/// </summary>
 	/// <param name="name">サウンド名</param>
 	void Play(const char* name);
+	void Play3D(const char* name, VECTOR soundPos, float soundRadius, bool loop);
 	void PlayMusic(const char* path);
 
 	/// <summary>
@@ -67,6 +70,8 @@ public:
 	void SetBGMVolume(int volume);
 	int GetBGMVolume() const;
 
+	void SetSelectVolume(const char* name, int volume);
+
 	/// <summary>
 	/// BGMの現在の鳴らす音量の割合
 	/// </summary>
@@ -80,9 +85,15 @@ public:
 	/// <returns> true 再生中  false 再生されていない</returns>
 	bool CheckMusic(const char* name);
 
+	// ストップしたいサウンドを選んでストップ
+	void StopSelectMusic(const char* name);
+
 	// サウンドを全部一時停止する
-	void StopBGMAndSE();
+	void StopMusic();
 
 	// サウンド情報をセーブ
 	void SaveSoundConfig();
+
+	// リスナーの位置を向きを設定
+	void Set3DSoundListenerPosAndFrontPos_UpVecY(VECTOR pos, VECTOR anglee);
 };

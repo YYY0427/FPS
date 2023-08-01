@@ -11,10 +11,25 @@ namespace
 
 int SoundManager::LoadSoundFile(const char* fileName, const char* ext)
 {
-	std::string path = "Data/sound/SE/";
+	int handle;
+	std::string path = "Data/Sound/";
 	path += fileName;
 	path += ext;
-	int handle = LoadSoundMem(path.c_str());
+	handle = LoadSoundMem(path.c_str());
+	assert(handle >= 0);
+	nameAndHandleTable_[fileName] = handle;
+	return handle;
+}
+
+int SoundManager::LoadSoundFile3D(const char* fileName, const char* ext)
+{
+	int handle;
+	std::string path = "Data/Sound/";
+	path += fileName;
+	path += ext;
+	SetCreate3DSoundFlag(TRUE);
+	handle = LoadSoundMem(path.c_str());
+	SetCreate3DSoundFlag(FALSE);
 	assert(handle >= 0);
 	nameAndHandleTable_[fileName] = handle;
 	return handle;
@@ -22,9 +37,30 @@ int SoundManager::LoadSoundFile(const char* fileName, const char* ext)
 
 SoundManager::SoundManager()
 {
+	// XAudio を有効化
+	SetEnableXAudioFlag(TRUE);
+
+	// １メートルに相当する値を設定する
+	Set3DSoundOneMetre(16.0f);
+
 	LoadSoundConfig();
 	SetSEVolume(volumeSE_);
 	SetBGMVolume(volumeBGM_);
+	LoadSoundFile3D("explosion", ".mp3");
+	LoadSoundFile("gun", ".wav");
+	LoadSoundFile3D("hit", ".mp3");
+	LoadSoundFile("run", ".mp3");
+	SetSelectVolume("run", 150);
+	LoadSoundFile3D("break", ".mp3");
+	LoadSoundFile3D("bee", ".mp3");
+	LoadSoundFile("playerDamage", ".mp3");
+	LoadSoundFile("bgm", ".mp3");
+	SetSelectVolume("bgm", 100);	
+	LoadSoundFile3D("hanabi", ".mp3");
+	LoadSoundFile3D("hanabi2", ".mp3");
+	LoadSoundFile("gameClear", ".mp3");
+	SetSelectVolume("gameClear", 100);
+	LoadSoundFile("don", ".mp3");
 }
 
 void SoundManager::LoadSoundConfig()
@@ -70,6 +106,11 @@ void SoundManager::SaveSoundConfig()
 	}
 }
 
+void SoundManager::Set3DSoundListenerPosAndFrontPos_UpVecY(VECTOR pos, VECTOR angle)
+{
+	DxLib::Set3DSoundListenerPosAndFrontPos_UpVecY(pos, VAdd(pos, angle));
+}
+
 SoundManager::~SoundManager()
 {
 }
@@ -77,6 +118,20 @@ SoundManager::~SoundManager()
 void SoundManager::Play(const char* name)
 {
 	PlaySoundMem(nameAndHandleTable_[name], DX_PLAYTYPE_BACK);
+}
+
+void SoundManager::Play3D(const char* name, VECTOR soundPos, float soundRadius, bool loop)
+{
+	Set3DPositionSoundMem(soundPos, nameAndHandleTable_[name]);
+	Set3DRadiusSoundMem(soundRadius, nameAndHandleTable_[name]);
+	if (loop)
+	{
+		PlaySoundMem(nameAndHandleTable_[name], DX_PLAYTYPE_LOOP);
+	}
+	else
+	{
+		PlaySoundMem(nameAndHandleTable_[name], DX_PLAYTYPE_BACK);
+	}
 }
 
 void SoundManager::PlayMusic(const char* path)
@@ -110,6 +165,11 @@ int SoundManager::GetBGMVolume() const
 	return volumeBGM_;
 }
 
+void SoundManager::SetSelectVolume(const char* name, int volume)
+{
+	ChangeVolumeSoundMem(volume, nameAndHandleTable_[name]);
+}
+
 bool SoundManager::CheckMusic(const char* name)
 {
 	bool sound = CheckSoundMem(nameAndHandleTable_[name]);
@@ -122,7 +182,12 @@ void SoundManager::SetBGMRate(float rate)
 	SetVolumeMusic(static_cast<int>(static_cast<float>(volumeBGM_) * rate));
 }
 
-void SoundManager::StopBGMAndSE()
+void SoundManager::StopSelectMusic(const char* name)
 {
-	StopMusic();
+	StopSoundMem(nameAndHandleTable_[name]);
+}
+
+void SoundManager::StopMusic()
+{
+	DxLib::StopMusic();
 }

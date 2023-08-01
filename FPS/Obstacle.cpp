@@ -1,5 +1,6 @@
 #include "Obstacle.h"
 #include "Model.h"
+#include "SoundManager.h"
 
 namespace
 {
@@ -37,11 +38,13 @@ Obstacle::~Obstacle()
 
 void Obstacle::Update()
 {
+	auto& soundManager = SoundManager::GetInstance();
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
 	if (sHp_.hp_ <= 0)
 	{
+		soundManager.Play3D("break", pos_, 10000.0f, false);
 		isEnabled_ = false;
 	}
 	pModel_->Update();

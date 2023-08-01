@@ -44,6 +44,8 @@ private:
 
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
+
+	void Sound();
 private:
 	// メンバー関数ポインタ
 	void(Bee::* updateFunc_)();

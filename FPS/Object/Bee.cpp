@@ -5,6 +5,7 @@
 #include "../Collision.h"
 #include "Tower.h"
 #include "../EnemyShotFactory.h"
+#include "../SoundManager.h"
 #include <cmath>
 #include <cassert>
 
@@ -205,6 +206,8 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+
+	Sound();
 }
 
 void Bee::Attacking(VECTOR pos, int target, float attackDistance)
@@ -267,6 +270,8 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+
+	Sound();
 }
 
 void Bee::UpdateToIdle()
@@ -310,6 +315,8 @@ void Bee::UpdateToIdle()
 	}
 	// アニメーション更新処理
 	pModel_->Update();
+
+	Sound();
 }
 
 void Bee::UpdateTrackingToPlayer()
@@ -388,6 +395,8 @@ void Bee::UpdateToFront()
 
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ , 0.0f));
+
+	Sound();
 }
 
 void Bee::UpdateTurn()
@@ -429,6 +438,8 @@ void Bee::UpdateTurn()
 	
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+
+	Sound();
 }
 
 void Bee::UpdateHitDamage()
@@ -451,5 +462,14 @@ void Bee::UpdateHitDamage()
 
 		// Updateを待機に
 		updateFunc_ = &Bee::UpdateTrackingToPlayer;
+	}
+}
+
+void Bee::Sound()
+{
+	auto& soundManager = SoundManager::GetInstance();
+	if (!soundManager.CheckMusic("bee"))
+	{
+		soundManager.Play3D("bee", pos_, 1500.0f, false);
 	}
 }

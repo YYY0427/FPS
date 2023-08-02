@@ -55,14 +55,14 @@ void Bom::Draw()
 	}
 	else
 	{
-		frameCount_++;
+		/*frameCount_++;
 		if (explosion_continuation_time > frameCount_)
 		{
 			isEnabled_ = false;
-		}
+		}*/
 	}
 #ifdef _DEBUG
-	DrawSphere3D(pos_, collisionRadius_, 16, 0xff0000, 0xff0000, false);
+	DrawSphere3D(pos_, after_collision_radius, 16, 0xff0000, 0xff0000, false);
 #endif
 }
 

@@ -17,7 +17,6 @@ public:
 	bool GetIsEnabled() const { return isEnabled_; }
 	VECTOR GetPos() const { return pos_; }
 	void StartExplosion();
-
 private:
 	std::shared_ptr<Model> pModel_;
 	VECTOR pos_;

@@ -30,7 +30,7 @@
 namespace
 {
 	// フェードの速度
-	constexpr int fade_interval = 30;
+	constexpr int fade_interval = 100;
 
 	// 画面内に存在できる弾の最大数
 	constexpr int shot_max = 128;
@@ -64,7 +64,7 @@ namespace
 	constexpr int player_shot_damage = 100;
 
 	// ボムのダメージ
-	constexpr int player_bom_shot_damage = 10;
+	constexpr int player_bom_shot_damage = 100;
 }
 
 MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
@@ -422,6 +422,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 		for (auto& boms : pBomManager_->GetBoms())
 		{
+			bool isBomHit = false;
 			// ボムと障害物の当たり判定
 			for (auto& obs : pObstacleManager_->GetObstacles())
 			{
@@ -430,25 +431,29 @@ void MainScene::NormalUpdate(const InputState& input)
 					if (!pTower_->GetIsGoal())
 						obs->OnDamage(player_bom_shot_damage);
 					isHit_ = true;
-					boms->StartExplosion();	
+					isBomHit = true;
 				}
 			}
 			// 敵とボムの当たり判定
 			for (auto& enemies : pEnemyManager_->GetEnemies())
 			{
-				if (pCollision_->SpheresColision(enemies->GetPos(), boms->GetPos(), enemies->GetCollisionRadius(), boms->GetCollisionRadius()))
+				if (pCollision_->ModelAndSphereCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), boms->GetPos(), boms->GetCollisionRadius()))
 				{
 					isHit_ = true;
+					isBomHit = true;
 					if (!pTower_->GetIsGoal())
 						enemies->OnDamage(player_bom_shot_damage);
-					boms->StartExplosion();
-					
 				}
 			}
 			// ボムとステージの当たり判定
 			if (pCollision_->ModelAndSphereCollision(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius()))
 			{
 				// 当たった
+				isBomHit = true;
+			}
+
+			if (isBomHit)
+			{
 				boms->StartExplosion();
 			}
 		}

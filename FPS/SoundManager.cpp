@@ -190,4 +190,8 @@ void SoundManager::StopSelectMusic(const char* name)
 void SoundManager::StopMusic()
 {
 	DxLib::StopMusic();
+	for (auto& sound : nameAndHandleTable_)
+	{
+		StopSoundMem(sound.second);
+	}
 }

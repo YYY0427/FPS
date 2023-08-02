@@ -13,7 +13,7 @@ namespace
 	const char* const adress = "Data/Model/balloon.mv1";
 
 	// Å‘åHP
-	constexpr int max_hp = 999;
+	constexpr int max_hp = 700;
 
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½‚Ì–³“GŠÔ
 	constexpr int invincible_time = 0;

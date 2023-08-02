@@ -61,10 +61,10 @@ namespace
 	constexpr VECTOR gameclear_effect_pos{ -4434, -342, -6460 };
 
 	// プレイヤーショットのダメージ
-	constexpr int player_shot_damage = 100;
+	constexpr int player_shot_damage = 6;
 
 	// ボムのダメージ
-	constexpr int player_bom_shot_damage = 100;
+	constexpr int player_bom_shot_damage = 50;
 }
 
 MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
@@ -442,7 +442,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					isHit_ = true;
 					isBomHit = true;
 					if (!pTower_->GetIsGoal())
-						enemies->OnDamage(player_bom_shot_damage);
+						enemies->OnDamage(enemies->GetHP().maxHp_ - 1);
 				}
 			}
 			// ボムとステージの当たり判定
@@ -464,7 +464,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			{
 				// 当たった
 				if (!pTower_->GetIsGoal())
-					pPlayer_->OnDamage(1);
+					pPlayer_->OnDamage(2);
 				bullets->SetIsEnabled(false);
 				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
 				if (!soundManager.CheckMusic("playerDamage"))
@@ -478,7 +478,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					// 当たった
 					effectManager.PlayEffect("hit", VGet(result.Dim->Position->x, result.Dim->Position->y, result.Dim->Position->z), 100.0f, 1.0f);
 					if (!pTower_->GetIsGoal())
-						pTower_->OnDamage(1);
+						pTower_->OnDamage(2);
 					bullets->SetIsEnabled(false);
 					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 				}
@@ -503,7 +503,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			// 敵とプレイヤーの当たり判定
 			if (pCollision_->SpheresColision(enemies->GetPos(), pPlayer_->GetPos(), enemies->GetCollisionRadius(), pPlayer_->GetCollisionRadius()))
 			{
-				pPlayer_->OnDamage(1);
+				pPlayer_->OnDamage(5);
 				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
 				if(!soundManager.CheckMusic("playerDamage"))
 					soundManager.Play("playerDamage");
@@ -524,7 +524,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
 					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 					if (!pTower_->GetIsGoal())
-						pTower_->OnDamage(1);
+						pTower_->OnDamage(10);
 				}
 			}
 		}

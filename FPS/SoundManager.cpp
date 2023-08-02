@@ -61,6 +61,7 @@ SoundManager::SoundManager()
 	LoadSoundFile("gameClear", ".mp3");
 	SetSelectVolume("gameClear", 100);
 	LoadSoundFile("don", ".mp3");
+	LoadSoundFile("bom", ".mp3");
 }
 
 void SoundManager::LoadSoundConfig()

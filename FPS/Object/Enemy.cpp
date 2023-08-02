@@ -15,8 +15,8 @@ namespace
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
 	// 敵キャラクターの移動速度
-	constexpr float to_front_speed = 8.0f;
-	constexpr float to_player_speed = 8.0f;
+	constexpr float to_front_speed = 12.0f;
+	constexpr float to_player_speed = 12.0f;
 
 	// 敵キャラクターの視野角
 	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;

@@ -71,7 +71,7 @@ namespace
 	constexpr int shot_wait_time = 30;
 
 	// 爆弾の再使用まで待機フレーム数
-	constexpr int bom_wait_time = 60 * 10;
+	constexpr int bom_wait_time = 60 * 20;
 
 	// リスポーン地点
 	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
@@ -276,6 +276,8 @@ void Player::UpdateIdle(const InputState& input)
 
 	if (input.IsTriggered(InputType::bom) && isUseBom_)
 	{
+		soundManager.Play("bom");
+
 		// 弾の発射位置の作成
 		MATRIX playerTransMtx = MGetTranslate(pos_);						// プレイヤーの平行移動行列の作成
 		MATRIX cameraRotMtxSide = MGetRotY(pCamera_->GetCameraYaw());		// 横移動情報の行列作成		

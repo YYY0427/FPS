@@ -11,7 +11,7 @@ namespace
 	constexpr float normal_collision_radius = 256.0f;
 	constexpr float tower_collision_radius = 1026.0f;
 
-	constexpr int max_hp = 30;
+	constexpr int max_hp = 150;
 
 	constexpr int invincible_time = 10;
 }

@@ -45,6 +45,9 @@ private:
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
 
+	// 敵が攻撃してからもう一度攻撃するまでの待機
+	void UpdateAttackWaitTime();
+
 private:
 	// メンバー関数ポインタ
 	void(Enemy::* updateFunc_)();

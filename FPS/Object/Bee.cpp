@@ -467,9 +467,9 @@ void Bee::UpdateHitDamage()
 
 void Bee::Sound()
 {
-	auto& soundManager = SoundManager::GetInstance();
+	/*auto& soundManager = SoundManager::GetInstance();
 	if (!soundManager.CheckMusic("bee"))
 	{
 		soundManager.Play3D("bee", pos_, 1500.0f, false);
-	}
+	}*/
 }

@@ -88,3 +88,11 @@ bool ThreeDimensionEffectManager::IsEffectPlaying(const char* fileName)
 	}
 	return false;
 }
+
+void ThreeDimensionEffectManager::EffectAllStop()
+{
+	for (auto& effect : effectNameAndHandleTable_)
+	{
+		StopEffekseer3DEffect(effect.second);
+	}
+}

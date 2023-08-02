@@ -444,3 +444,7 @@ void Enemy::UpdateHitDamage()
 		updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 	}
 }
+
+void Enemy::UpdateAttackWaitTime()
+{
+}

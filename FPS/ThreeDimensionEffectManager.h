@@ -27,6 +27,8 @@ public:
 	// 特定のエフェクトが再生中か
 	bool IsEffectPlaying(const char* fileName);
 
+	void EffectAllStop();
+
 private:
 	ThreeDimensionEffectManager();
 	ThreeDimensionEffectManager(const ThreeDimensionEffectManager&) = delete;

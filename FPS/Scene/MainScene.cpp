@@ -537,7 +537,8 @@ void MainScene::NormalUpdate(const InputState& input)
 		soundManager.StopSelectMusic("bgm");
 		if (!effectManager.IsEffectPlaying("gameClear"))
 		{
-			soundManager.Play("gameClear");
+			if(!isPass_)
+				soundManager.Play("gameClear");
 			soundManager.StopSelectMusic("hanabi2");
 			soundManager.Play3D("hanabi", pTower_->GetPos(), 10000, false);
 			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
@@ -550,7 +551,7 @@ void MainScene::NormalUpdate(const InputState& input)
 			}
 		}
 
-		if (gameClearCount_++ > 120)
+		if (gameClearCount_++ > 280)
 		{
 			gameClearUIFadeTimer_++;
 			gameClearUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(gameClearUIFadeTimer_)) / static_cast<float>(game_over_fade_interval));
@@ -586,15 +587,29 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 		isGameOver_ = true;
 	}
+
 #ifdef _DEBUG
 	// シーン切り替え
 	if (input.IsTriggered(InputType::next))
 	{
+		soundManager.StopMusic();
 		updateFunc_ = &MainScene::FadeOutUpdate;
 	}
 #endif
+	// シーン切り替え
+	if (isPass_ )
+	{
+		static int timer = 0;	
+		if (timer++ > 180)
+		{
+			soundManager.StopMusic();
+			effectManager.EffectAllStop();
+			updateFunc_ = &MainScene::FadeOutUpdate;
+		}
+	}
 	if (input.IsTriggered(InputType::pause))
 	{
 		manager_.PushScene(new PauseScene(manager_));
 	}
+
 }

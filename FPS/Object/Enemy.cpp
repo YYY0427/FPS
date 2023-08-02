@@ -28,6 +28,7 @@ namespace
 	constexpr int attack_anim_no = 0;
 	constexpr int idle_anim_no = 2;
 	constexpr int jump_anim_no = 6;
+	constexpr int attack_wait_anim_no = 5;
 
 	// 当たり半径のサイズ
 	constexpr float collision_radius = 70.0f;
@@ -48,7 +49,7 @@ namespace
 	constexpr float lost_distance = 2000.0f;
 
 	// 攻撃の再使用まで待機フレーム数
-	constexpr int attack_wait_time = 20;
+	constexpr int attack_wait_time = 60;
 
 	// 検知範囲
 	constexpr float detection_range = 1500.0f;
@@ -167,7 +168,7 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 	{
 		// アニメーション設定
 		animNo_ = attack_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
+		pModel_->ChangeAnimation(animNo_, false, false, 4);
 
 		// 現在向かっている対象によって攻撃対象を決定
 		switch (target)
@@ -214,43 +215,29 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// 指定されたフレームに1回攻撃する
-	if (attackWaitTimer_++ % attack_wait_time == 0)
+	if (!isPass_)
 	{
-		// 攻撃
 		isAttack_ = true;
+		isPass_ = true;
 	}
 	else
 	{
 		isAttack_ = false;
 	}
 
-	// 敵から目標へのベクトルを求める
-	toTargetVec_ = VSub(pos, pos_);
-
-	// 角度の取得
-	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
-
-	// ターゲットまでの距離
-	float distans = VSize(toTargetVec_);
-
-	// ターゲットから特定の距離離れていたらプレイヤーを追いかける
-	if (attacDistance < distans)
+	if (pModel_->IsAnimEnd())
 	{
-		// アニメーション設定
-		animNo_ = walk_anim_no;
+		animNo_ = attack_wait_anim_no;
 		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		// updateを変更
 		switch (target)
 		{
 		case player:
-			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+			updateFunc_ = &Enemy::UpdateAttackWaitTimeToPlayer;
 			break;
 		case tower:
-			updateFunc_ = &Enemy::UpdateTrackingToTower;
+			updateFunc_ = &Enemy::UpdateAttackWaitTimeToTower;
+			break;
 		}
-		frameCount_ = 0;
 	}
 
 	// 位置座標の設定
@@ -298,7 +285,6 @@ void Enemy::UpdateToIdle()
 			{
 				updateFunc_ = &Enemy::UpdateTrackingToPlayer;
 			}
-			
 		}
 	}
 
@@ -445,6 +431,74 @@ void Enemy::UpdateHitDamage()
 	}
 }
 
-void Enemy::UpdateAttackWaitTime()
+void Enemy::UpdateAttackWaitTimeToPlayer()
 {
+	WaitTime(player, pPlayer_->GetPos(), player_attack_distance);
+}
+
+void Enemy::UpdateAttackWaitTimeToTower()
+{
+	WaitTime(tower, pTower_->GetPos(), tower_attack_distance);
+}
+
+void Enemy::WaitTime(int target, VECTOR pos, float attacDistance)
+{
+	isAttack_ = false;
+	isPass_ = false;
+
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
+	// ターゲットまでの距離
+	float distans = VSize(toTargetVec_);
+
+	// ターゲットから特定の距離離れていたらプレイヤーを追いかける
+	if (attacDistance < distans)
+	{
+		// アニメーション設定
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(animNo_, true, false, 4);
+
+		// updateを変更
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &Enemy::UpdateTrackingToTower;
+		}
+		frameCount_ = 0;
+	}
+
+	if (attackWaitTimer_++ > attack_wait_time)
+	{
+		attackWaitTimer_ = 0;
+
+		// アニメーション設定
+		animNo_ = attack_anim_no;
+		pModel_->ChangeAnimation(animNo_, false, false, 4);
+
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &Enemy::UpdateAttackToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &Enemy::UpdateAttackToTower;
+			break;
+		}
+	}
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// アニメーション更新処理
+	pModel_->Update();
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }

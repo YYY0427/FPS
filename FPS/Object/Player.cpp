@@ -65,7 +65,7 @@ namespace
 	constexpr int max_hp = 200;
 
 	// ダメージ食らった時の無敵時間
-	constexpr int invincible_time = 60;
+	constexpr int invincible_time = 0;
 
 	// ショットの再使用まで待機フレーム数
 	constexpr int shot_wait_time = 30;

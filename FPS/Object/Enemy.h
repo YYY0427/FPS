@@ -46,9 +46,13 @@ private:
 	void UpdateHitDamage();
 
 	// 敵が攻撃してからもう一度攻撃するまでの待機
-	void UpdateAttackWaitTime();
+	void UpdateAttackWaitTimeToPlayer();
+	void UpdateAttackWaitTimeToTower();
+	void WaitTime(int target, VECTOR pos, float attacDistance);
 
 private:
 	// メンバー関数ポインタ
 	void(Enemy::* updateFunc_)();
+
+	bool isPass_ = false; 
 };

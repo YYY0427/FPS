@@ -191,6 +191,11 @@ void MainScene::Draw()
 	// 描画終了
 	SetUseShadowMap(0, -1);
 
+	// プレイヤーがダメージを受けた
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(playerDamageUIFadeValue_ * 100) / 255*/playerDamageUIFadeValue_);
+	DrawGraph(0, 0, playerDamageUIHandle_, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	// HPの表示
 	{
 		for (auto& obj : pObstacleManager_->GetObstacles())
@@ -252,11 +257,6 @@ void MainScene::Draw()
 			DrawLine(reticle_pos_x - 15, reticle_pos_y + 15, reticle_pos_x + 15, reticle_pos_y - 15, 0xff0000, 2);	
 		}	
 	}
-
-	// プレイヤーがダメージを受けた
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(playerDamageUIFadeValue_ * 100) / 255*/playerDamageUIFadeValue_);
-	DrawGraph(0, 0, playerDamageUIHandle_, true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// ゲームクリア時に表示
 	if (pTower_->GetIsGoal() && !isGameOver_)
@@ -475,8 +475,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					if (!pTower_->GetIsGoal())
 						pTower_->OnDamage(1);
 					bullets->SetIsEnabled(false);
-					if (!soundManager.CheckMusic("hit"))
-						soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
+					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 				}
 				// 当たり判定情報の後始末
 				MV1CollResultPolyDimTerminate(result);
@@ -489,6 +488,10 @@ void MainScene::NormalUpdate(const InputState& input)
 		}
 		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
+			// 敵の種別によって当たり判定を行わない
+			if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
+			// 攻撃をしていなかったら当たり判定を行わない
+			if (!enemies->GetIsAttak()) continue;
 			// 敵のHPがなかったら判定を行わない
 			if (enemies->GetHP().hp_ <= 0) continue;
 
@@ -514,8 +517,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					// 当たった
 					auto temp = pCollision_->GetCollisionResult().Dim->Position;
 					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
-					if(!soundManager.CheckMusic("hit"))
-						soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
+					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 					if (!pTower_->GetIsGoal())
 						pTower_->OnDamage(1);
 				}

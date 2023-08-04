@@ -240,7 +240,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// ƒVƒ‡ƒbƒg‚ðŒ‚‚Âˆ—
-	if (input.IsPressed(InputType::shot) && isUseShot_)
+	if (input.IsPressed(InputType::shot) && isUseShot_ && pMainScene_->GetIsGameStart())
 	{
 		soundManager.Play("gun");
 
@@ -274,7 +274,7 @@ void Player::UpdateIdle(const InputState& input)
 		isUseShot_ = false;
 	}
 
-	if (input.IsTriggered(InputType::bom) && isUseBom_)
+	if (input.IsTriggered(InputType::bom) && isUseBom_ && pMainScene_->GetIsGameStart())
 	{
 		soundManager.Play("bom");
 

@@ -70,7 +70,7 @@ namespace
 MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	Scene(manager),
 	pStageManager_(pStageManager),
-	updateFunc_(&MainScene::NormalUpdate),
+	updateFunc_(&MainScene::UserReactionWaitUpdate),
 	fadeTimer_(fade_interval),
 	fadeValue_(255),
 	shadowMap_(-1),
@@ -82,7 +82,8 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	isPass_(false),
 	isGameStart_(false),
 	questImgExRate_(4.0),
-	questUIfadeTimer_(0)
+	questUIfadeTimer_(0),
+	isPass2_(false)
 {
 	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
@@ -139,7 +140,9 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	SetShadowMapLightDirection(shadowMap_, GetLightDirection());
 
 	auto& soundManager = SoundManager::GetInstance();
-	soundManager.Play("bgm");
+
+	//↓ここ勝手に変更下でby大島
+	soundManager.Play2("bgm");
 }
 
 MainScene::~MainScene()
@@ -351,15 +354,48 @@ void MainScene::PlayerFallFade()
 
 void MainScene::UserReactionWaitUpdate(const InputState& input)
 {
+	auto& soundManager = SoundManager::GetInstance();
 	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
 	{
 		// フェード処理
 		FadeInUpdate();
 	}
-
-	if (input.IsTriggered(InputType::next))
+	else if (fadeTimer_ <= 0)
 	{
-		updateFunc_ = &MainScene::NormalUpdate;
+		questImgExRate_ = questImgExRate_ - 0.08;
+		if (questImgExRate_ <= 1.0)
+		{
+			questImgExRate_ = 1.0;
+			if (!isPass2_)
+			{
+				soundManager.Play("don");
+				isPass2_ = true;
+			}
+			if (input.IsTriggered(InputType::next) && isPass2_)
+			{
+				soundManager.Play("book");
+				updateFunc_ = &MainScene::NormalUpdate;
+				isGameStart_ = true;
+			}
+		}
+
+	}
+
+	// 各クラスの更新処理
+	{
+		pSkyDoom_->Update();
+		pStageManager_->Update();
+		pPlayer_->Update(input);
+		pEnemyManager_->Update();
+		pTower_->Update(isGameStart_);
+		pObstacleManager_->Update();
+		pEnemyShotFactory_->Update();
+		pBomManager_->Update();
+		for (auto& shot : pShot_)
+		{
+			shot->Update();
+		}
+		pCamera_->Update(input);
 	}
 }
 
@@ -397,19 +433,6 @@ void MainScene::NormalUpdate(const InputState& input)
 	{
 		// フェード処理
 		FadeInUpdate();
-	}
-	else if(fadeTimer_ <= 0)
-	{
-		questImgExRate_ = questImgExRate_ - 0.08;
-		if (questImgExRate_ <= 1.0)
-		{
-			questImgExRate_ = 1.0;
-
-			if (input.IsTriggered(InputType::next))
-			{
-				isGameStart_ = true;
-			}
-		}
 	}
 
 	// 各クラスの更新処理
@@ -590,6 +613,7 @@ void MainScene::NormalUpdate(const InputState& input)
 	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
 		soundManager.StopSelectMusic("bgm");
+		DxLib::StopMusic;
 		if (!effectManager.IsEffectPlaying("gameClear"))
 		{
 			if(!isPass_)

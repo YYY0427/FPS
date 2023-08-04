@@ -62,6 +62,7 @@ SoundManager::SoundManager()
 	SetSelectVolume("gameClear", 100);
 	LoadSoundFile("don", ".mp3");
 	LoadSoundFile("bom", ".mp3");
+	LoadSoundFile("book", ".mp3");
 }
 
 void SoundManager::LoadSoundConfig()
@@ -139,6 +140,11 @@ void SoundManager::PlayMusic(const char* path)
 {
 	DxLib::PlayMusic(path, DX_PLAYTYPE_LOOP);
 	SetVolumeMusic(volumeBGM_);
+}
+
+void SoundManager::Play2(const char* name)
+{
+	PlaySoundMem(nameAndHandleTable_[name], DX_PLAYTYPE_LOOP);
 }
 
 void SoundManager::SetSEVolume(int volume)

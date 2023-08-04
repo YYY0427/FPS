@@ -129,6 +129,7 @@ private:
 
 	// 一回しか通らない
 	bool isPass_;
+	bool isPass2_;
 
 	// ゲームがスタートしたか
 	bool isGameStart_;

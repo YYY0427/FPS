@@ -55,6 +55,7 @@ public:
 	void Play(const char* name);
 	void Play3D(const char* name, VECTOR soundPos, float soundRadius, bool loop);
 	void PlayMusic(const char* path);
+	void Play2(const char* name);
 
 	/// <summary>
 	/// SE‚Ìƒ{ƒŠƒ…[ƒ€‚ğİ’è‚·‚é

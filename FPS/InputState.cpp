@@ -5,7 +5,7 @@ InputState::InputState()
 {
 	defaultMapTable_[InputType::next] = { {InputCategory::keybd, KEY_INPUT_RETURN},
 										{InputCategory::pad, PAD_INPUT_R },			//スタートボタン
-										{InputCategory::mouse, 0 } };
+										{InputCategory::mouse, MOUSE_INPUT_LEFT } };
 
 	defaultMapTable_[InputType::prev] = { {InputCategory::keybd, KEY_INPUT_SPACE},
 										{InputCategory::pad, PAD_INPUT_7} };		//バックボタン

@@ -3,6 +3,7 @@
 #include "../Model.h"
 #include "../Collision.h"
 #include "../SoundManager.h"
+#include "../Scene/MainScene.h"
 #include <cassert>
 
 EnemyBase::EnemyBase()

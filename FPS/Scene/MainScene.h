@@ -38,7 +38,11 @@ public:
 
 	// プレイヤーがステージから落ちたときのフェード
 	void PlayerFallFade();
+
+	bool GetIsGameStart() const { return isGameStart_; }
 private:
+	void UserReactionWaitUpdate(const InputState& input);
+
 	// フェードアウト
 	void FadeOutUpdate(const InputState& input);
 
@@ -77,6 +81,7 @@ private:
 	int infinityHandle_;
 	int completeHandle_;
 	int playerDamageUIHandle_;
+	int questUIHandle_;
 
 	// フォントハンドル
 	int bulletCounFontHandle_;
@@ -95,6 +100,8 @@ private:
 	int gameClearUIFadeTimer_;
 	int playerDamageUIFadeTimer_;
 	int playerDamageUIFadeValue_;
+	int questUIfadeValue_;
+	int questUIfadeTimer_;
 
 	// シャドウマップ
 	int shadowMap_;
@@ -111,11 +118,18 @@ private:
 	// ゲームクリア画像の拡大率
 	double gameClearImgExRate_;
 
+	// クエスト依頼書の画像の拡大率
+	double questImgExRate_;
+
 	// ゲームクリアしてからの経過時間
 	int gameClearCount_;
 
 	// プレイヤーがダメージを受けたか
 	bool isPlayerDamage_;
 
+	// 一回しか通らない
 	bool isPass_;
+
+	// ゲームがスタートしたか
+	bool isGameStart_;
 };

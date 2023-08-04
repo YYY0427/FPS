@@ -7,6 +7,7 @@ class Model;
 class Tower;
 class Collision;
 class EnemyShotFactory;
+class MainScene;
 
 class EnemyBase
 {
@@ -96,6 +97,7 @@ protected:
 	std::shared_ptr<Tower> pTower_;
 	std::shared_ptr<EnemyShotFactory> pEnemyShotFactory_;
 	std::shared_ptr<Collision> pCollision_;
+	MainScene* pMainScene_;
 
 	HP sHp_;
 

@@ -7,6 +7,7 @@ class Player;
 class Tower;
 class EnemyShotFactory;
 class Collision;
+class MainScene;
 
 class EnemyManager
 {
@@ -14,7 +15,7 @@ public:
 	EnemyManager();
 	virtual ~EnemyManager();
 
-	void Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory);
+	void Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene);
 	void Update();
 	void Draw();
 

@@ -6,6 +6,7 @@
 #include "Tower.h"
 #include "../EnemyShotFactory.h"
 #include "../SoundManager.h"
+#include "../Scene/MainScene.h"
 #include <cmath>
 #include <cassert>
 
@@ -55,12 +56,13 @@ namespace
 	constexpr float detection_range = 1000.0f;
 }
 
-Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, VECTOR pos, bool isMove, int handle)
+Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene, VECTOR pos, bool isMove, int handle)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
 	pCollision_ = pCollision;
 	pEnemyShotFactory_ = pEnemyShotFactory;
+	pMainScene_ = pMainScene;
 
 	pos_ = pos;
 	animNo_ = walk_anim_no;
@@ -276,43 +278,47 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 
 void Bee::UpdateToIdle()
 {
-	frameCount_++;
-	if (!targetDiscover_ && frameCount_ > 120)
+	if (pMainScene_->GetIsGameStart())
 	{
-		// タワーを見つけたらプレイヤーを追いかける
-		if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+		frameCount_++;
+		if (!targetDiscover_ && frameCount_ > 120)
 		{
-			target_ = tower;
-		}
-		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
-		{
-			target_ = player;
-		}
-		animNo_ = discoverAnimNo_;
-	//	pModel_->ChangeAnimation(animNo_, false, false, 4);
-		targetDiscover_ = true;
-		frameCount_ = 0;
-	}
-	else if (targetDiscover_)
-	{
-	//	if (pModel_->IsAnimEnd())
-		if(frameCount_ > 20)
-		{
-			targetDiscover_ = false;
-			animNo_ = walk_anim_no;
-			pModel_->ChangeAnimation(animNo_, true, false, 4);
+			// タワーを見つけたらプレイヤーを追いかける
+			if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+			{
+				target_ = tower;
+			}
+			// プレイヤーを見つけたらプレイヤーを追いかける
+			else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
+			{
+				target_ = player;
+			}
+			animNo_ = discoverAnimNo_;
+			//	pModel_->ChangeAnimation(animNo_, false, false, 4);
+			targetDiscover_ = true;
 			frameCount_ = 0;
-			if (target_ == tower)
+		}
+		else if (targetDiscover_)
+		{
+			//	if (pModel_->IsAnimEnd())
+			if (frameCount_ > 20)
 			{
-				updateFunc_ = &Bee::UpdateTrackingToTower;
-			}
-			else if (target_ == player)
-			{
-				updateFunc_ = &Bee::UpdateTrackingToPlayer;
+				targetDiscover_ = false;
+				animNo_ = walk_anim_no;
+				pModel_->ChangeAnimation(animNo_, true, false, 4);
+				frameCount_ = 0;
+				if (target_ == tower)
+				{
+					updateFunc_ = &Bee::UpdateTrackingToTower;
+				}
+				else if (target_ == player)
+				{
+					updateFunc_ = &Bee::UpdateTrackingToPlayer;
+				}
 			}
 		}
 	}
+	
 	// アニメーション更新処理
 	pModel_->Update();
 
@@ -341,51 +347,55 @@ void Bee::UpdateAttackToTower()
 
 void Bee::UpdateToFront()
 {
-	// ダメージ処理
-	damageFrame_--;
-	if (damageFrame_ < 0) damageFrame_ = 0;
-
-	// 現在敵が向いている方向のベクトルを生成する
-	MATRIX enemyRotMtx = MGetRotY(angle_);
-
-	// MATRIXをVECTORに変換
-	VECTOR dir = VTransform(enemy_dir, enemyRotMtx);
-
-	// 移動速度を反映させる
-	VECTOR vec = VScale(dir, to_front_speed);
-
-	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
-
-	frameCount_++;
-	if (frameCount_ >= 2 * 60)
+	if (pMainScene_->GetIsGameStart())
 	{
-		// タワーを見つけたらプレイヤーを追いかける
-		if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
-		{
-			updateFunc_ = &Bee::UpdateTrackingToTower;
-			frameCount_ = 0;
-		}
-		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
-		{
-			updateFunc_ = &Bee::UpdateTrackingToPlayer;
-			frameCount_ = 0;
-		}
+		// ダメージ処理
+		damageFrame_--;
+		if (damageFrame_ < 0) damageFrame_ = 0;
 
-		// 見つからなかったら回転する
-		else
+		// 現在敵が向いている方向のベクトルを生成する
+		MATRIX enemyRotMtx = MGetRotY(angle_);
+
+		// MATRIXをVECTORに変換
+		VECTOR dir = VTransform(enemy_dir, enemyRotMtx);
+
+		// 移動速度を反映させる
+		VECTOR vec = VScale(dir, to_front_speed);
+
+		// フィールドとの当たり判定を行い、その結果によって移動
+		pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+
+		frameCount_++;
+		if (frameCount_ >= 2 * 60)
 		{
-			// 回転する角度をランダムで計算
-			rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
-			rotSpeed_ += 0.025f;
-			if (GetRand(1)) rotSpeed_ *= -1.0f;
-			
-			// udpateを変更
-			updateFunc_ = &Bee::UpdateTurn;
-			frameCount_ = 0;
+			// タワーを見つけたらプレイヤーを追いかける
+			if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
+			{
+				updateFunc_ = &Bee::UpdateTrackingToTower;
+				frameCount_ = 0;
+			}
+			// プレイヤーを見つけたらプレイヤーを追いかける
+			else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
+			{
+				updateFunc_ = &Bee::UpdateTrackingToPlayer;
+				frameCount_ = 0;
+			}
+
+			// 見つからなかったら回転する
+			else
+			{
+				// 回転する角度をランダムで計算
+				rotSpeed_ = static_cast<float>(GetRand(250)) * 0.0001f;
+				rotSpeed_ += 0.025f;
+				if (GetRand(1)) rotSpeed_ *= -1.0f;
+
+				// udpateを変更
+				updateFunc_ = &Bee::UpdateTurn;
+				frameCount_ = 0;
+			}
 		}
 	}
+	
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);

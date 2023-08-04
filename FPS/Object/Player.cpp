@@ -29,7 +29,7 @@ namespace
 	constexpr VECTOR shot_firing_init_pos{ -89.264f, 150.0f, -260.0f };
 
 	// ショットの速度
-	constexpr float shot_speed = 100.0f;
+	constexpr float shot_speed = 150.0f;
 
 	// ボムショットの速度
 	constexpr float bom_speed = 50.0f;
@@ -345,7 +345,8 @@ void Player::UpdateIdle(const InputState& input)
 		isMoving_ = true;
 	}
 
-	if (isMoving_)
+
+	if (isMoving_ && pMainScene_->GetIsGameStart())
 	{
 		// x方向とz方向のベクトルを足して移動ベクトルを作成する
 		moveVec_ = VAdd(moveVecZ, moveVecX);

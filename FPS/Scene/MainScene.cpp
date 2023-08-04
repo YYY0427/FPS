@@ -79,7 +79,10 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	gameClearUIhandle_(-1),
 	gameClearImgExRate_(3),
 	playerDamageUIFadeTimer_(0),
-	isPass_(false)
+	isPass_(false),
+	isGameStart_(false),
+	questImgExRate_(4.0),
+	questUIfadeTimer_(0)
 {
 	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
@@ -109,7 +112,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pTower_->SetCollision(pCollision_);
 
 	pStageManager_->Init();
-	pEnemyManager_->Create(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_);
+	pEnemyManager_->Create(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, this);
 
 	// 画像のロード
 	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");
@@ -121,6 +124,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	infinityHandle_ = my::MyLoadGraph("Data/UI/infinity.png");
 	completeHandle_ = my::MyLoadGraph("Data/UI/complete.png");
 	playerDamageUIHandle_ = my::MyLoadGraph("Data/UI/damageUI2.png");
+	questUIHandle_ = my::MyLoadGraph("Data/UI/quest.png");
 
 	// フォントのロード
 	bulletCounFontHandle_ = CreateFontToHandle("ニコカv2", 40, 3, DX_FONTTYPE_ANTIALIASING_4X4);
@@ -196,44 +200,47 @@ void MainScene::Draw()
 	DrawGraph(0, 0, playerDamageUIHandle_, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	// HPの表示
+	if (isGameStart_)
 	{
-		for (auto& obj : pObstacleManager_->GetObstacles())
+		// HPの表示
 		{
-			pUI_->DrawEnemyHpBar(pPlayer_, obj->GetPos(), obj->GetModelHandle(), obj->GetHP().hp_, obj->GetHP().maxHp_, "Stairs", obj->GetHP().hpUIDrawY_);
+			for (auto& obj : pObstacleManager_->GetObstacles())
+			{
+				pUI_->DrawEnemyHpBar(pPlayer_, obj->GetPos(), obj->GetModelHandle(), obj->GetHP().hp_, obj->GetHP().maxHp_, "Stairs", obj->GetHP().hpUIDrawY_);
+			}
+			for (auto& enemies : pEnemyManager_->GetEnemies())
+			{
+				pUI_->DrawEnemyHpBar(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
+			}
+			pUI_->DrawAllyHpBar(pPlayer_->GetHP(), pPlayer_->GetMaxHP(), 450, 900);
+			pUI_->DrawAllyHpBar(pTower_->GetHP(), pTower_->GetMaxHP(), Game::screen_width / 2, 100);
+			DrawRotaGraph(Game::screen_width / 2 - 320, 115, 1.0f, 0.0f, towerIconHandle_, true);
+			DrawRotaGraph(120, 920, 1.0f, 0.0f, playerIconHandle_, true);
+
+			DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0x000000, towerNameShadowFontHandle_);
+			DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0xffffff, towerNameFontHandle_);
+
+			DrawStringToHandle(450 - 35, 855, "あなた", 0x000000, playerNameFontHandle_);
+			DrawStringToHandle(450 - 35, 855, "あなた", 0xffffff, playerNameShadowFontHandle_);
 		}
-		for (auto& enemies : pEnemyManager_->GetEnemies())
+
+		// 銃のUI
+		DrawRoundRectAA(Game::screen_width - 500, Game::screen_height - 220, Game::screen_width - 50, Game::screen_height - 80, 1.0f, 1.0f, 4, 0xffffff, false, 2);
+		DrawLine(Game::screen_width - 140, Game::screen_height - 180, Game::screen_width - 140, Game::screen_height - 120, 0xffffff, 2);
+		DrawRotaGraph(Game::screen_width - 95, Game::screen_height - 150, 1.0, 0.0f, infinityHandle_, true);
+		DrawRotaGraph(Game::screen_width - 350, Game::screen_height - 150, 1.0f, 0.0f, gunUIhandle_, true);
+
+		// 爆弾のUI
+		if (pPlayer_->GetIsUseBom())
 		{
-			pUI_->DrawEnemyHpBar(pPlayer_, enemies->GetPos(), enemies->GetModelHandle(), enemies->GetHP().hp_, enemies->GetHP().maxHp_, "Head3_end", enemies->GetHP().hpUIDrawY_);
+			DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, false, 2);
+			DrawRotaGraph(Game::screen_width - 650, Game::screen_height - 150, 1.0f, 0.0f, bomUIhandle_, true);
 		}
-		pUI_->DrawAllyHpBar(pPlayer_->GetHP(), pPlayer_->GetMaxHP(), 450, 900);
-		pUI_->DrawAllyHpBar(pTower_->GetHP(), pTower_->GetMaxHP(), Game::screen_width / 2, 100);
-		DrawRotaGraph(Game::screen_width / 2 - 320, 115, 1.0f, 0.0f, towerIconHandle_, true);
-		DrawRotaGraph(120, 920, 1.0f, 0.0f, playerIconHandle_, true);
-		
-		DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0x000000, towerNameShadowFontHandle_);
-		DrawStringToHandle(Game::screen_width / 2 - 20, 65, "気球", 0xffffff, towerNameFontHandle_);
-
-		DrawStringToHandle(450 - 35, 855, "あなた", 0x000000, playerNameFontHandle_);
-		DrawStringToHandle(450 - 35, 855, "あなた", 0xffffff, playerNameShadowFontHandle_);
-	}
-
-	// 銃のUI
-	DrawRoundRectAA(Game::screen_width - 500, Game::screen_height  - 220, Game::screen_width - 50, Game::screen_height - 80, 1.0f, 1.0f, 4, 0xffffff, false, 2);
-	DrawLine(Game::screen_width - 140, Game::screen_height - 180, Game::screen_width - 140, Game::screen_height - 120, 0xffffff, 2);
-	DrawRotaGraph(Game::screen_width - 95, Game::screen_height - 150, 1.0, 0.0f, infinityHandle_, true);
-	DrawRotaGraph(Game::screen_width - 350, Game::screen_height - 150, 1.0f, 0.0f, gunUIhandle_, true);
-
-	// 爆弾のUI
-	if (pPlayer_->GetIsUseBom())
-	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, false, 2);
-		DrawRotaGraph(Game::screen_width - 650, Game::screen_height - 150, 1.0f, 0.0f, bomUIhandle_, true);
-	}
-	else
-	{
-		DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, true, 2);
-		DrawFormatStringToHandle(Game::screen_width - 660, Game::screen_height - 175, 0x000000, bulletCounFontHandle_, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
+		else
+		{
+			DrawRoundRectAA(Game::screen_width - 720, Game::screen_height - 220, Game::screen_width - 580, Game::screen_height - 80, 3.0f, 3.0f, 4, 0xffffff, true, 2);
+			DrawFormatStringToHandle(Game::screen_width - 660, Game::screen_height - 175, 0x000000, bulletCounFontHandle_, "%d", (pPlayer_->GetBomFrameCount() + 60) / 60);
+		}
 	}
 
 	// ゲームオーバー時に表示開始
@@ -258,6 +265,20 @@ void MainScene::Draw()
 		}	
 	}
 
+	if (!isGameStart_ && fadeTimer_ <= 0)
+	{
+		questUIfadeTimer_++;
+		questUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(questUIfadeTimer_)) / static_cast<float>(game_over_fade_interval));
+		if (questUIfadeTimer_ >= game_over_fade_interval)
+		{
+			questUIfadeTimer_ = game_over_fade_interval;
+		}
+
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, questUIfadeValue_);
+		DrawRotaGraph(Game::screen_width / 2, Game::screen_height / 2, questImgExRate_, 0.0, questUIHandle_, true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+		
 	// ゲームクリア時に表示
 	if (pTower_->GetIsGoal() && !isGameOver_)
 	{
@@ -328,6 +349,20 @@ void MainScene::PlayerFallFade()
 	}
 }
 
+void MainScene::UserReactionWaitUpdate(const InputState& input)
+{
+	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
+	{
+		// フェード処理
+		FadeInUpdate();
+	}
+
+	if (input.IsTriggered(InputType::next))
+	{
+		updateFunc_ = &MainScene::NormalUpdate;
+	}
+}
+
 void MainScene::FadeInUpdate()
 {
 	fadeValue_ = static_cast<int>(255 * static_cast<float>(fadeTimer_) / static_cast<float>(fade_interval));
@@ -363,6 +398,19 @@ void MainScene::NormalUpdate(const InputState& input)
 		// フェード処理
 		FadeInUpdate();
 	}
+	else if(fadeTimer_ <= 0)
+	{
+		questImgExRate_ = questImgExRate_ - 0.08;
+		if (questImgExRate_ <= 1.0)
+		{
+			questImgExRate_ = 1.0;
+
+			if (input.IsTriggered(InputType::next))
+			{
+				isGameStart_ = true;
+			}
+		}
+	}
 
 	// 各クラスの更新処理
 	{
@@ -370,7 +418,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		pStageManager_->Update();
 		pPlayer_->Update(input);
 		pEnemyManager_->Update();
-		pTower_->Update();
+		pTower_->Update(isGameStart_);
 		pObstacleManager_->Update();
 		pEnemyShotFactory_->Update();
 		pBomManager_->Update();
@@ -595,7 +643,7 @@ void MainScene::NormalUpdate(const InputState& input)
 		isGameOver_ = true;
 	}
 
-#ifdef _DEBUG
+#if false
 	// シーン切り替え
 	if (input.IsTriggered(InputType::next))
 	{

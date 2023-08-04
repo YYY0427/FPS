@@ -91,16 +91,18 @@ Tower::~Tower()
 {
 }
 
-void Tower::Update()
+void Tower::Update(bool isGameStart)
 {
 	// ƒ_ƒ[ƒWˆ—
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	CheckPointSet();
-	HeadToDestination(checkPointPos_);
-//	HeadToDestination(VGet(checkPointPos_.x, pos_.y, checkPointPos_.z));
-
+	if (isGameStart)
+	{
+		CheckPointSet();
+		HeadToDestination(checkPointPos_);
+	}
+	
 	if (checkPoint_ == goal)
 	{
 		isGoal_ = true;

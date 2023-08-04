@@ -2,6 +2,7 @@
 #include "Enemy.h"
 #include "Bee.h"
 #include "Tower.h"
+#include "../Scene/MainScene.h"
 #include "../Game.h"
 
 namespace
@@ -29,19 +30,19 @@ EnemyManager::~EnemyManager()
 {
 }
 
-void EnemyManager::Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory)
+void EnemyManager::Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene)
 {
 	if (checkPoint == 1)
 	{
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_1, false, handle_));
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_2, false, handle_));
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_3, false, handle_));
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_4, false, handle_));
-		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, enemy_init_pos_5, false, handle_));
+		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, enemy_init_pos_1, false, handle_));
+		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, enemy_init_pos_2, false, handle_));
+		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, enemy_init_pos_3, false, handle_));
+		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, enemy_init_pos_4, false, handle_));
+		pEnemies_.push_back(std::make_shared<Enemy>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, enemy_init_pos_5, false, handle_));
 
-		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, bee_init_pos_1, false, handle_));
-		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, bee_init_pos_2, false, handle_));
-		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, bee_init_pos_3, false, handle_));
+		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, bee_init_pos_1, false, handle_));
+		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, bee_init_pos_2, false, handle_));
+		pEnemies_.push_back(std::make_shared<Bee>(pPlayer, pTower, pCollision, pEnemyShotFactory, pMainScene, bee_init_pos_3, false, handle_));
 	}
 }
 

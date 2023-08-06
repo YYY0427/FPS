@@ -16,7 +16,7 @@ namespace
 ObstacleManager::ObstacleManager()
 {
 	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_1, obstacle_rot_1));
-	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_2, obstacle_rot_2));
+//	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_2, obstacle_rot_2));
 	pObstacles_.push_back(std::make_shared<Obstacle>(obstacle_pos_3, obstacle_rot_3));
 }
 

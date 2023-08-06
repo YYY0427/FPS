@@ -54,8 +54,7 @@ public:
 	/// <param name="name">サウンド名</param>
 	void Play(const char* name);
 	void Play3D(const char* name, VECTOR soundPos, float soundRadius, bool loop);
-	void PlayMusic(const char* path);
-	void Play2(const char* name);
+	void PlayMusic(const char* name);
 
 	/// <summary>
 	/// SEのボリュームを設定する

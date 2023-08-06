@@ -50,19 +50,25 @@ SoundManager::SoundManager()
 	LoadSoundFile("gun", ".wav");
 	LoadSoundFile3D("hit", ".mp3");
 	LoadSoundFile("run", ".mp3");
-	SetSelectVolume("run", 150);
 	LoadSoundFile3D("break", ".mp3");
 	LoadSoundFile3D("bee", ".mp3");
 	LoadSoundFile("playerDamage", ".mp3");
 	LoadSoundFile("bgm", ".mp3");
-	SetSelectVolume("bgm", 100);	
 	LoadSoundFile3D("hanabi", ".mp3");
 	LoadSoundFile3D("hanabi2", ".mp3");
 	LoadSoundFile("gameClear", ".mp3");
-	SetSelectVolume("gameClear", 100);
 	LoadSoundFile("don", ".mp3");
 	LoadSoundFile("bom", ".mp3");
 	LoadSoundFile("book", ".mp3");
+
+	SetSelectVolume("break", 150);
+	SetSelectVolume("explosion", 150);
+	SetSelectVolume("bom", 150);
+	SetSelectVolume("hit", 100);
+	SetSelectVolume("gun", 100);
+	SetSelectVolume("run", 150);
+	SetSelectVolume("bgm", 100);	
+	SetSelectVolume("gameClear", 100);
 }
 
 void SoundManager::LoadSoundConfig()
@@ -136,13 +142,7 @@ void SoundManager::Play3D(const char* name, VECTOR soundPos, float soundRadius, 
 	}
 }
 
-void SoundManager::PlayMusic(const char* path)
-{
-	DxLib::PlayMusic(path, DX_PLAYTYPE_LOOP);
-	SetVolumeMusic(volumeBGM_);
-}
-
-void SoundManager::Play2(const char* name)
+void SoundManager::PlayMusic(const char* name)
 {
 	PlaySoundMem(nameAndHandleTable_[name], DX_PLAYTYPE_LOOP);
 }

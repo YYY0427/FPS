@@ -40,7 +40,13 @@ void Collision::ExtrusionCollisionInit()
 void Collision::CollsionCheckAndPolyTypeCheck(int characterModelHandle, int objectModelHandle, int collisionFrameIndex, VECTOR pos, VECTOR vec, float collisionRadius, int chara)
 {
 	// モデルの最大頂点座標と最小頂点座標の取得
-	refPoly_ = MV1GetReferenceMesh(characterModelHandle, -1, true);
+	refPoly_ = MV1GetReferenceMesh(characterModelHandle, collisionFrameIndex, true);
+
+	/*if (chara == enemyBoss)
+	{
+		refPoly_.MaxPosition = VScale(refPoly_.MaxPosition, 2);
+		refPoly_.MinPosition = VScale(refPoly_.MinPosition, 2);
+	}*/
 
 	// 移動前の座標
 	oldPos_ = pos;

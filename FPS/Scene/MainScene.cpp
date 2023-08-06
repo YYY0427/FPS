@@ -57,6 +57,8 @@ namespace
 	// プレイヤーダメージのUIのフェード速度
 	constexpr int player_damage_ui_fade_interval = 60;
 
+	constexpr int game_clear_stamp_fade_interval = 60;
+
 	// ゲームクリア時のエフェクトの位置
 	constexpr VECTOR gameclear_effect_pos{ -4434, -342, -6460 };
 
@@ -75,15 +77,13 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	fadeValue_(255),
 	shadowMap_(-1),
 	gameOverUIhandle_(-1),
-	gameOverUIFadeTimer_(0),
 	gameClearUIhandle_(-1),
 	gameClearImgExRate_(3),
 	playerDamageUIFadeTimer_(0),
 	isPass_(false),
-	isGameStart_(false),
+	isGameStop_(true),
 	questImgExRate_(4.0),
-	questUIfadeTimer_(0),
-	isPass2_(false)
+	questUIfadeTimer_(0)
 {
 	pBomManager_ = std::make_shared<BomManager>();
 	pObstacleManager_ = std::make_shared<ObstacleManager>();
@@ -113,7 +113,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	pTower_->SetCollision(pCollision_);
 
 	pStageManager_->Init();
-	pEnemyManager_->Create(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, this);
+	pEnemyManager_->FirstCreate(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, this);
 
 	// 画像のロード
 	gameOverUIhandle_ = my::MyLoadGraph("Data/UI/gameOver.png");
@@ -142,7 +142,7 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 	auto& soundManager = SoundManager::GetInstance();
 
 	//↓ここ勝手に変更下でby大島
-	soundManager.Play2("bgm");
+	soundManager.PlayMusic("bgm");
 }
 
 MainScene::~MainScene()
@@ -154,6 +154,213 @@ MainScene::~MainScene()
 void MainScene::Update(const InputState& input)
 {
 	(this->*updateFunc_)(input);
+}
+
+void MainScene::UserReactionWaitUpdate(const InputState& input)
+{
+	// 各クラスの更新処理
+	{
+		pSkyDoom_->Update();
+		pStageManager_->Update();
+		pPlayer_->Update(input);
+		pEnemyManager_->Update();
+		pTower_->Update(isGameStop_);
+		pObstacleManager_->Update();
+		pEnemyShotFactory_->Update();
+		pBomManager_->Update();
+		for (auto& shot : pShot_)
+		{
+			shot->Update();
+		}
+		pCamera_->Update(input);
+	}
+	auto& soundManager = SoundManager::GetInstance();
+	static bool isPass = false;
+	static bool isNext = false;
+	static int fadeTimer = 0;
+	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
+	{
+		// フェード処理
+		FadeInUpdate();
+	}
+	else if (fadeTimer_ <= 0)
+	{
+		fadeTimer++;
+		questUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(fadeTimer)) / static_cast<float>(game_over_fade_interval));
+		if (fadeTimer >= game_over_fade_interval)
+		{
+			fadeTimer = game_over_fade_interval;
+		}
+
+		questImgExRate_ = questImgExRate_ - 0.08;
+		if (questImgExRate_ <= 1.0)
+		{
+			questImgExRate_ = 1.0;
+			if (!isPass)
+			{
+				soundManager.Play("don");
+				isPass = true;
+			}
+			if (input.IsTriggered(InputType::next) && isPass)
+			{
+				soundManager.Play("book");
+				isNext = true;
+			}
+			if (isNext)
+			{
+				static int timer = 0;
+				if (timer++ > 10)
+				{
+					isGameStop_ = false;
+					updateFunc_ = &MainScene::NormalUpdate;
+					timer = 0;
+				}
+			}
+		}
+	}
+}
+
+void MainScene::NormalUpdate(const InputState& input)
+{
+	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
+	auto& soundManager = SoundManager::GetInstance();
+
+	if (reticleEffectDisplayTime++ > 45)
+	{
+		isHit_ = false;
+		reticleEffectDisplayTime = 0;
+	}
+
+	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
+	{
+		// フェード処理
+		FadeInUpdate();
+	}
+
+	// 各クラスの更新処理
+	{
+		pSkyDoom_->Update();
+		pStageManager_->Update();
+		pPlayer_->Update(input);
+		pTower_->Update(isGameStop_);
+		pEnemyManager_->Update();
+		pObstacleManager_->Update();
+		pEnemyShotFactory_->Update();
+		pBomManager_->Update();
+		for (auto& shot : pShot_)
+		{
+			shot->Update();
+		}
+		pCamera_->Update(input);
+	}
+
+	pEnemyManager_->AdditionCreate(pTower_->GetCheckPoint(), pPlayer_, pTower_, pCollision_, pEnemyShotFactory_, this);
+
+	// 当たり判定
+	CollisionUpdate();
+
+	// プレイヤーがダメージを受けた時の演出
+	playerDamageUIFadeTimer_--;
+	playerDamageUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(playerDamageUIFadeTimer_)) / static_cast<float>(player_damage_ui_fade_interval));
+	if (playerDamageUIFadeTimer_ <= 0)
+	{
+		playerDamageUIFadeTimer_ = 0;
+	}
+
+	// ゲームクリア演出開始
+	if (pTower_->GetIsGoal() && !isGameOver_)
+	{
+		static int gameClearTimer = 0;
+
+		// 元々流れていたBGMを止める
+		soundManager.StopSelectMusic("bgm");
+
+		// 花火演出
+		if (!effectManager.IsEffectPlaying("gameClear"))
+		{
+			// 一度だけ
+			if (!isPass_)
+			{
+				soundManager.Play("gameClear");
+			}
+			soundManager.StopSelectMusic("hanabi2");
+			soundManager.Play3D("hanabi", pTower_->GetPos(), 10000, false);
+			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
+		}
+		else
+		{
+			if (!soundManager.CheckMusic("hanabi") && !soundManager.CheckMusic("hanabi2"))
+			{
+				soundManager.Play3D("hanabi2", pTower_->GetPos(), 10000, false);
+			}
+		}
+
+		// COMPLETEスタンプ演出
+		if (gameClearTimer++ > 280)
+		{
+			static int fadeTimer = 0;
+			fadeTimer++;
+			gameClearUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(fadeTimer)) / static_cast<float>(game_clear_stamp_fade_interval));
+			if (fadeTimer >= game_clear_stamp_fade_interval)
+			{
+				fadeTimer = game_clear_stamp_fade_interval;
+			}
+			if (fadeTimer >= 30)
+			{
+				gameClearImgExRate_ = gameClearImgExRate_ - 0.1;
+				if (gameClearImgExRate_ <= 1.0)
+				{
+					gameClearImgExRate_ = 1.0;
+					if (!isPass_)
+					{
+						soundManager.Play("don");
+						isPass_ = true;
+					}
+				}
+			}
+		}
+	}
+
+	// ゲームオーバー演出開始
+	if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
+	{
+		static int timer = 0;
+		timer++;
+		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(timer)) / static_cast<float>(game_over_fade_interval));
+		if (timer >= game_over_fade_interval)
+		{
+			timer = game_over_fade_interval;
+		}
+		isGameOver_ = true;
+	}
+
+#if false
+	// シーン切り替え
+	if (input.IsTriggered(InputType::next))
+	{
+		soundManager.StopMusic();
+		updateFunc_ = &MainScene::FadeOutUpdate;
+	}
+#endif
+	// シーン切り替え
+	if (isPass_)
+	{
+		static int timer = 0;
+		if (timer++ > 180)
+		{
+			soundManager.StopMusic();
+			effectManager.EffectAllStop();
+			updateFunc_ = &MainScene::FadeOutUpdate;
+		}
+	}
+	if (input.IsTriggered(InputType::pause))
+	{
+		manager_.PushScene(new PauseScene(manager_));
+	}
+	if (input.IsTriggered(InputType::up))
+	{
+	//	isGameStop_ = true;
+	}
 }
 
 void MainScene::Draw()
@@ -199,11 +406,11 @@ void MainScene::Draw()
 	SetUseShadowMap(0, -1);
 
 	// プレイヤーがダメージを受けた
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*(playerDamageUIFadeValue_ * 100) / 255*/playerDamageUIFadeValue_);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, playerDamageUIFadeValue_);
 	DrawGraph(0, 0, playerDamageUIHandle_, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (isGameStart_)
+	if (!isGameStop_)
 	{
 		// HPの表示
 		{
@@ -268,15 +475,8 @@ void MainScene::Draw()
 		}	
 	}
 
-	if (!isGameStart_ && fadeTimer_ <= 0)
+	if (isGameStop_ && fadeTimer_ <= 0)
 	{
-		questUIfadeTimer_++;
-		questUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(questUIfadeTimer_)) / static_cast<float>(game_over_fade_interval));
-		if (questUIfadeTimer_ >= game_over_fade_interval)
-		{
-			questUIfadeTimer_ = game_over_fade_interval;
-		}
-
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, questUIfadeValue_);
 		DrawRotaGraph(Game::screen_width / 2, Game::screen_height / 2, questImgExRate_, 0.0, questUIHandle_, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -352,52 +552,6 @@ void MainScene::PlayerFallFade()
 	}
 }
 
-void MainScene::UserReactionWaitUpdate(const InputState& input)
-{
-	auto& soundManager = SoundManager::GetInstance();
-	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
-	{
-		// フェード処理
-		FadeInUpdate();
-	}
-	else if (fadeTimer_ <= 0)
-	{
-		questImgExRate_ = questImgExRate_ - 0.08;
-		if (questImgExRate_ <= 1.0)
-		{
-			questImgExRate_ = 1.0;
-			if (!isPass2_)
-			{
-				soundManager.Play("don");
-				isPass2_ = true;
-			}
-			if (input.IsTriggered(InputType::next) && isPass2_)
-			{
-				soundManager.Play("book");
-				updateFunc_ = &MainScene::NormalUpdate;
-				isGameStart_ = true;
-			}
-		}
-
-	}
-
-	// 各クラスの更新処理
-	{
-		pSkyDoom_->Update();
-		pStageManager_->Update();
-		pPlayer_->Update(input);
-		pEnemyManager_->Update();
-		pTower_->Update(isGameStart_);
-		pObstacleManager_->Update();
-		pEnemyShotFactory_->Update();
-		pBomManager_->Update();
-		for (auto& shot : pShot_)
-		{
-			shot->Update();
-		}
-		pCamera_->Update(input);
-	}
-}
 
 void MainScene::FadeInUpdate()
 {
@@ -418,151 +572,153 @@ void MainScene::FadeOutUpdate(const InputState& input)
 	}
 }
 
-void MainScene::NormalUpdate(const InputState& input)
+void MainScene::CollisionUpdate()
 {
 	auto& effectManager = ThreeDimensionEffectManager::GetInstance();
 	auto& soundManager = SoundManager::GetInstance();
-
-	if (reticleEffectDisplayTime++ > 45)
+	for (auto& shot : pShot_)
 	{
-		isHit_ = false;
-		reticleEffectDisplayTime = 0;
-	}
+		if (!shot->isExist()) continue;
 
-	if (fadeTimer_ > 0 && !pPlayer_->IsFall())
-	{
-		// フェード処理
-		FadeInUpdate();
-	}
-
-	// 各クラスの更新処理
-	{
-		pSkyDoom_->Update();
-		pStageManager_->Update();
-		pPlayer_->Update(input);
-		pEnemyManager_->Update();
-		pTower_->Update(isGameStart_);
-		pObstacleManager_->Update();
-		pEnemyShotFactory_->Update();
-		pBomManager_->Update();
-		for (auto& shot : pShot_)
+		// プレイヤーの弾と敵の当たり判定
+		for (auto& enemies : pEnemyManager_->GetEnemies())
 		{
-			shot->Update();
-		}
-		pCamera_->Update(input);
-	}
-	
-	// TODO:Collisionクラスに移す
-	{
-		for (auto& shot : pShot_)
-		{
-			if (!shot->isExist()) continue;
-
-			// プレイヤーの弾と敵の当たり判定
-			for (auto& enemies : pEnemyManager_->GetEnemies())
+			if (pCollision_->ModelAndCapsuleCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
 			{
-				if (pCollision_->ModelAndCapsuleCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
-				{
-					if (!pTower_->GetIsGoal())
-						enemies->OnDamage(player_shot_damage);		
-					shot->SetEnabled(false);					
-					isHit_ = true;
-					auto temp = pCollision_->GetCollisionResult().Dim->Position;
-					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 2.0f);
-				}
-			}
-			// 障害物とプレイヤーショットの当たり判定
-			for (auto& obj : pObstacleManager_->GetObstacles())
-			{
-				if(pCollision_->ModelAndSphereCollision(shot->GetModelHandle(), -1, obj->GetPos(), obj->GetNormalCollsionRadius()))
-				{
-					if(!pTower_->GetIsGoal())
-						obj->OnDamage(player_shot_damage);			
-					shot->SetEnabled(false);	// 敵に当たった弾を消す
-					isHit_ = true;
-					auto temp = pCollision_->GetCollisionResult().Dim->Position;
-					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 1.0f);
-				}
-			}
-			// プレイヤーショットとステージの当たり判定
-			if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
-			{
-				// 当たった
+				if (!pTower_->GetIsGoal())
+					enemies->OnDamage(player_shot_damage);
 				shot->SetEnabled(false);
+				isHit_ = true;
+				auto temp = pCollision_->GetCollisionResult().Dim->Position;
+				effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 2.0f);
 			}
 		}
-		for (auto& boms : pBomManager_->GetBoms())
+		// 障害物とプレイヤーショットの当たり判定
+		for (auto& obj : pObstacleManager_->GetObstacles())
 		{
-			bool isBomHit = false;
-			// ボムと障害物の当たり判定
-			for (auto& obs : pObstacleManager_->GetObstacles())
+			if (pCollision_->ModelAndSphereCollision(shot->GetModelHandle(), -1, obj->GetPos(), obj->GetNormalCollsionRadius()))
 			{
-				if(pCollision_->SpheresColision(obs->GetPos(), boms->GetPos(), obs->GetNormalCollsionRadius(), boms->GetCollisionRadius()))
-				{
-					if (!pTower_->GetIsGoal())
-						obs->OnDamage(player_bom_shot_damage);
-					isHit_ = true;
-					isBomHit = true;
-				}
+				if (!pTower_->GetIsGoal())
+					obj->OnDamage(player_shot_damage);
+				shot->SetEnabled(false);	// 敵に当たった弾を消す
+				isHit_ = true;
+				auto temp = pCollision_->GetCollisionResult().Dim->Position;
+				effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 50.0f, 1.0f);
 			}
-			// 敵とボムの当たり判定
-			for (auto& enemies : pEnemyManager_->GetEnemies())
+		}
+		// プレイヤーショットとステージの当たり判定
+		if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, shot->GetPos(), shot->GetLastPos(), shot->GetColRadius()))
+		{
+			// 当たった
+			shot->SetEnabled(false);
+		}
+	}
+	for (auto& boms : pBomManager_->GetBoms())
+	{
+		bool isBomHit = false;
+		// ボムと障害物の当たり判定
+		for (auto& obs : pObstacleManager_->GetObstacles())
+		{
+			if (pCollision_->SpheresColision(obs->GetPos(), boms->GetPos(), obs->GetNormalCollsionRadius(), boms->GetCollisionRadius()))
 			{
-				if (pCollision_->ModelAndSphereCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), boms->GetPos(), boms->GetCollisionRadius()))
-				{
-					isHit_ = true;
-					isBomHit = true;
-					if (!pTower_->GetIsGoal())
-						enemies->OnDamage(enemies->GetHP().maxHp_ - 1);
-				}
-			}
-			// ボムとステージの当たり判定
-			if (pCollision_->ModelAndSphereCollision(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius()))
-			{
-				// 当たった
+				if (!pTower_->GetIsGoal())
+					obs->OnDamage(player_bom_shot_damage);
+				isHit_ = true;
 				isBomHit = true;
 			}
-
-			if (isBomHit)
+		}
+		// 敵とボムの当たり判定
+		for (auto& enemies : pEnemyManager_->GetEnemies())
+		{
+			bool isBoss = false;
+			if (enemies->GetEnemyType() == EnemyBase::enemyBos) isBoss = true;
+			if (pCollision_->ModelAndSphereCollision(enemies->GetModelHandle(), enemies->GetColFrameIndex(), boms->GetPos(), boms->GetCollisionRadius()))
 			{
-				boms->StartExplosion();
+				isHit_ = true;
+				isBomHit = true;
+				if (!pTower_->GetIsGoal() && !isBoss)
+				{
+					enemies->OnDamage(enemies->GetHP().maxHp_ - 1);
+				}
+				else if (!pTower_->GetIsGoal() && isBoss)
+				{
+					enemies->OnDamage(enemies->GetHP().maxHp_ / 3);
+				}
 			}
 		}
-		for (auto& bullets : pEnemyShotFactory_->GetBullets())
+		// ボムとステージの当たり判定
+		if (pCollision_->ModelAndSphereCollision(pStageManager_->GetStages()->GetModelHandle(), -1, boms->GetPos(), boms->GetCollisionRadius()))
 		{
-			// 敵の弾とプレイヤーの当たり判定
-			if (pCollision_->ModelAndCapsuleCollision(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
+			// 当たった
+			isBomHit = true;
+		}
+
+		if (isBomHit)
+		{
+			boms->StartExplosion();
+		}
+	}
+	for (auto& bullets : pEnemyShotFactory_->GetBullets())
+	{
+		// 敵の弾とプレイヤーの当たり判定
+		if (pCollision_->ModelAndCapsuleCollision(pPlayer_->GetHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
+		{
+			// 当たった
+			if (!pTower_->GetIsGoal())
+				pPlayer_->OnDamage(2);
+			bullets->SetIsEnabled(false);
+			playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
+			if (!soundManager.CheckMusic("playerDamage"))
+				soundManager.Play("playerDamage");
+		}
+		// 敵の弾とタワーの当たり判定
+		{
+			MV1_COLL_RESULT_POLY_DIM result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
+			if (result.HitNum > 0)
 			{
 				// 当たった
+				effectManager.PlayEffect("hit", VGet(result.Dim->Position->x, result.Dim->Position->y, result.Dim->Position->z), 100.0f, 1.0f);
 				if (!pTower_->GetIsGoal())
-					pPlayer_->OnDamage(2);
+					pTower_->OnDamage(2);
 				bullets->SetIsEnabled(false);
-				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
-				if (!soundManager.CheckMusic("playerDamage"))
-					soundManager.Play("playerDamage");
+				soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
 			}
-			// 敵の弾とタワーの当たり判定
-			{	
-				MV1_COLL_RESULT_POLY_DIM result = MV1CollCheck_Capsule(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius());
-				if (result.HitNum > 0)
-				{
-					// 当たった
-					effectManager.PlayEffect("hit", VGet(result.Dim->Position->x, result.Dim->Position->y, result.Dim->Position->z), 100.0f, 1.0f);
-					if (!pTower_->GetIsGoal())
-						pTower_->OnDamage(2);
-					bullets->SetIsEnabled(false);
-					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
-				}
-				// 当たり判定情報の後始末
-				MV1CollResultPolyDimTerminate(result);
-			}
-			// エネミーショットとステージの当たり判定
-			if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
-			{
-				bullets->SetIsEnabled(false);
-			}
+			// 当たり判定情報の後始末
+			MV1CollResultPolyDimTerminate(result);
 		}
-		for (auto& enemies : pEnemyManager_->GetEnemies())
+		// エネミーショットとステージの当たり判定
+		if (pCollision_->ModelAndCapsuleCollision(pStageManager_->GetStages()->GetModelHandle(), -1, bullets->GetPos(), bullets->GetLastPos(), bullets->GetColRadius()))
+		{
+			bullets->SetIsEnabled(false);
+		}
+	}
+	for (auto& enemies : pEnemyManager_->GetEnemies())
+	{
+		bool isBoss = false;
+		// 敵の種別によって当たり判定を行わない
+		if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
+		// 攻撃をしていなかったら当たり判定を行わない
+		if (!enemies->GetIsAttak()) continue;
+		// 敵のHPがなかったら判定を行わない
+		if (enemies->GetHP().hp_ <= 0) continue;
+		if (enemies->GetEnemyType() == EnemyBase::EnemyType::enemyBos) isBoss = true;
+
+		// 敵とプレイヤーの当たり判定
+		if (pCollision_->SpheresColision(enemies->GetPos(), pPlayer_->GetPos(), enemies->GetCollisionRadius(), pPlayer_->GetCollisionRadius()))
+		{
+			if (!pTower_->GetIsGoal() && !isBoss)
+			{
+				pPlayer_->OnDamage(5);
+			}
+			else if (!pTower_->GetIsGoal() && isBoss)
+			{
+				pPlayer_->OnDamage(20);
+			}
+			playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
+			if (!soundManager.CheckMusic("playerDamage"))
+				soundManager.Play("playerDamage");
+		}
+		// 敵とタワーの当たり判定
 		{
 			// 敵の種別によって当たり判定を行わない
 			if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
@@ -570,125 +726,23 @@ void MainScene::NormalUpdate(const InputState& input)
 			if (!enemies->GetIsAttak()) continue;
 			// 敵のHPがなかったら判定を行わない
 			if (enemies->GetHP().hp_ <= 0) continue;
+			if (enemies->GetEnemyType() == EnemyBase::EnemyType::enemyBos) isBoss = true;
 
-			// 敵とプレイヤーの当たり判定
-			if (pCollision_->SpheresColision(enemies->GetPos(), pPlayer_->GetPos(), enemies->GetCollisionRadius(), pPlayer_->GetCollisionRadius()))
+			if (pCollision_->ModelAndSphereCollision(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f))
 			{
-				pPlayer_->OnDamage(5);
-				playerDamageUIFadeTimer_ = player_damage_ui_fade_interval;
-				if(!soundManager.CheckMusic("playerDamage"))
-					soundManager.Play("playerDamage");
-			}
-			// 敵とタワーの当たり判定
-			{
-				// 敵の種別によって当たり判定を行わない
-				if (enemies->GetEnemyType() == EnemyBase::EnemyType::bee) continue;
-				// 死んでいたら当たり判定を行わない
-				if (enemies->GetDead()) continue;
-				// 攻撃をしていなかったら当たり判定を行わない
-				if (!enemies->GetIsAttak()) continue;
-
-				if (pCollision_->ModelAndSphereCollision(pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), enemies->GetPos(), enemies->GetCollisionRadius() + 30.0f))
+				// 当たった
+				auto temp = pCollision_->GetCollisionResult().Dim->Position;
+				effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
+				soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
+				if (!pTower_->GetIsGoal() && !isBoss && enemies->GetIsAttak())
 				{
-					// 当たった
-					auto temp = pCollision_->GetCollisionResult().Dim->Position;
-					effectManager.PlayEffect("hit", VGet(temp->x, temp->y, temp->z), 100.0f, 1.0f);
-					soundManager.Play3D("hit", pTower_->GetPos(), 5000, false);
-					if (!pTower_->GetIsGoal())
-						pTower_->OnDamage(10);
+					pTower_->OnDamage(5);
+				}
+				else if(!pTower_->GetIsGoal() && isBoss && enemies->GetIsAttak())
+				{
+					pTower_->OnDamage(20);
 				}
 			}
 		}
 	}
-
-	// プレイヤーがダメージを受けた時の演出
-	playerDamageUIFadeTimer_--;
-	playerDamageUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(playerDamageUIFadeTimer_)) / static_cast<float>(player_damage_ui_fade_interval));
-	if (playerDamageUIFadeTimer_ <= 0)
-	{
-		playerDamageUIFadeTimer_ = 0;
-	}
-
-	// ゲームクリア演出開始
-	if (pTower_->GetIsGoal() && !isGameOver_)
-	{
-		soundManager.StopSelectMusic("bgm");
-		DxLib::StopMusic;
-		if (!effectManager.IsEffectPlaying("gameClear"))
-		{
-			if(!isPass_)
-				soundManager.Play("gameClear");
-			soundManager.StopSelectMusic("hanabi2");
-			soundManager.Play3D("hanabi", pTower_->GetPos(), 10000, false);
-			effectManager.PlayEffect("gameClear", gameclear_effect_pos, 100.0f, 1.0f);
-		}
-		else
-		{
-			if (!soundManager.CheckMusic("hanabi") && !soundManager.CheckMusic("hanabi2"))
-			{
-				soundManager.Play3D("hanabi2", pTower_->GetPos(), 10000, false);
-			}
-		}
-
-		if (gameClearCount_++ > 280)
-		{
-			gameClearUIFadeTimer_++;
-			gameClearUIFadeValue_ = static_cast<int>(255 * (static_cast<float>(gameClearUIFadeTimer_)) / static_cast<float>(game_over_fade_interval));
-			if (gameClearUIFadeTimer_ >= game_over_fade_interval)
-			{
-				gameClearUIFadeTimer_ = game_over_fade_interval;
-			}
-			if (gameClearUIFadeTimer_ >= 30)
-			{
-				gameClearImgExRate_ = gameClearImgExRate_ - 0.1;
-				if (gameClearImgExRate_ <= 1.0)
-				{
-					gameClearImgExRate_ = 1.0;
-
-					if (!isPass_)
-					{
-						soundManager.Play("don");
-						isPass_ = true;
-					}
-				}
-			}
-		}
-	}
-
-	// ゲームオーバー演出開始
-	if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
-	{
-		gameOverUIFadeTimer_++;
-		gameOverUIfadeValue_ = static_cast<int>(255 * (static_cast<float>(gameOverUIFadeTimer_)) / static_cast<float>(game_over_fade_interval));
-		if (gameOverUIFadeTimer_ >= 100)
-		{
-			gameOverUIFadeTimer_ = 100;
-		}
-		isGameOver_ = true;
-	}
-
-#if false
-	// シーン切り替え
-	if (input.IsTriggered(InputType::next))
-	{
-		soundManager.StopMusic();
-		updateFunc_ = &MainScene::FadeOutUpdate;
-	}
-#endif
-	// シーン切り替え
-	if (isPass_ )
-	{
-		static int timer = 0;	
-		if (timer++ > 180)
-		{
-			soundManager.StopMusic();
-			effectManager.EffectAllStop();
-			updateFunc_ = &MainScene::FadeOutUpdate;
-		}
-	}
-	if (input.IsTriggered(InputType::pause))
-	{
-		manager_.PushScene(new PauseScene(manager_));
-	}
-
 }

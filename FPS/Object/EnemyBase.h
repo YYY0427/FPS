@@ -25,6 +25,8 @@ public:
 
 	bool GetIsAttak() const { return isAttack_; }
 
+	void SetIsDead(bool isDead) { isDead_ = isDead; }
+
 	// モデルのハンドルのゲッター
 	int GetModelHandle() const;
 
@@ -43,6 +45,7 @@ public:
 	enum EnemyType
 	{
 		enemy,
+		enemyBos,
 		bee,
 	};
 

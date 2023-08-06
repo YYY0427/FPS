@@ -153,6 +153,9 @@
     <ClCompile Include="ThreeDimensionEffectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Object\EnemyBoss.cpp">
+      <Filter>ソース ファイル\Object\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="ThreeDimensionEffectManager.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\EnemyBoss.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,10 +15,12 @@ public:
 	EnemyManager();
 	virtual ~EnemyManager();
 
-	void Create(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene);
+	void FirstCreate(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene);
+	void AdditionCreate(int checkPoint, std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene);
+
 	void Update();
 	void Draw();
-
+	int EnemyCount();
 	void DeadCheck();
 
 	std::vector<std::shared_ptr<EnemyBase>> GetEnemies() const { return pEnemies_; }

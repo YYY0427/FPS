@@ -155,6 +155,7 @@
     <ClCompile Include="Bom.cpp" />
     <ClCompile Include="BomManager.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Object\EnemyBoss.cpp" />
     <ClCompile Include="ThreeDimensionEffectManager.cpp" />
     <ClCompile Include="EnemyShot.cpp" />
     <ClCompile Include="EnemyShotFactory.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="Bom.h" />
     <ClInclude Include="BomManager.h" />
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="Object\EnemyBoss.h" />
     <ClInclude Include="ThreeDimensionEffectManager.h" />
     <ClInclude Include="EnemyShot.h" />
     <ClInclude Include="EnemyShotFactory.h" />

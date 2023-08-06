@@ -45,6 +45,8 @@ private:
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
 
+	void UpdateToGameClear();
+
 	void Sound();
 private:
 	// メンバー関数ポインタ

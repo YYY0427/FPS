@@ -15,7 +15,7 @@ public:
 	Tower(StageManager* pStageManager, std::shared_ptr<ObstacleManager> pObstacleManager);
 	virtual ~Tower();
 
-	void Update(bool isGameStart);
+	void Update(bool isGameStop);
 	void Draw();
 
 	// ƒ_ƒ[ƒW‚ğó‚¯‚½‚Ìˆ—

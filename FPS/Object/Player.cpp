@@ -68,7 +68,7 @@ namespace
 	constexpr int invincible_time = 0;
 
 	// ショットの再使用まで待機フレーム数
-	constexpr int shot_wait_time = 30;
+	constexpr int shot_wait_time = 5;
 
 	// 爆弾の再使用まで待機フレーム数
 	constexpr int bom_wait_time = 60 * 20;
@@ -77,7 +77,8 @@ namespace
 	constexpr VECTOR respawn_point{ 6000.0f, 0.0f, 2200.0f };
 
 	// 初期位置
-	constexpr VECTOR bee_init_pos_1{ 6000.0f, 0.0f, 2200.0f };
+//	constexpr VECTOR init_pos_1{ 6000.0f, 0.0f, 2200.0f };
+	constexpr VECTOR init_pos_1{ 6616, -223, 3251 };
 }
 
 Player::Player(MainScene* pMainScene) :
@@ -108,7 +109,7 @@ Player::Player(MainScene* pMainScene) :
 	pModel_->SetUseCollision(true);
 
 	// 初期位置
-	pos_ = bee_init_pos_1;
+	pos_ = init_pos_1;
 	pModel_->SetPos(pos_);
 	pModel_->Update();
 }
@@ -240,7 +241,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 	// ショットを撃つ処理
-	if (input.IsPressed(InputType::shot) && isUseShot_ && pMainScene_->GetIsGameStart())
+	if (input.IsPressed(InputType::shot) && isUseShot_ && !pMainScene_->GetIsGameStop())
 	{
 		soundManager.Play("gun");
 
@@ -274,7 +275,7 @@ void Player::UpdateIdle(const InputState& input)
 		isUseShot_ = false;
 	}
 
-	if (input.IsTriggered(InputType::bom) && isUseBom_ && pMainScene_->GetIsGameStart())
+	if (input.IsTriggered(InputType::bom) && isUseBom_ && !pMainScene_->GetIsGameStop())
 	{
 		soundManager.Play("bom");
 
@@ -346,7 +347,7 @@ void Player::UpdateIdle(const InputState& input)
 	}
 
 
-	if (isMoving_ && pMainScene_->GetIsGameStart())
+	if (isMoving_ && !pMainScene_->GetIsGameStop())
 	{
 		// x方向とz方向のベクトルを足して移動ベクトルを作成する
 		moveVec_ = VAdd(moveVecZ, moveVecX);

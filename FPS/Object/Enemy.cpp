@@ -90,7 +90,7 @@ Enemy::Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std
 	if (isMove)
 	{
 		animNo_ = walk_anim_no;
-		updateFunc_ = &Enemy::UpdateToFront;
+		updateFunc_ = &Enemy::UpdateTrackingToTower;
 	}
 	else
 	{
@@ -124,6 +124,28 @@ void Enemy::OnDamage(int damage)
 	sHp_.hp_ -= damage;
 	damageFrame_ = invincible_time;
 
+	VECTOR pos;
+	if (target_ == player)
+	{
+		pos = pPlayer_->GetPos();
+	}
+	else if (target_ == tower)
+	{
+		pos = pTower_->GetPos();
+	}
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
+	// 正規化
+	toTargetVec_ = VNorm(toTargetVec_);
+
+	// 移動速度の反映
+	VECTOR vec = VScale(toTargetVec_, to_player_speed);
+	// 当たり判定を行い、その結果によって移動
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 	// HPがあればダメージアニメーションに移行
 	// HPがなければ死亡アニメーションに移行
 	if (sHp_.hp_ > 0)
@@ -142,6 +164,14 @@ void Enemy::OnDamage(int damage)
 		pModel_->ChangeAnimation(animNo_, false, false, 4);
 		updateFunc_ = &Enemy::UpdateDead;
 	}
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
 void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
@@ -196,6 +226,11 @@ void Enemy::Tracking(VECTOR pos, int target, float attackDistance)
 		frameCount_ = 0;
 	}
 
+	if (pTower_->GetIsGoal())
+	{
+		updateFunc_ = &Enemy::UpdateToGameClear;
+	}
+
 	// 当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
@@ -241,6 +276,11 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 			break;
 		}
 	}
+	if (pTower_->GetIsGoal())
+	{
+		updateFunc_ = &Enemy::UpdateToGameClear;
+	}
+
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
@@ -254,7 +294,7 @@ void Enemy::Attacking(VECTOR pos, int target, float attacDistance)
 
 void Enemy::UpdateToIdle()
 {
-	if (pMainScene_->GetIsGameStart())
+	if (!pMainScene_->GetIsGameStop())
 	{
 		frameCount_++;
 		if (!targetDiscover_ && frameCount_ > 120)
@@ -263,15 +303,18 @@ void Enemy::UpdateToIdle()
 			if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
 			{
 				target_ = tower;
+				targetDiscover_ = true;
+				animNo_ = discoverAnimNo_;
+				pModel_->ChangeAnimation(animNo_, false, false, 4);
 			}
 			// プレイヤーを見つけたらプレイヤーを追いかける
 			else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 			{
 				target_ = player;
+				targetDiscover_ = true;
+				animNo_ = discoverAnimNo_;
+				pModel_->ChangeAnimation(animNo_, false, false, 4);
 			}
-			animNo_ = discoverAnimNo_;
-			pModel_->ChangeAnimation(animNo_, false, false, 4);
-			targetDiscover_ = true;
 		}
 		else if (targetDiscover_)
 		{
@@ -291,9 +334,13 @@ void Enemy::UpdateToIdle()
 				}
 			}
 		}
-
 	}
 	
+	if (pTower_->GetIsGoal())
+	{
+		updateFunc_ = &Enemy::UpdateToGameClear;
+	}
+
 	// フィールドとの当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), false , false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
 
@@ -315,7 +362,7 @@ void Enemy::UpdateTrackingToTower()
 
 void Enemy::UpdateToFront()
 {
-	if (pMainScene_->GetIsGameStart())
+	if (!pMainScene_->GetIsGameStop())
 	{
 		// ダメージ処理
 		damageFrame_--;
@@ -440,6 +487,47 @@ void Enemy::UpdateHitDamage()
 	}
 }
 
+void Enemy::UpdateToGameClear()
+{
+	static int timer = 0;
+	if (timer++ > 120)
+	{
+		isDead_ = true;
+	}
+	VECTOR pos;
+	if (target_ == tower)
+	{
+		pos = pTower_->GetPos();
+	}
+	else if (target_ == player)
+	{
+		pos = pPlayer_->GetPos();
+	}
+
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
+	// 正規化
+	toTargetVec_ = VNorm(toTargetVec_);
+
+	// 移動速度の反映
+	VECTOR vec = VScale(toTargetVec_, to_player_speed);
+
+	pos_ = VSub(pos_, vec);
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// アニメーション更新処理
+	pModel_->Update();
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+}
+
 void Enemy::UpdateAttackWaitTimeToPlayer()
 {
 	WaitTime(player, pPlayer_->GetPos(), player_attack_distance);
@@ -464,41 +552,43 @@ void Enemy::WaitTime(int target, VECTOR pos, float attacDistance)
 	// ターゲットまでの距離
 	float distans = VSize(toTargetVec_);
 
-	// ターゲットから特定の距離離れていたらプレイヤーを追いかける
-	if (attacDistance < distans)
-	{
-		// アニメーション設定
-		animNo_ = walk_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		// updateを変更
-		switch (target)
-		{
-		case player:
-			updateFunc_ = &Enemy::UpdateTrackingToPlayer;
-			break;
-		case tower:
-			updateFunc_ = &Enemy::UpdateTrackingToTower;
-		}
-		frameCount_ = 0;
-	}
-
 	if (attackWaitTimer_++ > attack_wait_time)
 	{
 		attackWaitTimer_ = 0;
 
-		// アニメーション設定
-		animNo_ = attack_anim_no;
-		pModel_->ChangeAnimation(animNo_, false, false, 4);
-
-		switch (target)
+		// ターゲットから特定の距離離れていたらプレイヤーを追いかける
+		if (attacDistance < distans)
 		{
-		case player:
-			updateFunc_ = &Enemy::UpdateAttackToPlayer;
-			break;
-		case tower:
-			updateFunc_ = &Enemy::UpdateAttackToTower;
-			break;
+			// アニメーション設定
+			animNo_ = walk_anim_no;
+			pModel_->ChangeAnimation(animNo_, true, false, 4);
+
+			// updateを変更
+			switch (target)
+			{
+			case player:
+				updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+				break;
+			case tower:
+				updateFunc_ = &Enemy::UpdateTrackingToTower;
+			}
+			frameCount_ = 0;
+		}
+		else
+		{
+			// アニメーション設定
+			animNo_ = attack_anim_no;
+			pModel_->ChangeAnimation(animNo_, false, false, 4);
+
+			switch (target)
+			{
+			case player:
+				updateFunc_ = &Enemy::UpdateAttackToPlayer;
+				break;
+			case tower:
+				updateFunc_ = &Enemy::UpdateAttackToTower;
+				break;
+			}
 		}
 	}
 

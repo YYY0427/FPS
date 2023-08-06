@@ -1,18 +1,17 @@
 #pragma once
 #include "EnemyBase.h"
-
-class Enemy : public EnemyBase
+class EnemyBoss : public EnemyBase
 {
 public:
-	Enemy(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene, VECTOR pos, bool isMove, int handle);
-	virtual ~Enemy();
+	EnemyBoss(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene, VECTOR pos, bool isMove, int handle);
+	virtual ~EnemyBoss();
 
 	void Update();
 
 	// ダメージを受けた
 	void OnDamage(int damage);
 
-	int GetEnemyType() const { return enemy; }
+	int GetEnemyType() const { return enemyBos; }
 
 private:
 	// 追跡処理
@@ -45,8 +44,6 @@ private:
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
 
-	void UpdateToGameClear();
-
 	// 敵が攻撃してからもう一度攻撃するまでの待機
 	void UpdateAttackWaitTimeToPlayer();
 	void UpdateAttackWaitTimeToTower();
@@ -54,7 +51,7 @@ private:
 
 private:
 	// メンバー関数ポインタ
-	void(Enemy::* updateFunc_)();
+	void(EnemyBoss::* updateFunc_)();
 
-	bool isPass_ = false; 
+	bool isPass_ = false;
 };

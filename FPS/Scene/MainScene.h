@@ -39,15 +39,20 @@ public:
 	// プレイヤーがステージから落ちたときのフェード
 	void PlayerFallFade();
 
-	bool GetIsGameStart() const { return isGameStart_; }
+	// ゲームがスタートしたか
+	bool GetIsGameStop() const { return isGameStop_; }
 private:
-	void UserReactionWaitUpdate(const InputState& input);
+	// フェードイン
+	void FadeInUpdate();
 
 	// フェードアウト
 	void FadeOutUpdate(const InputState& input);
 
-	// フェードイン
-	void FadeInUpdate();
+	// 毎フレーム当たり判定
+	void CollisionUpdate();
+
+	// ゲームスタート時にプレイヤーのアクションを待つアップデート
+	void UserReactionWaitUpdate(const InputState& input);
 
 	// 通常のアップデート
 	void NormalUpdate(const InputState& input);
@@ -95,9 +100,7 @@ private:
 	int fadeTimer_;
 	int fadeValue_;
 	int gameOverUIfadeValue_;
-	int gameOverUIFadeTimer_;
 	int gameClearUIFadeValue_;
-	int gameClearUIFadeTimer_;
 	int playerDamageUIFadeTimer_;
 	int playerDamageUIFadeValue_;
 	int questUIfadeValue_;
@@ -129,8 +132,7 @@ private:
 
 	// 一回しか通らない
 	bool isPass_;
-	bool isPass2_;
 
 	// ゲームがスタートしたか
-	bool isGameStart_;
+	bool isGameStop_;
 };

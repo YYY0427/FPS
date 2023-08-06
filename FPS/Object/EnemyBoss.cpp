@@ -1,62 +1,65 @@
-#include "Bee.h"
+#include "EnemyBoss.h"
 #include "EnemyBase.h"
 #include "Player.h"
 #include "../Model.h"
-#include "../Collision.h"
 #include "Tower.h"
-#include "../EnemyShotFactory.h"
-#include "../SoundManager.h"
+#include "../Collision.h"
 #include "../Scene/MainScene.h"
-#include <cmath>
 #include <cassert>
 
 namespace
 {
 	// ファイルパス
-	const char* const bee_adress = "Data/Model/beeCol.mv1";
+	const char* const enemy_adress = "Data/Model/enemyBossCol.mv1";
 
 	// 敵キャラクターの向いている方向
 	constexpr VECTOR enemy_dir{ 0.0f, 0.0f, -1.0f };
 
 	// 敵キャラクターの移動速度
-	constexpr float to_front_speed = 4.0f;
-	constexpr float to_player_speed = 4.0f;
+	constexpr float to_front_speed = 15.0f;
+	constexpr float to_player_speed = 15.0f;
 
 	// 敵キャラクターの視野角
-	constexpr float view_angle = 90.0f * DX_PI_F / 180.0f;
+	constexpr float view_angle = 30.0f * DX_PI_F / 180.0f;
 
 	// アニメーション番号
-	constexpr int walk_anim_no = 1;
-	constexpr int ondamage_anim_no = 2;
-	constexpr int dead_anim_no = 0;
-	constexpr int attack_anim_no = 3;
+	constexpr int walk_anim_no = 8;
+	constexpr int ondamage_anim_no = 4;
+	constexpr int dead_anim_no = 3;
+	constexpr int attack_anim_no = 0;
+	constexpr int idle_anim_no = 2;
+	constexpr int jump_anim_no = 6;
+	constexpr int attack_wait_anim_no = 5;
+
+	// 大きさ
+	constexpr float model_scale = 2.0f;
 
 	// 当たり半径のサイズ
-	constexpr float collision_radius = 70.0f;
+	constexpr float collision_radius = 100.0f * model_scale;
 
 	// 最大HP
-	constexpr int max_hp = 50;
+	constexpr int max_hp = 200;
 
 	// ダメージ受けた時の無敵時間
 	constexpr int invincible_time = 10;
 
 	// プレイヤーに攻撃する距離
-	constexpr float player_attack_distance = 2000.0f;
+	constexpr float player_attack_distance = 250.0f;
 
 	// タワーに攻撃する距離
-	constexpr float tower_attack_distance = 2000.0f;
+	constexpr float tower_attack_distance = 350.0f;
 
 	// 目標を見失う距離
-	constexpr float lost_distance = 4000.0f;
+	constexpr float lost_distance = 2000.0f;
 
 	// 攻撃の再使用まで待機フレーム数
-	constexpr int attack_wait_time = 20;
+	constexpr int attack_wait_time = 60;
 
 	// 検知範囲
-	constexpr float detection_range = 2500.0f;
+	constexpr float detection_range = 1500.0f;
 }
 
-Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene, VECTOR pos, bool isMove, int handle)
+EnemyBoss::EnemyBoss(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::shared_ptr<Collision> pCollision, std::shared_ptr<EnemyShotFactory> pEnemyShotFactory, MainScene* pMainScene, VECTOR pos, bool isMove, int handle)
 {
 	pPlayer_ = pPlayer;
 	pTower_ = pTower;
@@ -65,7 +68,6 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	pMainScene_ = pMainScene;
 
 	pos_ = pos;
-	animNo_ = walk_anim_no;
 	frameCount_ = 0;
 	rotSpeed_ = 0;
 	sHp_.hp_ = max_hp;
@@ -78,7 +80,7 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 	deadDisappearTime_ = 120;
 	sHp_.hpUIDrawY_ = 30.0f;
 	deadAnimNo_ = dead_anim_no;
-	discoverAnimNo_ = -1;
+	discoverAnimNo_ = jump_anim_no;
 	detectionRange_ = detection_range;
 	handle_ = handle;
 
@@ -90,32 +92,36 @@ Bee::Bee(std::shared_ptr<Player> pPlayer, std::shared_ptr<Tower> pTower, std::sh
 
 	if (isMove)
 	{
-		updateFunc_ = &Bee::UpdateTrackingToTower;
+		animNo_ = walk_anim_no;
+		updateFunc_ = &EnemyBoss::UpdateTrackingToTower;
 	}
 	else
 	{
-		updateFunc_ = &Bee::UpdateToIdle;
+		animNo_ = idle_anim_no;
+		updateFunc_ = &EnemyBoss::UpdateToIdle;
 	}
 
 	// 3Dモデルの生成
-	pModel_ = std::make_shared<Model>(bee_adress);
+	pModel_ = std::make_shared<Model>(enemy_adress);
 	pModel_->SetAnimation(animNo_, true, true);
-	pModel_->SetUseCollision(true, true);
+	pModel_->SetUseCollision(true);
 	pModel_->SetPos(pos);
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
+	pModel_->SetScale(VGet(model_scale, model_scale, model_scale));
 	pModel_->Update();
 }
 
-Bee::~Bee()
+EnemyBoss::~EnemyBoss()
 {
+
 }
 
-void Bee::Update()
+void EnemyBoss::Update()
 {
 	(this->*updateFunc_)();
 }
 
-void Bee::OnDamage(int damage)
+void EnemyBoss::OnDamage(int damage)
 {
 	// ダメージ処理
 	if (damageFrame_ > 0)	return;
@@ -131,18 +137,18 @@ void Bee::OnDamage(int damage)
 		pModel_->ChangeAnimation(animNo_, false, false, 4);
 
 		// update変更
-		updateFunc_ = &Bee::UpdateHitDamage;
+		updateFunc_ = &EnemyBoss::UpdateHitDamage;
 	}
 	else
 	{
 		// 死亡アニメーションに移行
 		animNo_ = dead_anim_no;
 		pModel_->ChangeAnimation(animNo_, false, false, 4);
-		updateFunc_ = &Bee::UpdateDead;
+		updateFunc_ = &EnemyBoss::UpdateDead;
 	}
 }
 
-void Bee::Tracking(VECTOR pos, int target, float attackDistance)
+void EnemyBoss::Tracking(VECTOR pos, int target, float attackDistance)
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -151,12 +157,6 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pos, pos_);
 
-	if (pos_.y <= 500)
-	{
-		// Y軸は追いかけない
-		toTargetVec_ = VGet(toTargetVec_.x, 0.0f, toTargetVec_.z);
-	}
-	
 	// 角度の取得
 	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
@@ -166,9 +166,6 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	// 移動速度の反映
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
 
-	// フィールドとの当たり判定を行い、その結果によって移動
-	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
-
 	// ターゲットまでの距離
 	float distans = VSize(VSub(pos, pos_));
 
@@ -177,50 +174,46 @@ void Bee::Tracking(VECTOR pos, int target, float attackDistance)
 	{
 		// アニメーション設定
 		animNo_ = attack_anim_no;
-		pModel_->ChangeAnimation(animNo_, true, false, 4);
+		pModel_->ChangeAnimation(animNo_, false, false, 4);
 
 		// 現在向かっている対象によって攻撃対象を決定
 		switch (target)
 		{
 		case player:
-			updateFunc_ = &Bee::UpdateAttackToPlayer;
+			updateFunc_ = &EnemyBoss::UpdateAttackToPlayer;
 			break;
 		case tower:
-			updateFunc_ = &Bee::UpdateAttackToTower;
+			updateFunc_ = &EnemyBoss::UpdateAttackToTower;
 			break;
 		}
 		frameCount_ = 0;
 	}
 	if (target == player && distans > lost_distance)
 	{
-		updateFunc_ = &Bee::UpdateTrackingToTower;
+		updateFunc_ = &EnemyBoss::UpdateTrackingToTower;
 	}
 
 	// プレイヤーが死んでいる場合を追わない
 	if (pPlayer_->GetIsDead())
 	{
-		updateFunc_ = &Bee::UpdateToFront;
+		updateFunc_ = &EnemyBoss::UpdateToFront;
 		frameCount_ = 0;
 	}
 
-	if (pTower_->GetIsGoal())
-	{
-		updateFunc_ = &Bee::UpdateToGameClear;
-	}
+	// 当たり判定を行い、その結果によって移動
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemyBoss, collision_radius);
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
-	Sound();
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
-void Bee::Attacking(VECTOR pos, int target, float attackDistance)
+void EnemyBoss::Attacking(VECTOR pos, int target, float attacDistance)
 {
 	assert(animNo_ == attack_anim_no);
 
@@ -228,68 +221,42 @@ void Bee::Attacking(VECTOR pos, int target, float attackDistance)
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	// 敵から目標へのベクトルを求める
-	toTargetVec_ = VSub(pos, pos_);
-
-	// 角度の取得
-	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
-
-	// タワーの足元を狙うためY軸をプラス
-	if(target == tower)
-		toTargetVec_ = VGet(toTargetVec_.x, toTargetVec_.y + 500.0f, toTargetVec_.z);
-
-	// プレイヤーまでの距離
-	float distans = VSize(toTargetVec_);
-
-	// 正規化
-	toTargetVec_ = VNorm(toTargetVec_);
-
-	// ショットのスピードをかける
-	toTargetVec_ = VScale(toTargetVec_, 20.0f);
-
-	// 
-	if (attackWaitTimer_++ % attack_wait_time == 0)
+	if (!isPass_)
 	{
-		pEnemyShotFactory_->ShootStart(pos_, toTargetVec_, target);
+		isAttack_ = true;
+		isPass_ = true;
+	}
+	else
+	{
+		isAttack_ = false;
 	}
 
-	// プレイヤーから特定の距離離れていたらプレイヤーを追いかける
-	if (attackDistance < distans)
+	if (pModel_->IsAnimEnd())
 	{
-		// アニメーション設定
-		animNo_ = walk_anim_no;
+		animNo_ = attack_wait_anim_no;
 		pModel_->ChangeAnimation(animNo_, true, false, 4);
-
-		// updateを変更
 		switch (target)
 		{
 		case player:
-			updateFunc_ = &Bee::UpdateTrackingToPlayer;
+			updateFunc_ = &EnemyBoss::UpdateAttackWaitTimeToPlayer;
 			break;
 		case tower:
-			updateFunc_ = &Bee::UpdateTrackingToTower;
+			updateFunc_ = &EnemyBoss::UpdateAttackWaitTimeToTower;
+			break;
 		}
-		frameCount_ = 0;
-	}
-
-	if (pTower_->GetIsGoal())
-	{
-		updateFunc_ = &Bee::UpdateToGameClear;
 	}
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
-	// アニメーション更新処理
-	pModel_->Update();
-
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 
-	Sound();
+	// アニメーション更新処理
+	pModel_->Update();
 }
 
-void Bee::UpdateToIdle()
+void EnemyBoss::UpdateToIdle()
 {
 	if (!pMainScene_->GetIsGameStop())
 	{
@@ -301,24 +268,21 @@ void Bee::UpdateToIdle()
 			{
 				target_ = tower;
 				animNo_ = discoverAnimNo_;
-				//	pModel_->ChangeAnimation(animNo_, false, false, 4);
+				pModel_->ChangeAnimation(animNo_, false, false, 4);
 				targetDiscover_ = true;
-				frameCount_ = 0;
 			}
 			// プレイヤーを見つけたらプレイヤーを追いかける
 			else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 			{
 				target_ = player;
 				animNo_ = discoverAnimNo_;
-				//	pModel_->ChangeAnimation(animNo_, false, false, 4);
+				pModel_->ChangeAnimation(animNo_, false, false, 4);
 				targetDiscover_ = true;
-				frameCount_ = 0;
 			}
 		}
 		else if (targetDiscover_)
 		{
-			//	if (pModel_->IsAnimEnd())
-			if (frameCount_ > 20)
+			if (pModel_->IsAnimEnd())
 			{
 				targetDiscover_ = false;
 				animNo_ = walk_anim_no;
@@ -326,43 +290,37 @@ void Bee::UpdateToIdle()
 				frameCount_ = 0;
 				if (target_ == tower)
 				{
-					updateFunc_ = &Bee::UpdateTrackingToTower;
+					updateFunc_ = &EnemyBoss::UpdateTrackingToTower;
 				}
 				else if (target_ == player)
 				{
-					updateFunc_ = &Bee::UpdateTrackingToPlayer;
+					updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
 				}
 			}
 		}
+
 	}
-	
+
+	// フィールドとの当たり判定を行い、その結果によって移動
+	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), false, false, true, pos_, VGet(0.0f, 0.0f, 0.0f), Collision::Chara::enemy, collision_radius);
+
+	pModel_->SetPos(pos_);
+
 	// アニメーション更新処理
 	pModel_->Update();
-
-	Sound();
 }
 
-void Bee::UpdateTrackingToPlayer()
+void EnemyBoss::UpdateTrackingToPlayer()
 {
 	Tracking(pPlayer_->GetPos(), player, player_attack_distance);
 }
 
-void Bee::UpdateTrackingToTower()
+void EnemyBoss::UpdateTrackingToTower()
 {
 	Tracking(pTower_->GetPos(), tower, tower_attack_distance);
 }
 
-void Bee::UpdateAttackToPlayer()
-{
-	Attacking(pPlayer_->GetPos(), player, player_attack_distance);
-}
-
-void Bee::UpdateAttackToTower()
-{
-	Attacking(pTower_->GetPos(), tower, tower_attack_distance);
-}
-
-void Bee::UpdateToFront()
+void EnemyBoss::UpdateToFront()
 {
 	if (!pMainScene_->GetIsGameStop())
 	{
@@ -380,7 +338,7 @@ void Bee::UpdateToFront()
 		VECTOR vec = VScale(dir, to_front_speed);
 
 		// フィールドとの当たり判定を行い、その結果によって移動
-		pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, false, pos_, vec, Collision::Chara::bee, collision_radius);
+		pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
 
 		frameCount_++;
 		if (frameCount_ >= 2 * 60)
@@ -388,16 +346,15 @@ void Bee::UpdateToFront()
 			// タワーを見つけたらプレイヤーを追いかける
 			if (IsTargetDetection(pTower_->GetPos(), pTower_->GetColRadius()) && !pPlayer_->GetIsDead())
 			{
-				updateFunc_ = &Bee::UpdateTrackingToTower;
+				updateFunc_ = &EnemyBoss::UpdateTrackingToTower;
 				frameCount_ = 0;
 			}
 			// プレイヤーを見つけたらプレイヤーを追いかける
 			else if (IsTargetDetection(pPlayer_->GetPos(), pPlayer_->GetCollisionRadius()) && !pPlayer_->GetIsDead())
 			{
-				updateFunc_ = &Bee::UpdateTrackingToPlayer;
+				updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
 				frameCount_ = 0;
 			}
-
 			// 見つからなかったら回転する
 			else
 			{
@@ -407,26 +364,33 @@ void Bee::UpdateToFront()
 				if (GetRand(1)) rotSpeed_ *= -1.0f;
 
 				// udpateを変更
-				updateFunc_ = &Bee::UpdateTurn;
+				updateFunc_ = &EnemyBoss::UpdateTurn;
 				frameCount_ = 0;
 			}
 		}
 	}
-	
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
 
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
+
 	// アニメーション更新処理
 	pModel_->Update();
-
-	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_ , 0.0f));
-
-	Sound();
 }
 
-void Bee::UpdateTurn()
+void EnemyBoss::UpdateAttackToPlayer()
+{
+	Attacking(pPlayer_->GetPos(), player, player_attack_distance);
+}
+
+void EnemyBoss::UpdateAttackToTower()
+{
+	Attacking(pTower_->GetPos(), tower, tower_attack_distance);
+}
+
+void EnemyBoss::UpdateTurn()
 {
 	// ダメージ処理
 	damageFrame_--;
@@ -438,21 +402,14 @@ void Bee::UpdateTurn()
 	frameCount_++;
 	if (frameCount_ >= 30)
 	{
-		// タワーを見つけたらプレイヤーを追いかける
-		if (IsPlayerFront(pTower_->GetPos()) && !pPlayer_->GetIsDead())
+		if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
 		{
-			updateFunc_ = &Bee::UpdateTrackingToTower;
-			frameCount_ = 0;
-		}
-		// プレイヤーを見つけたらプレイヤーを追いかける
-		else if (IsPlayerFront(pPlayer_->GetPos()) && !pPlayer_->GetIsDead())
-		{
-			updateFunc_ = &Bee::UpdateTrackingToPlayer;
+			updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
 			frameCount_ = 0;
 		}
 		else
 		{
-			updateFunc_ = &Bee::UpdateToFront;
+			updateFunc_ = &EnemyBoss::UpdateToFront;
 			frameCount_ = 0;
 		}
 	}
@@ -462,14 +419,12 @@ void Bee::UpdateTurn()
 
 	// アニメーション更新処理
 	pModel_->Update();
-	
+
 	// 向いている方向の設定
 	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
-
-	Sound();
 }
 
-void Bee::UpdateHitDamage()
+void EnemyBoss::UpdateHitDamage()
 {
 	assert(animNo_ == ondamage_anim_no);
 
@@ -488,26 +443,24 @@ void Bee::UpdateHitDamage()
 		pModel_->ChangeAnimation(walk_anim_no, true, false, 4);
 
 		// Updateを待機に
-		updateFunc_ = &Bee::UpdateTrackingToPlayer;
+		updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
 	}
 }
 
-void Bee::UpdateToGameClear()
+void EnemyBoss::UpdateAttackWaitTimeToPlayer()
 {
-	static int timer = 0;
-	if (timer++ > 120)
-	{
-		isDead_ = true;
-	}
-	VECTOR pos;
-	if (target_ == tower)
-	{
-		pos = pTower_->GetPos();
-	}
-	else if (target_ == player)
-	{
-		pos = pPlayer_->GetPos();
-	}
+	WaitTime(player, pPlayer_->GetPos(), player_attack_distance);
+}
+
+void EnemyBoss::UpdateAttackWaitTimeToTower()
+{
+	WaitTime(tower, pTower_->GetPos(), tower_attack_distance);
+}
+
+void EnemyBoss::WaitTime(int target, VECTOR pos, float attacDistance)
+{
+	isAttack_ = false;
+	isPass_ = false;
 
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pos, pos_);
@@ -515,13 +468,46 @@ void Bee::UpdateToGameClear()
 	// 角度の取得
 	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
 
-	// 正規化
-	toTargetVec_ = VNorm(toTargetVec_);
+	// ターゲットまでの距離
+	float distans = VSize(toTargetVec_);
 
-	// 移動速度の反映
-	VECTOR vec = VScale(toTargetVec_, to_player_speed);
+	// ターゲットから特定の距離離れていたらプレイヤーを追いかける
+	if (attacDistance < distans)
+	{
+		// アニメーション設定
+		animNo_ = walk_anim_no;
+		pModel_->ChangeAnimation(animNo_, true, false, 4);
 
-	pos_ = VSub(pos_, vec);
+		// updateを変更
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &EnemyBoss::UpdateTrackingToTower;
+		}
+		frameCount_ = 0;
+	}
+
+	if (attackWaitTimer_++ > attack_wait_time)
+	{
+		attackWaitTimer_ = 0;
+
+		// アニメーション設定
+		animNo_ = attack_anim_no;
+		pModel_->ChangeAnimation(animNo_, false, false, 4);
+
+		switch (target)
+		{
+		case player:
+			updateFunc_ = &EnemyBoss::UpdateAttackToPlayer;
+			break;
+		case tower:
+			updateFunc_ = &EnemyBoss::UpdateAttackToTower;
+			break;
+		}
+	}
 
 	// 位置座標の設定
 	pModel_->SetPos(pos_);
@@ -530,14 +516,5 @@ void Bee::UpdateToGameClear()
 	pModel_->Update();
 
 	// 向いている方向の設定
-	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
-}
-
-void Bee::Sound()
-{
-	/*auto& soundManager = SoundManager::GetInstance();
-	if (!soundManager.CheckMusic("bee"))
-	{
-		soundManager.Play3D("bee", pos_, 1500.0f, false);
-	}*/
+	pModel_->SetRot(VGet(0.0f, angle_ + DX_PI_F, 0.0f));
 }

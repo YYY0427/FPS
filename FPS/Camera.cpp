@@ -175,7 +175,6 @@ void Camera::Update(const InputState& input)
 	SetCameraPositionAndTargetAndUpVec(cameraPos_, cameraTarget_, VGet(0, 1, 0));
 	
 	// カメラ切り替え
-#ifdef _DEBUG
 	if (input.IsTriggered(InputType::perspective))
 	{
 		if (perspectiveFps_)
@@ -204,7 +203,6 @@ void Camera::Update(const InputState& input)
 		// プレイヤーの特定のモデルの表示
 		pPlayer_->SetVisible(true);
 	}
-#endif
 
 	// カメラを揺らす
 	Quake();

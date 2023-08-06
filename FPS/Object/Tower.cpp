@@ -25,7 +25,7 @@ namespace
 	constexpr int hp_bar_y_pos = 100;	// HPバーのy座標
 
 	// 移動速度
-	constexpr float to_goal_speed = 5.0f;
+	constexpr float to_goal_speed = 3.0f;
 
 	 // モデルの拡大率
 	constexpr float model_scale = 20.0f;
@@ -91,13 +91,13 @@ Tower::~Tower()
 {
 }
 
-void Tower::Update(bool isGameStart)
+void Tower::Update(bool isGameStop)
 {
 	// ダメージ処理
 	damageFrame_--;
 	if (damageFrame_ < 0) damageFrame_ = 0;
 
-	if (isGameStart)
+	if (!isGameStop)
 	{
 		CheckPointSet();
 		HeadToDestination(checkPointPos_);

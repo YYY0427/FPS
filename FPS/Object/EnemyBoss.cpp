@@ -200,6 +200,11 @@ void EnemyBoss::Tracking(VECTOR pos, int target, float attackDistance)
 		frameCount_ = 0;
 	}
 
+	if (pTower_->GetIsGoal())
+	{
+		updateFunc_ = &EnemyBoss::UpdateToGameClear;
+	}
+
 	// 当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemyBoss, collision_radius);
 
@@ -244,6 +249,11 @@ void EnemyBoss::Attacking(VECTOR pos, int target, float attacDistance)
 			updateFunc_ = &EnemyBoss::UpdateAttackWaitTimeToTower;
 			break;
 		}
+	}
+
+	if (pTower_->GetIsGoal())
+	{
+		updateFunc_ = &EnemyBoss::UpdateToGameClear;
 	}
 
 	// 位置座標の設定
@@ -445,6 +455,48 @@ void EnemyBoss::UpdateHitDamage()
 		// Updateを待機に
 		updateFunc_ = &EnemyBoss::UpdateTrackingToPlayer;
 	}
+}
+
+void EnemyBoss::UpdateToGameClear()
+{
+	static int timer = 0;
+	if (timer++ > 300)
+	{
+		isDead_ = true;
+	}
+	MV1SetOpacityRate(pModel_->GetModelHandle(), static_cast<float>(timer) / 300);
+	VECTOR pos;
+	if (target_ == tower)
+	{
+		pos = pTower_->GetPos();
+	}
+	else if (target_ == player)
+	{
+		pos = pPlayer_->GetPos();
+	}
+
+	// 敵から目標へのベクトルを求める
+	toTargetVec_ = VSub(pos, pos_);
+
+	// 角度の取得
+	angle_ = static_cast<float>(atan2(toTargetVec_.x, toTargetVec_.z));
+
+	// 正規化
+	toTargetVec_ = VNorm(toTargetVec_);
+
+	// 移動速度の反映
+	VECTOR vec = VScale(toTargetVec_, to_player_speed);
+
+	pos_ = VSub(pos_, vec);
+
+	// 位置座標の設定
+	pModel_->SetPos(pos_);
+
+	// アニメーション更新処理
+	pModel_->Update();
+
+	// 向いている方向の設定
+	pModel_->SetRot(VGet(0.0f, angle_, 0.0f));
 }
 
 void EnemyBoss::UpdateAttackWaitTimeToPlayer()

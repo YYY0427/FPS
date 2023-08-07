@@ -44,6 +44,8 @@ private:
 	// 弾が当たったときのアニメーション
 	void UpdateHitDamage();
 
+	void UpdateToGameClear();
+
 	// 敵が攻撃してからもう一度攻撃するまでの待機
 	void UpdateAttackWaitTimeToPlayer();
 	void UpdateAttackWaitTimeToTower();

@@ -39,7 +39,7 @@ namespace
 
 	// ‹C‹…‚ª2‚Â‚ß‚Ìò‚Ì‹ß‚­‚Ìê‡
 	constexpr VECTOR addition_create_pos_3{ -5841, 277, 193 };
-	constexpr VECTOR addition_create_pos_4{ -4447, -153, -4550 };
+	constexpr VECTOR addition_create_pos_4{ -4447, 200, -4550 };
 
 
 	const char* const exclamation_mark_file_path = "Data/Model/biltukri.mv1";

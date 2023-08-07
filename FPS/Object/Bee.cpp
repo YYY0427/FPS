@@ -495,10 +495,11 @@ void Bee::UpdateHitDamage()
 void Bee::UpdateToGameClear()
 {
 	static int timer = 0;
-	if (timer++ > 120)
+	if (timer++ > 300)
 	{
 		isDead_ = true;
 	}
+	MV1SetOpacityRate(pModel_->GetModelHandle(), static_cast<float>(timer) / 300);
 	VECTOR pos;
 	if (target_ == tower)
 	{

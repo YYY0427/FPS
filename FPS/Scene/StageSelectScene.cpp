@@ -49,7 +49,7 @@ void StageSelectScene::Update(const InputState& input)
 	}
 }
 
-void StageSelectScene::Draw()
+void StageSelectScene::Draw(const InputState& input)
 {
 	if (currentInputIndex_ == 0)
 	{

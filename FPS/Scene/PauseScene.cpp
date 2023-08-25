@@ -71,7 +71,7 @@ void PauseScene::Update(const InputState& input)
 	}
 }
 
-void PauseScene::Draw()
+void PauseScene::Draw(const InputState& input)
 {
 	SetDrawBlendMode(DX_BLENDMODE_MULA, 196);
 	DrawBox(window_start_x, window_start_y, window_start_x + window_width, window_start_y + window_height, 0x000000, true);

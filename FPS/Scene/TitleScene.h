@@ -13,7 +13,7 @@ public:
 	~TitleScene();
 
 	void Update(const InputState& input);
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	int fadeTimer_;			// フェードタイマー

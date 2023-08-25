@@ -93,7 +93,7 @@ void SoundSettingScene::Update(const InputState& input)
 	}
 }
 
-void SoundSettingScene::Draw()
+void SoundSettingScene::Draw(const InputState& input)
 {
 	auto& soundMgr = SoundManager::GetInstance();
 

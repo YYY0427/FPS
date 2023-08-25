@@ -14,7 +14,7 @@ public:
 	virtual ~KeyConfigScene();
 
 	void Update(const InputState& input);
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	const InputState& inputState_;

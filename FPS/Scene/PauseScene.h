@@ -14,7 +14,7 @@ public:
 	virtual ~PauseScene();
 
 	virtual void Update(const InputState& input) override;
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	unsigned int keyConfigCategoryColor_;

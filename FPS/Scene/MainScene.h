@@ -16,6 +16,7 @@ class EnemyShotFactory;
 class ObstacleManager;
 class BomManager;
 class UI;
+class InputState;
 
 /// <summary>
 /// メインシーン
@@ -27,7 +28,7 @@ public:
 	virtual ~MainScene();
 
 	void Update(const InputState& input);
-	void Draw();
+	void Draw(const InputState& input);
 
 	// ショットを撃つ
 	void StartPlayerShot(VECTOR pos, VECTOR vec);
@@ -105,6 +106,11 @@ private:
 	int playerDamageUIFadeValue_;
 	int questUIfadeValue_;
 	int questUIfadeTimer_;
+
+	VERTEX2DSHADER vert_[6];
+	int shaderScreen_;
+
+	int psH_;
 
 	// シャドウマップ
 	int shadowMap_;

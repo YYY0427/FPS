@@ -32,10 +32,10 @@ void SceneManager::Update(const InputState& input)
 	scene_.front()->Update(input);
 }
 
-void SceneManager::Draw()
+void SceneManager::Draw(const InputState& input)
 {
 	for (int i = static_cast<int>(scene_.size() - 1); i >= 0; --i)
 	{
-		scene_[i]->Draw();
+		scene_[i]->Draw(input);
 	}
 }

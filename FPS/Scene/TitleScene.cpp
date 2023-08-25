@@ -60,7 +60,7 @@ void TitleScene::Update(const InputState& input)
 	(this->*updateFunc_)(input);
 }
 
-void TitleScene::Draw()
+void TitleScene::Draw(const InputState& input)
 {
 	DrawString(0, 0, "TitleScene", 0xffffff, true);
 

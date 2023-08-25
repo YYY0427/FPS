@@ -11,7 +11,7 @@ public:
 	virtual ~SoundSettingScene();
 
 	void Update(const InputState& input);
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	int currentInputIndex_;

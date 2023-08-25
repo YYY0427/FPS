@@ -143,6 +143,34 @@ MainScene::MainScene(SceneManager& manager, StageManager* pStageManager) :
 
 	//↓ここ勝手に変更下でby大島
 	soundManager.PlayMusic("bgm");
+
+	shaderScreen_ = MakeScreen(Game::screen_width, Game::screen_height, true);
+	psH_ = LoadPixelShader("SampleMono.pso");
+	assert(psH_ != -1);
+
+	// 頂点データの準備
+	vert_[0].pos = VGet(0.0f, 0.0f, 0.0f);
+	vert_[1].pos = VGet(Game::screen_width - 1, 0.0f, 0.0f);
+	vert_[2].pos = VGet(0.0f, Game::screen_height - 1, 0.0f);
+	vert_[3].pos = VGet(Game::screen_width - 1, Game::screen_height - 1, 0.0f);
+	vert_[0].dif = GetColorU8(255, 255, 255, 255);
+	vert_[0].spc = GetColorU8(0, 0, 0, 0);
+	vert_[0].u = 0.0f; vert_[0].v = 0.0f;
+	vert_[1].u = 1.0f; vert_[1].v = 0.0f;
+	vert_[2].u = 0.0f; vert_[2].v = 1.0f;
+	vert_[3].u = 1.0f; vert_[3].v = 1.0f;
+	vert_[0].su = 0.0f; vert_[0].sv = 0.0f;
+	vert_[1].su = 1.0f; vert_[1].sv = 0.0f;
+	vert_[2].su = 0.0f; vert_[2].sv = 1.0f;
+	vert_[3].su = 1.0f; vert_[3].sv = 1.0f;
+	vert_[0].rhw = 1.0f;
+	vert_[1].rhw = 1.0f;
+	vert_[2].rhw = 1.0f;
+	vert_[3].rhw = 1.0f;
+	vert_[4] = vert_[2];
+	vert_[5] = vert_[1];
+	SetUseTextureToShader(0, shaderScreen_);
+	SetUsePixelShader(psH_);
 }
 
 MainScene::~MainScene()
@@ -363,15 +391,17 @@ void MainScene::NormalUpdate(const InputState& input)
 	}
 }
 
-void MainScene::Draw()
+void MainScene::Draw(const InputState& input)
 {
 	DrawString(0, 0, "MainScene", 0xffffff, true);
 
-	pSkyDoom_->Draw();
-
-	// シャドウマップへの書き込み
 	{
-		ShadowMap_DrawSetup(shadowMap_);
+		SetDrawScreen(shaderScreen_);
+		ClearDrawScreen();
+	//	pCamera_->Init();
+		pCamera_->Update(input);
+
+		pSkyDoom_->Draw();
 		pStageManager_->Draw();
 		pObstacleManager_->Draw();
 		pPlayer_->Draw();
@@ -383,27 +413,9 @@ void MainScene::Draw()
 		{
 			shot->Draw();
 		}
+		SetDrawScreen(DX_SCREEN_BACK);
+		DrawPrimitive2DToShader(vert_, 6, DX_PRIMTYPE_TRIANGLELIST);
 	}
-	// 書き込み終了
-	ShadowMap_DrawEnd();
-
-	// シャドウマップを使用してモデルの描画
-	{
-		SetUseShadowMap(0, shadowMap_);
-		pStageManager_->Draw();
-		pObstacleManager_->Draw();
-		pPlayer_->Draw();
-		pEnemyManager_->Draw();
-		pTower_->Draw();
-		pEnemyShotFactory_->Draw();
-		pBomManager_->Draw();
-		for (auto& shot : pShot_)
-		{
-			shot->Draw();
-		}
-	}
-	// 描画終了
-	SetUseShadowMap(0, -1);
 
 	// プレイヤーがダメージを受けた
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, playerDamageUIFadeValue_);

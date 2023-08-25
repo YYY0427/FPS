@@ -15,7 +15,7 @@ public:
 
 	void Init();
 	void Update(const InputState& input);
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	StageManager* pStageManager_;

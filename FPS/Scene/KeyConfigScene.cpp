@@ -124,7 +124,7 @@ void KeyConfigScene::Update(const InputState& input)
 	}
 }
 
-void KeyConfigScene::Draw()
+void KeyConfigScene::Draw(const InputState& input)
 {
 	constexpr int pw_width = 700;	// キーコンフィグ枠の幅
 	constexpr int pw_height = 500;	// キーコンフィグ枠の高さ

@@ -26,6 +26,6 @@ public:
 	virtual void Update(const InputState& input) = 0;
 
 	// ƒV[ƒ“‚ğ•`‰æ‚·‚é
-	virtual void Draw() = 0;
+	virtual void Draw(const InputState& input) = 0;
 };
 

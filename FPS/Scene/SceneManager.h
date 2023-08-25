@@ -37,7 +37,7 @@ public:
 	/// <summary>
 	/// 各シーンの描画を行う
 	/// </summary>
-	void Draw();
+	void Draw(const InputState& input);
 
 private:
 	// 今実行中のシーンを切り替えていきたいので	

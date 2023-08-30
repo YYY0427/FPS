@@ -133,6 +133,7 @@ void Enemy::OnDamage(int damage)
 	{
 		pos = pTower_->GetPos();
 	}
+
 	// 敵から目標へのベクトルを求める
 	toTargetVec_ = VSub(pos, pos_);
 
@@ -144,8 +145,10 @@ void Enemy::OnDamage(int damage)
 
 	// 移動速度の反映
 	VECTOR vec = VScale(toTargetVec_, to_player_speed);
+
 	// 当たり判定を行い、その結果によって移動
 	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), true, false, true, pos_, vec, Collision::Chara::enemy, collision_radius);
+
 	// HPがあればダメージアニメーションに移行
 	// HPがなければ死亡アニメーションに移行
 	if (sHp_.hp_ > 0)
@@ -483,7 +486,9 @@ void Enemy::UpdateHitDamage()
 		pModel_->ChangeAnimation(walk_anim_no, true, false, 4);
 
 		// Updateを待機に
+		target_ = player;
 		updateFunc_ = &Enemy::UpdateTrackingToPlayer;
+
 	}
 }
 

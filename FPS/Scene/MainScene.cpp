@@ -396,10 +396,10 @@ void MainScene::Draw(const InputState& input)
 	DrawString(0, 0, "MainScene", 0xffffff, true);
 
 	{
-		SetDrawScreen(shaderScreen_);
-		ClearDrawScreen();
+	//	SetDrawScreen(shaderScreen_);
+	//	ClearDrawScreen();
 	//	pCamera_->Init();
-		pCamera_->Update(input);
+	//	pCamera_->Update(input);
 
 		pSkyDoom_->Draw();
 		pStageManager_->Draw();
@@ -413,8 +413,8 @@ void MainScene::Draw(const InputState& input)
 		{
 			shot->Draw();
 		}
-		SetDrawScreen(DX_SCREEN_BACK);
-		DrawPrimitive2DToShader(vert_, 6, DX_PRIMTYPE_TRIANGLELIST);
+	//	SetDrawScreen(DX_SCREEN_BACK);
+	//	DrawPrimitive2DToShader(vert_, 6, DX_PRIMTYPE_TRIANGLELIST);
 	}
 
 	// プレイヤーがダメージを受けた

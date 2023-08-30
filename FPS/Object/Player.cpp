@@ -178,6 +178,8 @@ void Player::OnDamage(int damage)
 	}
 	else
 	{
+		hp_ = 0;
+
 		// Ž€–Sƒtƒ‰ƒO‚ð—§‚Ä‚é
 		isDead_ = true;
 

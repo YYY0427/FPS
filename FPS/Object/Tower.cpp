@@ -186,7 +186,7 @@ void Tower::HeadToDestination(VECTOR checkPointPos)
 void Tower::IsObstacleFront()
 {
 	isMove_ = true;
-	for (auto& obj : pObstacleManager_->GetObstacles())
+	/*for (auto& obj : pObstacleManager_->GetObstacles())
 	{
 		float dist = VSize(VSub(pos_, obj->GetPos()));
 		if (dist < (colRadius_ + obj->GetTowerToCollsionRadius()))
@@ -194,7 +194,7 @@ void Tower::IsObstacleFront()
 			isMove_ = false;
 			break;
 		}
-	}
+	}*/
 }
 
 void Tower::CheckPointSet()

@@ -475,6 +475,11 @@ void Player::UpdateDead(const InputState& input)
 	// ƒWƒƒƒ“ƒvˆ—
 	jumpAcc_ += gravity;
 	pos_.y += jumpAcc_;
+	if (pos_.y <= pCollision_->GetGroundY())
+	{
+		jumpAcc_ = 0.0f;
+		isJump_ = false;
+	}
 	pos_ = pCollision_->ExtrusionColision(pModel_->GetModelHandle(), isMoving_, false, true, pos_, VGet(0, 0, 0), Collision::Chara::player, collision_radius);
 }
 

@@ -303,6 +303,10 @@ void Collision::JumpingFloorPolyColCheckProcess()
 
 VECTOR Collision::ExtrusionColision(int modelHandle, bool isMove, bool isJump, bool isUseGravity, VECTOR pos, VECTOR vec, int chara, float collisionRadius)
 {
+	/*if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
+	{
+		return pos;
+	}*/
 	// 初期化
 	ExtrusionCollisionInit();
 
@@ -310,11 +314,11 @@ VECTOR Collision::ExtrusionColision(int modelHandle, bool isMove, bool isJump, b
 	if(modelHandle != pTower_->GetModelHandle())
 		CollsionCheckAndPolyTypeCheck(modelHandle, pTower_->GetModelHandle(), pTower_->GetCollisionFrameIndex(), pos, vec, collisionRadius, chara);
 
-	for (auto& obj : pObstacleManager_->GetObstacles())
-	{
-		// 障害物との当たり判定チェック
-		CollsionCheckAndPolyTypeCheck(modelHandle, obj->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
-	}
+	//for (auto& obj : pObstacleManager_->GetObstacles())
+	//{
+	//	// 障害物との当たり判定チェック
+	//	CollsionCheckAndPolyTypeCheck(modelHandle, obj->GetModelHandle(), -1, pos, vec, collisionRadius, chara);
+	//}
 
 	for (auto& enemy : pEnemyManager_->GetEnemies())
 	{

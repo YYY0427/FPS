@@ -352,8 +352,14 @@ void MainScene::NormalUpdate(const InputState& input)
 	// ゲームオーバー演出開始
 	if (pPlayer_->GetIsDead() || pTower_->GetIsDead())
 	{
+		static bool isPass = false;
 		static int timer2 = 0;
 		timer2++;
+		if (!isPass && timer2 > 120)
+		{
+			isPass = true;
+			soundManager.Play("GameOver");
+		}
 		if (timer2 > 180)
 		{
 			isGameOver_ = true;
@@ -372,7 +378,7 @@ void MainScene::NormalUpdate(const InputState& input)
 					gameClearImgExRate_ = 1.0;
 					if (!isPass_)
 					{
-						soundManager.Play("don");
+					//	soundManager.Play("don");
 						isPass_ = true;
 					}
 				}

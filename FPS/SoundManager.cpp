@@ -60,7 +60,9 @@ SoundManager::SoundManager()
 	LoadSoundFile("don", ".mp3");
 	LoadSoundFile("bom", ".mp3");
 	LoadSoundFile("book", ".mp3");
+	LoadSoundFile("GameOver", ".wav");
 
+	SetSelectVolume("GameOver", 150);
 	SetSelectVolume("break", 150);
 	SetSelectVolume("explosion", 150);
 	SetSelectVolume("bom", 150);
